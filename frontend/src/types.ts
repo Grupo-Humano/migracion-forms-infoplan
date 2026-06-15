@@ -19,13 +19,27 @@ export type TransactionRow = {
   codigo_rechazo: string | null;
   descripcion_rechazo: string | null;
   respuesta_banco: string | null;
+  num_autoriza: string | null;
+  lote_id: number | null;
   oficial: number | null;
   gerente: number | null;
   intermediario: number | null;
   nombre_oficial: string | null;
   nombre_gerente: string | null;
   nombre_intermediario: string | null;
+  cliente_poliza: string | null;
+  estatus_poliza: string | null;
+  frecuencia_pago: string | null;
   seleccion: "S" | "N";
+};
+
+export type LovItem = {
+  codigo: number;
+  nombre: string;
+};
+
+export type LovListResponse = {
+  items?: LovItem[];
 };
 
 export type LookupResponse = {

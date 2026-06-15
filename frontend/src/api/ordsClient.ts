@@ -1,6 +1,8 @@
 import type {
   ExportResponse,
   LookupResponse,
+  LovItem,
+  LovListResponse,
   SearchFilters,
   SelectionResponse,
   TransactionRow
@@ -92,4 +94,19 @@ export async function exportJasper(
   });
 
   return parseJson<ExportResponse>(response);
+}
+
+async function fetchLovList(path: string): Promise<LovItem[]> {
+  const response = await fetch(`${baseUrl}/${path}`);
+  const payload = await parseJson<LovListResponse | LovItem[]>(response);
+  if (Array.isArray(payload)) return payload;
+  return payload.items ?? [];
+}
+
+export async function getGerentes(): Promise<LovItem[]> {
+  return fetchLovList("gerentes");
+}
+
+export async function getIntermediarios(): Promise<LovItem[]> {
+  return fetchLovList("intermediarios");
 }

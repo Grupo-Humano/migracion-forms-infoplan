@@ -1,13 +1,28 @@
-# Sprint 1 - Progress Tracker
+# Sprint 1 — Progress Tracker (rep_aprobarechazo real)
 
-> If context overflows, start a new chat:
-> "Read PROJECT_BRIEF.md and docs/sprint-1/progress.md. Continue from where it left off."
+> Si el contexto se corta, iniciar nuevo chat con:
+> Read PROJECT_BRIEF.md and docs/sprint-1/progress.md. Continue from where it left off.
 
-## Task Status
+## Estado de Tasks
 
-| # | Task | Status | Notes |
+| # | Task | Estado | Notas |
 |---|------|--------|-------|
-| 1 | Alinear narrativa oficial | ✅ Done | PROJECT_BRIEF actualizado, Sprint 1 como baseline hardening oficial |
+| 1 | SQL real `transacciones/search` | ✅ Done | Query validado via MCP: retorna filas reales con joins. Smoke 2026-01: count=500. Guardado en backend/ords/sql/sprint-1/01_transacciones_search_real.sql |
+| 2 | SQL real `oficiales/{codigo_oficial}` | ✅ Done | CLIENTE + MOFICIAL estatus=76 actualizado en handler ORDS |
+| 3 | ORDS endpoints gerentes e intermediarios | ✅ Done | Smoke OK: gerentes count=58, intermediarios count=500 |
+| 4 | Frontend LOV dropdowns gerente/intermediario | ✅ Done | Dropdowns poblados desde ORDS, cargados en useEffect al mount |
+| 5 | Actualizar TransactionRow types.ts | ✅ Done | Agregados: num_autoriza, lote_id, cliente_poliza, estatus_poliza, frecuencia_pago |
+| 6 | Actualizar ResultsTable columnas reales | ✅ Done | 19 columnas incluyendo cliente_poliza, estatus_poliza, num_autoriza, lote_id, frecuencia_pago |
+| 7 | Verificar exportaciones con datos reales | ⬜ Not started | Sage — pendiente confirmar que pkg no es mock |
+| 8 | QA checklist EQ-01 a EQ-10 datos reales | ⬜ Not started | Ivy |
+| 9 | QA sign-off Sprint 1 | ⬜ Not started | docs/qa/sprint-1-signoff.md |
+| 10 | Commit final + PR | 🔨 In progress | Remy |
+
+## Notas de ejecución
+
+- Sprint arrancado el 2026-06-15 desde branch feature/sprint-1-rep-aprobarechazo.
+- Hereda Sprint 0: build limpio, env.local con ORDS DEV real, validaciones legado implementadas.
+- Task 1 completado: query real de transacciones validada contra BD real via MCP SQL Developer.
 | 2 | Hardening scripts Windows | 🔨 In progress | MCP server configurado; Sage ejecutará fixes de Unicode + refactor XML_PATHS |
 | 3 | Ejecutar extraccion completa | ⏳ Waiting on 2 | Scripts arreglados → rerun generará outputs completos |
 | 4 | Frontend stack decision | ⬜ Not started | Falta decision de adopcion stack objetivo o ajuste documental |

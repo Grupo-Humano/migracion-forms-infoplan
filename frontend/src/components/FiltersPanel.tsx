@@ -1,5 +1,5 @@
 import type { ChangeEvent } from "react";
-import type { SearchFilters } from "../types";
+import type { LovItem, SearchFilters } from "../types";
 
 type Props = {
   filters: SearchFilters;
@@ -8,6 +8,8 @@ type Props = {
   onLoadOficial: () => void;
   searching: boolean;
   dateCrossError?: string;
+  gerentes?: LovItem[];
+  intermediarios?: LovItem[];
 };
 
 export function FiltersPanel({
@@ -16,10 +18,12 @@ export function FiltersPanel({
   onSearch,
   onLoadOficial,
   searching,
-  dateCrossError = ""
+  dateCrossError = "",
+  gerentes = [],
+  intermediarios = []
 }: Readonly<Props>) {
   const updateField =
-    (field: keyof SearchFilters) => (event: ChangeEvent<HTMLInputElement>) => {
+    (field: keyof SearchFilters) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       onChange({
         ...filters,
         [field]: event.target.value
@@ -74,21 +78,21 @@ export function FiltersPanel({
         </label>
         <label>
           <span>Gerente</span>
-          <input
-            type="number"
-            value={filters.gerente}
-            onChange={updateField("gerente")}
-            placeholder="Opcional"
-          />
+          <select value={filters.gerente} onChange={updateField("gerente")}>
+            <option value="">-- Todos --</option>
+            {gerentes.map((g) => (
+              <option key={g.codigo} value={String(g.codigo)}>{g.nombre}</option>
+            ))}
+          </select>
         </label>
         <label>
           <span>Intermediario</span>
-          <input
-            type="number"
-            value={filters.intermediario}
-            onChange={updateField("intermediario")}
-            placeholder="Opcional"
-          />
+          <select value={filters.intermediario} onChange={updateField("intermediario")}>
+            <option value="">-- Todos --</option>
+            {intermediarios.map((i) => (
+              <option key={i.codigo} value={String(i.codigo)}>{i.nombre}</option>
+            ))}
+          </select>
         </label>
       </div>
       <div className="actions-row">

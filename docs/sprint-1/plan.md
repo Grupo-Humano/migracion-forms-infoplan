@@ -1,22 +1,74 @@
-# Sprint 1 - Hardening Baseline Mock
+# Sprint 1 — Migración real rep_aprobarechazo (build)
 
-> Sprint Goal: convertir el baseline mock en una base reproducible y verificable para iniciar migracion con bajo riesgo.
-> Branch: feature/sprint-1
-> Estimated effort: 5 dias habiles
+**Objetivo:** Entregar la pantalla rep_aprobarechazo completamente funcional sobre datos reales de producción (TRANSACCIONES_COBRO_RECURRENTE y tablas asociadas), con QA sign-off de todos los criterios críticos y el PR listo para merge a develop.
 
-## Prioritized Task List
+**Branch:** `feature/sprint-1-rep-aprobarechazo`  
+**ORDS DEV:** `https://infoplan-web-dev.humano.local/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos`  
+**Owner:** Remy (coord), Sage (ORDS SQL), Nova (React), Ivy (QA)  
+**Duración estimada:** 5–7 días hábiles
 
-| # | Task | Owner | Est | Description |
-|---|------|-------|-----|-------------|
-| 1 | Alinear narrativa oficial | Remy | 2h | Unificar status entre PROJECT_BRIEF, README y decision docs para evitar scope drift |
-| 2 | Hardening scripts Windows | Sage | 6h | Corregir Unicode/CP1252, salida JSON limpia y errores consistentes en extractores |
-| 3 | Ejecutar extraccion completa | Sage | 4h | Generar artefactos confiables en docs/analysis-results para program units, triggers y LOVs |
-| 4 | Frontend stack decision | Nova + Milo + Kira | 4h | Decidir: adoptar stack objetivo documentado o ajustar brief al estado incremental |
-| 5 | QA smoke baseline | Ivy | 4h | Validar flujo funcional mock: filtros, busqueda, seleccion, exportes, mensajes de error |
-| 6 | ORDS setup reproducible | Dash + Sage | 6h | Definir guia minima para correr ORDS/Oracle en entorno de validacion |
-| 7 | Risk gate Wave 1/Wave 2 | Remy + Kira + Sage | 2h | Confirmar si rep_aprobarechazo sigue como caso de estudio Wave 2 o piloto tecnico Sprint 1 |
-| 8 | Integrar runbook de orquestacion PBI | Remy + Sage | 3h | Incorporar fases PBI->video->forma->ORDS->React como proceso oficial del repo |
-| 9 | Estandarizar GitFlow operativo | Remy + Dash | 2h | Activar develop/feature/release/hotfix y convenciones de PR/commit |
+---
+
+## Contexto heredado de Sprint 0
+
+- Frontend build limpio, conectado a ORDS DEV, validaciones de fecha implementadas.
+- ORDS actualmente usa **tablas mock** (`mock_oficiales`, `pkg_rep_aprobarechazo_mock`).
+- Tablas reales confirmadas via MCP:
+  - `TRANSACCIONES_COBRO_RECURRENTE` (25 cols, ID_TRANSACCION NOT NULL)
+  - `CLIENTE`, `MOFICIAL`, `ESTATUS`, `FRECUENCIA`
+  - Vistas: `POLIZA01_V`, `INT_GER_DIR01_V`, `POL_INT01_V`
+
+---
+
+## Tareas prioritizadas
+
+| # | Task | Owner | Est | Criterio de completitud |
+|---|------|-------|-----|------------------------|
+| 1 | Reemplazar SQL mock en ORDS `transacciones/search` con query real (TRANSACCIONES_COBRO_RECURRENTE + joins) | Sage | 2d | Smoke 200 con datos reales, payload snake_case |
+| 2 | Reemplazar SQL mock en ORDS `oficiales/{codigo_oficial}` con CLIENTE+MOFICIAL reales (estatus=76) | Sage | 0.5d | GET /oficiales/X retorna nombre real |
+| 3 | Agregar ORDS endpoints: `gerentes` y `intermediarios` (query INT_GER_DIR01_V) | Sage | 1d | GET /gerentes y /intermediarios devuelven listas reales |
+| 4 | Adaptar frontend: LOV dropdowns para gerente e intermediario | Nova | 1d | Dropdowns poblados desde ORDS, valor pasa al search |
+| 5 | Actualizar TransactionRow en types.ts (num_autoriza, lote_id y columnas reales) | Nova | 0.5d | TypeScript compila sin errores con schema real |
+| 6 | Actualizar ResultsTable para mostrar columnas reales relevantes | Nova | 0.5d | Tabla muestra num_autoriza, lote_id, estado legible |
+| 7 | Verificar endpoints exportaciones/jasper y exportaciones/ole con datos reales | Sage | 0.5d | 200 con payload coherente |
+| 8 | Ejecutar checklist QA EQ-01 a EQ-10 con datos reales | Ivy | 1d | 10/10 PASS o defectos documentados como Issues GitHub |
+| 9 | QA sign-off Sprint 1 | Ivy | — | docs/qa/sprint-1-signoff.md con recomendación GO |
+| 10 | Commit final + push + PR a develop | Remy | — | PR con descripción completa y checklist |
+
+---
+
+## Contrato API objetivo (datos reales)
+
+### POST /transacciones/search — columnas nuevas respecto al mock
+`num_autoriza, lote_id` (adicionales al contrato actual)
+
+### GET /gerentes (nuevo)
+Source: `INT_GER_DIR01_V` — lista `[{codigo, nombre}]` filtrada por compañía
+
+### GET /intermediarios (nuevo)
+Source: `INT_GER_DIR01_V` — lista `[{codigo, nombre}]` filtrada por compañía
+
+---
+
+## Definition of Done
+
+- [ ] ORDS endpoints usan tablas reales (no mock)
+- [ ] Frontend muestra datos reales en ResultsTable
+- [ ] LOVs gerente e intermediario son dropdowns poblados desde ORDS
+- [ ] Checklist QA 10/10 PASS (o 0 defectos Sev1-2 abiertos)
+- [ ] QA sign-off emitido en docs/qa/sprint-1-signoff.md
+- [ ] Build limpio (tsc + vite, 0 errores)
+- [ ] PR abierto con descripción completa
+
+---
+
+## Riesgos Sprint 1
+
+| Riesgo | Mitigación |
+|--------|------------|
+| Query real de BUSCA_TRANSACCIONES con múltiples joins | Sage valida query via MCP antes de publicar en ORDS |
+| Datos reales vacíos en rango de prueba | Usar rango amplio (2025-01-01 a 2026-12-31) para primer smoke |
+| INT_GER_DIR01_V requiere filtro de compañía (:CG$CTRL.CODIGO_COMPANIA) | Confirmar si parámetro disponible en contexto ORDS o necesita hardcode DEV |
 
 ## Work Schedule
 

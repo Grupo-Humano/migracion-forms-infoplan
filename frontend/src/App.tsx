@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as ordsClient from "./api/ordsClient";
 import { FiltersPanel } from "./components/FiltersPanel";
 import { ResultsTable } from "./components/ResultsTable";
-import type { SearchFilters, TransactionRow } from "./types";
+import type { LovItem, SearchFilters, TransactionRow } from "./types";
 
 // Force real ORDS client (no mock mode)
 const apiClient = ordsClient;
@@ -40,6 +40,14 @@ export default function App() {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [oficialName, setOficialName] = useState<string>("");
+  const [gerentes, setGerentes] = useState<LovItem[]>([]);
+  const [intermediarios, setIntermediarios] = useState<LovItem[]>([]);
+
+  // Load LOV lists on mount
+  useEffect(() => {
+    apiClient.getGerentes().then(setGerentes).catch(() => setGerentes([]));
+    apiClient.getIntermediarios().then(setIntermediarios).catch(() => setIntermediarios([]));
+  }, []);
 
   const dateCrossError = getDateCrossError(filters);
 
@@ -153,6 +161,8 @@ export default function App() {
         onLoadOficial={runLoadOficial}
         searching={loading}
         dateCrossError={dateCrossError}
+        gerentes={gerentes}
+        intermediarios={intermediarios}
       />
 
       <section className="panel status-panel">

@@ -4,7 +4,7 @@ type Props = {
   rows: TransactionRow[];
 };
 
-export function ResultsTable({ rows }: Props) {
+export function ResultsTable({ rows }: Readonly<Props>) {
   return (
     <section className="panel">
       <h2>Resultados ({rows.length})</h2>
@@ -15,17 +15,22 @@ export function ResultsTable({ rows }: Props) {
               <th>ID</th>
               <th>Fecha</th>
               <th>Cliente</th>
+              <th>Cliente Poliza</th>
               <th>Compania</th>
               <th>Ramo</th>
               <th>Secuencial</th>
               <th>Monto</th>
               <th>Estado</th>
-              <th>Rechazo</th>
+              <th>Estatus Poliza</th>
+              <th>Cod. Rechazo</th>
               <th>Respuesta Banco</th>
+              <th>Num. Autoriza</th>
+              <th>Lote ID</th>
+              <th>Frecuencia Pago</th>
               <th>Oficial</th>
               <th>Gerente</th>
               <th>Intermediario</th>
-              <th>Seleccion</th>
+              <th>Sel.</th>
             </tr>
           </thead>
           <tbody>
@@ -34,13 +39,18 @@ export function ResultsTable({ rows }: Props) {
                 <td>{row.id_transaccion}</td>
                 <td>{row.fec_tra}</td>
                 <td>{row.cliente}</td>
+                <td>{row.cliente_poliza ?? "-"}</td>
                 <td>{row.compania}</td>
                 <td>{row.ramo}</td>
                 <td>{row.secuencial}</td>
-                <td>{row.monto}</td>
+                <td>{row.monto.toLocaleString("es-DO", { minimumFractionDigits: 2 })}</td>
                 <td>{row.estado}</td>
+                <td>{row.estatus_poliza ?? "-"}</td>
                 <td>{row.codigo_rechazo ?? "-"}</td>
                 <td>{row.respuesta_banco ?? "-"}</td>
+                <td>{row.num_autoriza ?? "-"}</td>
+                <td>{row.lote_id ?? "-"}</td>
+                <td>{row.frecuencia_pago ?? "-"}</td>
                 <td>{row.nombre_oficial ?? row.oficial ?? "-"}</td>
                 <td>{row.nombre_gerente ?? row.gerente ?? "-"}</td>
                 <td>{row.nombre_intermediario ?? row.intermediario ?? "-"}</td>
