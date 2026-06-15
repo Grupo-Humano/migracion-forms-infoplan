@@ -248,32 +248,48 @@ migracion-forms-infoplan/
 - Execution tracking in: `orquestacion/` (`plan.md`, `progress.md`, `done.md`)
 - No PBI operational artifacts outside its mother folder.
 
-**Current Blockers:**
-- No critical blockers for core report flow
-- Pending formal QA sign-off and handoff documentation completion
+**Current Blockers (Sprint 3):**
+- Filtro Jasper exacto no documentado — Sage necesita `.jrxml` o SQL Jasper para replicar regla de negocio (diferencia 3913 vs 39284).
+- GitHub CLI no instalado en workstation — Dash pendiente de instalacion para PR automation.
 
-**Latest technical delta (2026-06-15, tarde):**
-- ORDS `transacciones/search` SQL was updated to include real extended fields (`tipo_documento`, `num_documento`, `nombre_director`, `grupo`, `telefono_1/2/3`).
-- Phone ranking SQL adjusted to avoid runtime `ORA-01722` due to implicit type conversion.
-- Sequential SQL diagnostics confirmed phone mapping preference by `telefono.codigo` over `telefono.propietario` for this flow.
+---
 
-**Go/No-Go Conditions for Sprint 2 closure:**
-- [ ] QA sign-off document finalized and approved
-- [ ] Endpoint validation matrix documented (pass/fail by handler)
-- [ ] Frontend integration smoke evidence attached
-- [ ] `docs/sprint-2/done.md` written with final handoff evidence
-- [ ] Comprehensive evaluation findings closed or explicitly accepted with owner/date
-- [ ] Regla Jasper-first documentada por pantalla (o tarea Jasper creada si no existe)
-- [ ] Evidencia de exploracion ORDS (metadata + open-api-catalog) adjunta y decision `REUSE_IN_EXISTING_MODULE` documentada
-- [ ] Confirmacion explicita de no-duplicacion de servicios (si hay endpoint existente, se reutiliza)
+## 8.1. Lecciones Aprendidas — Retrospectiva Sprint 2 (2026-06-15)
 
-**Lecciones aprendidas operativas (2026-06-15):**
-- Se confirmo que `rep-aprobarechazo` era un modulo mock para parte del flujo, con conteos acotados.
-- Se confirmo que el endpoint real para volumen productivo es el modulo `facturacion-aprobaciones-rechazos-v1` (`/aprobaciones-rechazos`).
-- Se detecto riesgo de interpretacion en UI por paginacion ORDS (primera pagina visible vs total de dataset).
-- A partir de ahora, cada migracion de pantalla debe declarar endpoint canónico y evidencia de fuente de datos (mock vs real).
-- Politica de exportacion unificada: si Jasper existe para la pantalla, OLE queda fuera de desarrollo nuevo.
-- Si Jasper no existe, se debe crear tarea formal con owner/fecha para habilitar Jasper antes del cierre.
+### Lo que funcionó
+
+| Practica | Impacto |
+|---|---|
+| Reuse-first: 3 endpoints existentes usados para enriquecer UI | Cero servicios duplicados en el sprint |
+| Exploracion via `metadata-catalog` / `open-api-catalog` antes de implementar | Evito horas de prueba-error con rutas ORDS |
+| Token refresh lock (`tokenRefreshPromise`) | Elimino la causa raiz del cuelgue de busqueda |
+| XLS Jasper versionado en `data/jasper-reference/` | Trazabilidad auditable para Sprint 3 |
+| Commit atomico al final del sprint con secciones por area | Historia limpia, PR aislado, 36 archivos organizados |
+
+### Lo que necesita mejorar
+
+| Problema | Causa raiz | Regla correctiva |
+|---|---|---|
+| Archivos XLS en raiz del repo durante dias | Sin regla de estructura para datos de referencia | **REGLA**: datos de referencia siempre a `data/<categoria>/` desde el primer dia |
+| `MAX_ENRICHMENT_BATCH = 5` como parche temporal | Enrichment all-at-once en lugar de lazy | Sprint 3+: migrar a enrichment on-demand por pagina visible |
+| Diferencia 3913 vs 39284 sin resolver al cierre | Filtro Jasper no documentado como prereq de inicio | **REGLA**: `.jrxml` o SQL Jasper es prerequisito formal de kickoff por pantalla |
+| `telefono_3` = 0 en toda la DB real | Campo ausente o siempre nulo en produccion | Documentar como `N/D` permanente con nota funcional |
+| Handler leyendo `mock_transacciones` detectado tarde | Sin smoke test de `source` en ORDS metadata al deploy | **REGLA**: en todo deploy ORDS, validar `user_ords_handlers.source` antes de marcar DONE |
+| Docs proliferadas en `docs/SPRINT-2-*.md` raiz de docs | Sin convencion de nombres estricta | **REGLA**: solo `docs/sprint-N/` y `docs/qa/` como destinos validos para artefactos operativos |
+| `done.md` quedo ABIERTO hasta cierre manual | No en checklist diario | **REGLA**: `done.md` = CERRADO es condicion obligatoria en Definition of Done antes del push |
+
+### Definition of Done actualizado (aplica a todos los sprints futuros)
+
+```
+[ ] Todos los campos de la pantalla tienen fuente de dato real o N/D documentado
+[ ] user_ords_handlers.source validado post-deploy (no mock)
+[ ] Enrichment batch size con limit y test de carga
+[ ] done.md marcado CERRADO
+[ ] Todos los artefactos en docs/sprint-N/ o docs/qa/ (no en raiz docs/)
+[ ] Datos de referencia en data/<categoria>/
+[ ] Filtro Jasper documentado como prerequisito antes de implementar
+[ ] Commit atomico con secciones por area tecnica
+```
 
 ---
 

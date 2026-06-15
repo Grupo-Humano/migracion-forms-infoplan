@@ -14,6 +14,20 @@ Owner: Remy
 
 ---
 
+## Daily Standup + Retro (2026-06-15, cierre Sprint 2 / arranque Sprint 3)
+
+| Miembro | Hizo hoy | Hara manana | Bloqueador |
+|---|---|---|---|
+| Remy | Cierre doc Sprint 2, commit+push 36 archivos, PR abierto | Kickoff Sprint 3: asignar owners WS | Ninguno |
+| Sage | SQL extendido, fix ORA-01722, validacion cobertura DB | WS2: filtro exacto Jasper para alinear conteo | Necesita `.jrxml` o SQL Jasper |
+| Nova | Enrichment pipeline, token lock, batch limit | WS3: conectar query certificacion a UI | Enrichment all-at-once → migrar a lazy |
+| Ivy | Validacion flujo en localhost:4177, sign-off borrador | Casos de prueba equivalencia por id_transaccion | Necesita id_transaccion de muestra Jasper |
+| Milo | Benchmarking visual completado | Standby hasta siguiente pantalla | Ninguno |
+| Dash | Sin tareas activas | Instalar GitHub CLI | CLI no instalado |
+| Kira | Intake PBI-202787 definido | Priorizar Wave 1 post-certificacion | Ninguno |
+
+---
+
 ## Tareas activas
 
 ### T1. Baseline Jasper reproducible
