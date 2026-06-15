@@ -110,12 +110,13 @@
 ---
 
 ### Task 7: Frontend Integration Test (0.5d)
-- **Status:** ⏳ BLOCKED (waiting for Tasks 2-5 smoke tests passing)
+- **Status:** 🔄 IN PROGRESS (7A DONE / 7B BLOCKED)
 - **Owner:** Nova + Ivy
 - **Description:** Validate Sprint 1 frontend works against real ORDS handlers
 - **Progress:**
-  - [ ] Update frontend env to real ORDS: `https://infoplan-web-dev.humano.local/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos`
-  - [ ] Launch frontend: `npm run dev` on localhost:3000
+  - [x] Update frontend env to real ORDS: `https://infoplan-web-dev.humano.local/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos` (`frontend/.env.local`)
+  - [x] Build verification: `npm run build` OK (Vite build successful)
+  - [x] Launch frontend: `npm run dev` on localhost:3000
   - [ ] QA Smoke Test:
     - [ ] Page loads without errors
     - [ ] Gerente dropdown shows 58 entries
@@ -125,9 +126,9 @@
     - [ ] No 404 or CORS errors in console
   - [ ] Screenshot of working page
   - [ ] Document in `docs/sprint-2/frontend-integration.md`
-- **Blockers:** Waiting for smoke tests passing
+- **Blockers:** CORS preflight blocked by ORDS (`No 'Access-Control-Allow-Origin' header` on `/transacciones/search`). Pending DevOps/ORDS CORS config + handler verification.
 - **ETA:** 2026-06-17
-- **Notes:** Most important validation - proves end-to-end integration works
+- **Notes:** UI loads on `http://localhost:3000`, but integration call fails with `net::ERR_FAILED` due to CORS policy from ORDS origin.
 
 ---
 
@@ -206,8 +207,8 @@
 |---------|--------|-------|--------|
 | ORDS credentials not provided | SPRINT BLOCKING | Sage + DevOps | 🔄 TBD |
 | Oracle DB connection timeout | SPRINT BLOCKING | Sage + DevOps | 🔄 TBD |
-| CORS headers not configured on ORDS | HIGH | Sage + DevOps | 🔄 TBD |
-| Frontend env configuration error | MEDIUM | Nova | ⏳ Not yet started |
+| CORS headers not configured on ORDS | HIGH | Sage + DevOps | 🔴 ACTIVE (reproduced on Task 7 search call) |
+| Frontend env configuration error | MEDIUM | Nova | ✅ RESOLVED (`.env.local` configured, build OK) |
 
 ---
 
@@ -247,10 +248,12 @@
 *To be populated as sprint progresses*
 
 - 2026-06-15 08:00: Sprint 2 kickoff - awaiting ORDS credentials
+- 2026-06-15 11:47: Task 7A validated - `frontend/.env.local` points to real ORDS and `npm run build` passed.
+- 2026-06-15 11:48: Task 7B blocked - browser call to `/transacciones/search` failed by CORS preflight (`Access-Control-Allow-Origin` missing).
 - ...
 
 ---
 
-**Last Updated:** 2026-06-15  
-**Next Update:** After Task 1 completion  
+**Last Updated:** 2026-06-15 (Task 7 delta applied)  
+**Next Update:** After CORS fix + rerun Task 7B smoke checks  
 **Prepared by:** Remy (Producer)
