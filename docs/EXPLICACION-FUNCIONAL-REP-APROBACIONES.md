@@ -643,9 +643,9 @@ Razón: 3 procedures truncadas + many unknowns = high risk
 
 ## DOCUMENTOS RELACIONADOS
 
-- [case-study-rep-aprobarechazo.md](./case-study-rep-aprobarechazo.md) — Análisis técnico profundo
-- [DECISION-rep-aprobarechazo-piloto.md](./DECISION-rep-aprobarechazo-piloto.md) — Go/No-Go decision
-- [RUNBOOK-archaeology-sprint.md](./RUNBOOK-archaeology-sprint.md) — Paso a paso Sprint 0
+- [case-study-rep-aprobarechazo.md](./case-study/case-study-rep-aprobarechazo.md) — Analisis tecnico profundo
+- [decision-rep-aprobarechazo-piloto.md](./case-study/decision-rep-aprobarechazo-piloto.md) — Go/No-Go decision
+- [runbook-archaeology-sprint.md](./case-study/runbook-archaeology-sprint.md) — Paso a paso Sprint 0
 
 ---
 

@@ -43,7 +43,7 @@ Scripts revisados:
 - `scripts/extract_program_units.py`
 - `scripts/extract_block_triggers.py`
 - `scripts/extract_lovs_records.py`
-- `scripts/xml trace.py`
+- `scripts/xml_trace.py`
 
 Ejecucion real en `forms/rep_aprobarechazo_fmb.xml`:
 - `extract_program_units.py`: fallo en Windows (UnicodeEncodeError por emoji en consola).
@@ -56,12 +56,12 @@ Artefactos generados:
 - `docs/analysis-results/rep_aprobarechazo_lovs.json/rep_aprobarechazo_fmb_lovs_and_records.json`
 
 Observaciones de calidad:
-- `scripts/xml trace.py` tiene `XML_PATHS` hardcodeado a una ruta externa, no portable.
+- `scripts/xml_trace.py` tiene `XML_PATHS` hardcodeado a una ruta externa, no portable.
 - Los extractores deben soportar consola cp1252 (sin emojis o con UTF-8 forzado).
 
 ### Producto / Planificacion (Remy)
 
-- Existe decision previa: `docs/DECISION-rep-aprobarechazo-piloto.md` recomienda no usar esta forma como piloto principal.
+- Existe decision previa: `docs/case-study/decision-rep-aprobarechazo-piloto.md` recomienda no usar esta forma como piloto principal.
 - En paralelo, `README.md` ya presenta baseline Sprint 1 mock para esa forma.
 
 Riesgo de producto:
@@ -72,7 +72,7 @@ Riesgo de producto:
 1. Critico: scripts de extraccion clave fallan en Windows por encoding (`extract_program_units.py`, `extract_block_triggers.py`).
 2. Alto: mismatch de estado de proyecto entre `PROJECT_BRIEF.md` (Sprint 0) y `README.md` (Sprint 1 mock).
 3. Alto: stack objetivo documentado no alineado al `frontend/package.json` actual.
-4. Alto: `scripts/xml trace.py` no portable por rutas hardcodeadas.
+4. Alto: `scripts/xml_trace.py` no portable por rutas hardcodeadas.
 5. Medio: faltan entregables de sprint formal (`docs/sprint-1/plan.md`) aunque ya hay implementacion parcial mock.
 
 ## 4) Plan de Correccion Orquestado por Equipo
@@ -88,7 +88,7 @@ Riesgo de producto:
 - Hardening scripts Python para Windows:
   - quitar emojis en `print()` o usar salida ASCII-safe.
   - agregar bandera `--quiet-json` para salida limpia sin logs.
-- Refactor `scripts/xml trace.py` para aceptar XML por CLI en lugar de `XML_PATHS` fijo.
+- Refactor `scripts/xml_trace.py` para aceptar XML por CLI en lugar de `XML_PATHS` fijo.
 
 ### Nova (Frontend)
 

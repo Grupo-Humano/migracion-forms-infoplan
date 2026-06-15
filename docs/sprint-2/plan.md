@@ -2,6 +2,8 @@
 
 **Sprint Goal:** Execute SQL scripts to deploy 6 ORDS handlers for rep_aprobarechazo form. Validate all endpoints responding and integrate with Sprint 1 React frontend.
 
+**Governance Rule (Reuse-First):** Reuse existing ORDS modules by default. Create a new module only when a functional/domain-fit module does not exist or reuse introduces unacceptable regression risk. Any new module must include explicit written justification in sprint artifacts.
+
 **Sprint Owner:** Sage (Backend Engineer)  
 **QA Owner:** Ivy  
 **Coordination:** Remy (Producer)
@@ -30,6 +32,7 @@
 - ✅ Sprint 1 frontend still works when pointing to real ORDS handlers
 - ✅ QA smoke tests all pass
 - ✅ Zero data loss from Sprint 1 validation
+- ✅ For each handler, target module decision documented (`reused` or `new-with-justification`)
 
 ---
 

@@ -9,7 +9,7 @@
 |---|------|--------|-------|
 | 1 | Reinicio oficial del estado de proyecto | ✅ Done | Brief alineado al reinicio |
 | 2 | Inventario de activos reutilizables | ✅ Done | Inventario publicado en docs/sprint-0/inventory-assets.md |
-| 3 | Hardening de extractores | ✅ Done | Mensajes ASCII-safe y ruta configurable en scripts/xml trace.py; smoke tests ejecutados sobre forms/rep_aprobarechazo_fmb.xml |
+| 3 | Hardening de extractores | ✅ Done | Mensajes ASCII-safe y ruta configurable en scripts/xml_trace.py; smoke tests ejecutados sobre forms/rep_aprobarechazo_fmb.xml |
 | 4 | Validacion ORDS real end-to-end | ✅ Done | Smoke end-to-end exitoso contra gateway DEV: https://infoplan-web-dev.humano.local/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos (2026-06-15) |
 | 5 | Definir forma piloto Wave 1 | ✅ Done | rep_aprobarechazo seleccionada: ORDS ya publicado, analisis completo, piloto de menor riesgo disponible |
 | 6 | Criterios de QA equivalencia | ✅ Done | Matriz minima creada en docs/qa/screen-migration-equivalence-checklist.md |
@@ -29,7 +29,7 @@
 - Este tracker reemplaza el seguimiento operativo principal de Sprint 1 anterior.
 - Sprint 1 previo queda como baseline historico, no como plan activo.
 - A partir de este reinicio, los PBIs se ejecutan con runbook:
-  docs/ORQUESTACION-PBI-ORDS-REACT.md
+  docs/governance/process/orquestacion-pbi-ords-react.md
 - Sprint iniciado en rama: feature/sprint-0-restart.
 - Se detecto que origin no tiene rama develop publica; se trabajo desde la rama mas actual y se abrio sprint branch operativo.
 - Task 4 ejecutado parcialmente: se alineo backend/ords/run/test_api_mock.ps1 al contrato resource-first y se ejecuto contra http://localhost:8080/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos con fallo de conectividad de red/servicio.

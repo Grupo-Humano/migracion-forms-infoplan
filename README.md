@@ -2,8 +2,8 @@
 
 ## Governance and Delivery Standards
 
-- PBI orchestration lifecycle: `docs/ORQUESTACION-PBI-ORDS-REACT.md`
-- GitFlow operating model: `docs/GITFLOW.md`
+- PBI orchestration lifecycle: `docs/governance/process/orquestacion-pbi-ords-react.md`
+- GitFlow operating model: `docs/governance/process/gitflow.md`
 
 ## Sprint 1 - ORDS Mock (rep_aprobarechazo)
 

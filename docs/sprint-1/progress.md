@@ -37,7 +37,7 @@
 | # | Description | Severity | Status | Fix |
 |---|-------------|----------|--------|-----|
 | 1 | UnicodeEncodeError al imprimir emojis en consola Windows CP1252 | major | open | Pendiente hardening scripts |
-| 2 | scripts/xml trace.py usa ruta hardcodeada no portable | major | open | Pendiente parametrizar CLI |
+| 2 | scripts/xml_trace.py usa ruta hardcodeada no portable | major | open | Pendiente parametrizar CLI |
 | 3 | Salida program_units/triggers vacia por aborto temprano del script | major | open | Pendiente rerun tras fix |
 
 ## Notes

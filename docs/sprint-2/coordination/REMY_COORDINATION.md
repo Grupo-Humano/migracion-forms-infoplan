@@ -356,7 +356,7 @@ Day 4+ (if needed):
 
 - `docs/sprint-2/plan.md` — Full scope (I read before standup)
 - `docs/sprint-2/progress.md` — Live tracker (I update daily)
-- `docs/sprint-2/ORCHESTRATION.md` — Team roles (reference guide)
+- `docs/sprint-2/coordination/ORCHESTRATION.md` — Team roles (reference guide)
 - `backend/ords/scripts/` — 5 SQL scripts (Sage's source code)
 - `PROJECT_BRIEF.md` — Project status (sections 7-8, I update after sprint)
 

@@ -22,12 +22,12 @@
 - ✅ **Documentation** — Complete
   - `docs/sprint-2/plan.md` — Full scope (9 tasks)
   - `docs/sprint-2/progress.md` — Live tracker
-  - `docs/sprint-2/ORCHESTRATION.md` — Team roles
-  - `docs/sprint-2/REMY_COORDINATION.md` — My leadership model
-  - `docs/sprint-2/SAGE_ASSIGNMENT.md` — Sage's 6 tasks
-  - `docs/sprint-2/IVY_ASSIGNMENT.md` — Ivy's 3 tasks
-  - `docs/sprint-2/NOVA_ASSIGNMENT.md` — Nova's 2 tasks
-  - `docs/sprint-2/README_OPTION2.md` — Decision summary
+   - `docs/sprint-2/coordination/ORCHESTRATION.md` — Team roles
+   - `docs/sprint-2/coordination/REMY_COORDINATION.md` — My leadership model
+   - `docs/sprint-2/coordination/SAGE_ASSIGNMENT.md` — Sage's 6 tasks
+   - `docs/sprint-2/coordination/IVY_ASSIGNMENT.md` — Ivy's 3 tasks
+   - `docs/sprint-2/coordination/NOVA_ASSIGNMENT.md` — Nova's 2 tasks
+   - `docs/sprint-2/archive/README_OPTION2.md` — Decision summary (historical)
 
 - ✅ **Project Status Updated**
   - `PROJECT_BRIEF.md` sections 7-8 updated
@@ -325,10 +325,10 @@ Result: All scripts safe, team stays available for other work
 
 - `docs/sprint-2/plan.md` — Full Sprint 2 scope
 - `docs/sprint-2/progress.md` — Live tracker (I update daily)
-- `docs/sprint-2/REMY_COORDINATION.md` — My role definition
-- `docs/sprint-2/SAGE_ASSIGNMENT.md` — Sage's mission
-- `docs/sprint-2/IVY_ASSIGNMENT.md` — Ivy's mission
-- `docs/sprint-2/NOVA_ASSIGNMENT.md` — Nova's mission
+- `docs/sprint-2/coordination/REMY_COORDINATION.md` — My role definition
+- `docs/sprint-2/coordination/SAGE_ASSIGNMENT.md` — Sage's mission
+- `docs/sprint-2/coordination/IVY_ASSIGNMENT.md` — Ivy's mission
+- `docs/sprint-2/coordination/NOVA_ASSIGNMENT.md` — Nova's mission
 - `backend/ords/scripts/` — 5 SQL scripts (ready to execute)
 - `PROJECT_BRIEF.md` — Project status (updated)
 

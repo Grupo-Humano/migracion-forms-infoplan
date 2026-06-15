@@ -48,7 +48,7 @@ Contains:
 
 ---
 
-### 2. **DECISION-rep-aprobarechazo-piloto.md** (4 pages)
+### 2. **decision-rep-aprobarechazo-piloto.md** (4 pages)
 **Executive summary for Cesar with GO/NO-GO recommendation**
 
 Contains:
@@ -65,7 +65,7 @@ Contains:
 
 ---
 
-### 3. **RUNBOOK-archaeology-sprint.md** (8+ pages)
+### 3. **runbook-archaeology-sprint.md** (8+ pages)
 **Step-by-step playbook for Sprint 0 Week 1 archaeology work**
 
 Contains:
@@ -284,12 +284,12 @@ Should we use `rep_aprobarechazo_fmb` as Wave 1 piloto form?
 
 ## APPENDIX: Document Index
 
-All documents saved to `docs/`:
+All documents saved to `docs/case-study/`:
 
 1. **case-study-rep-aprobarechazo.md** — Full 7-agent analysis
-2. **DECISION-rep-aprobarechazo-piloto.md** — Executive summary for Cesar
-3. **RUNBOOK-archaeology-sprint.md** — Day-by-day playbook
-4. **README-case-study.md** — This summary (you are here)
+2. **decision-rep-aprobarechazo-piloto.md** — Executive summary for Cesar
+3. **runbook-archaeology-sprint.md** — Day-by-day playbook
+4. **readme-case-study.md** — This summary (you are here)
 
 ---
 
@@ -303,7 +303,7 @@ All documents saved to `docs/`:
 
 ## APPROVAL CHECKLIST (For Cesar)
 
-- [ ] Read DECISION-rep-aprobarechazo-piloto.md (4 pages, 10 min)
+- [ ] Read decision-rep-aprobarechazo-piloto.md (4 pages, 10 min)
 - [ ] Approve archaeology sprint (1 week, included in $45K budget)
 - [ ] Approve Wave 2 deferral (not piloto, schedule for later)
 - [ ] Authorize Kira to identify Wave 1 piloto form (1 day)

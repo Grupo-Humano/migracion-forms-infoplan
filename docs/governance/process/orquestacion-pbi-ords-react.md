@@ -3,11 +3,58 @@
 ## Objetivo
 Estandarizar la ejecucion de migraciones Oracle Forms a partir de un PBI de Azure DevOps, con trazabilidad tecnica y funcional.
 
+## Modo Reinicio (obligatorio)
+Cuando se reinicia el proyecto o inicia una nueva migracion por plantilla, el equipo debe detenerse y pedir primero el paquete de intake. No se ejecuta analisis tecnico ni diseno ORDS hasta completar este gate.
+
+Fuente central de insumos (obligatoria):
+- `docs/intake/solicitudes-pantallas.md`
+- `docs/templates/plantilla-intake-migracion.md`
+
+Solicitud obligatoria al CEO para "migrar plantilla X":
+1. La plantilla objetivo (nombre funcional y artefacto esperado).
+2. Los insumos de descripcion y criterios de aceptacion (PBI, historia, documento funcional).
+3. Recursos de apoyo (pruebas, transcripcion funcional, videos, evidencias).
+4. Estimacion de esfuerzo y estimacion de sprint por formulario.
+5. Estimacion de pantallas nuevas o cambios de pantalla.
+6. Cualquier contexto adicional relevante (dependencias, restricciones, riesgos, fechas).
+
+## Modo Continuidad (incremental)
+Si la plantilla ya fue iniciada y existe un intake base aprobado, el equipo NO debe pedir todo de nuevo.
+
+En continuidad se solicita solo:
+1. Cambios respecto al baseline (descripcion/criterios).
+2. Nuevas evidencias (pruebas, transcripcion, videos).
+3. Cambios de estimacion (esfuerzo, sprint, pantallas).
+4. Nuevos riesgos o restricciones.
+
+Salida en continuidad:
+- `GO_CONTINUIDAD_DELTA` o
+- `NO_GO_FALTAN_DELTAS_CRITICOS`.
+
 ## Entradas Minimas
 - PBI_URL
 - REPO_BASE_PATH
 - GUIDELINES_PATH
 - VIDEO_FOLDER
+
+## Gate de Intake por Plantilla (GO/NO-GO)
+No iniciar Fase 1 si falta algun item del paquete obligatorio.
+
+Checklist:
+- [ ] Plantilla objetivo confirmada.
+- [ ] Descripcion y criterios de aceptacion recibidos.
+- [ ] Recursos funcionales y de prueba disponibles.
+- [ ] Estimacion de esfuerzo y sprint por formulario acordada.
+- [ ] Estimacion de pantallas nuevas/cambios recibida.
+- [ ] Contexto adicional relevante documentado.
+
+Salida del gate:
+- `GO_INTAKE_COMPLETO` o
+- `NO_GO_FALTAN_INSUMOS` + lista de faltantes.
+
+Regla anti-friccion:
+- El gate completo aplica la primera vez por plantilla.
+- En iteraciones siguientes, usar modo continuidad y pedir unicamente deltas.
 
 ## Fases Operativas
 
@@ -16,6 +63,7 @@ Estandarizar la ejecucion de migraciones Oracle Forms a partir de un PBI de Azur
 2. Leer criterios de aceptacion.
 3. Leer adjuntos y enlaces relacionados.
 4. Extraer nombre de la forma desde el ultimo segmento del titulo separado por '|'.
+5. Confirmar que la plantilla solicitada por CEO coincide con el PBI analizado.
 
 Salida:
 - contexto_pbi
@@ -43,7 +91,10 @@ Salida:
 - complejidad
 
 ### Fase 4: Evaluacion de ORDS existente (con checkpoint)
-1. Listar modulos ORDS existentes.
+1. Consultar SQL Developer MCP para listar modulos ORDS existentes.
+   - Listar conexiones guardadas.
+   - Conectar a la conexion objetivo.
+   - Consultar metadata ORDS (modulos, templates, handlers).
 2. Comparar operaciones del formulario con endpoints actuales.
 3. Clasificar cada operacion:
    - REUTILIZABLE
@@ -56,6 +107,17 @@ Tabla obligatoria:
 
 Checkpoint humano obligatorio:
 - Se requiere aprobacion explicita antes de pasar a Fase 5.
+- Se debe presentar analisis de ORDS reutilizables vs nuevos (GET/POST/PUT/DELETE).
+- Si no hay aprobacion explicita, estado: `EN_ESPERA_APROBACION_HUMANA`.
+- Regla: no crear modulo ORDS nuevo antes de esta aprobacion.
+
+Consultas minimas sugeridas en SQL Developer MCP:
+1. Modulos ORDS:
+   - `select name, uri_prefix, status from user_ords_modules order by name;`
+2. Endpoints por metodo:
+   - `select m.name module_name, t.uri_template, h.method from user_ords_modules m join user_ords_templates t on t.module_id = m.id join user_ords_handlers h on h.template_id = t.id order by m.name, t.uri_template, h.method;`
+3. Resumen por metodo:
+   - `select h.method, count(*) total from user_ords_handlers h group by h.method order by h.method;`
 
 ### Fase 5: Diseno ORDS
 1. Diseñar solo operaciones NUEVO/ADAPTABLE.
@@ -96,6 +158,8 @@ Salida:
 - Confirmar disponibilidad de MCP antes de cada fase.
 - No cerrar migracion de pantalla sin evidencia en matriz de equivalencia.
 - Toda mejora de proceso debe dejar traza en docs/sprint-N/progress.md.
+- Reuse-first en ORDS: reutilizar modulo existente con sentido funcional y de dominio; crear nuevo solo con justificacion escrita.
+- Sin intake completo no se ejecuta migracion de plantilla.
 
 ## Fuentes
 - prompts/awsome_prompt.md

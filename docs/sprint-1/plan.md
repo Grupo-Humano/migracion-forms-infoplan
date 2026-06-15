@@ -109,7 +109,7 @@ The sprint plan now follows this lifecycle for each PBI:
 6. Diseno de endpoints ORDS faltantes.
 7. Especificacion de migracion React/Next y desglose de tasks por sprint.
 
-Referencia: `docs/ORQUESTACION-PBI-ORDS-REACT.md`
+Referencia: `docs/governance/process/orquestacion-pbi-ords-react.md`
 
 ## What's NOT in This Sprint
 

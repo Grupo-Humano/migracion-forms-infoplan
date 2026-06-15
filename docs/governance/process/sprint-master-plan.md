@@ -197,6 +197,6 @@ Prompt de cold start:
 Read PROJECT_BRIEF.md and docs/sprint-N/progress.md. Continue from where it left off.
 
 ## Referencias
-- docs/ORQUESTACION-PBI-ORDS-REACT.md
-- docs/GITFLOW.md
+- docs/governance/process/orquestacion-pbi-ords-react.md
+- docs/governance/process/gitflow.md
 - .agents/skills/ai-team-orchestration/references/sprint-plan-template.md

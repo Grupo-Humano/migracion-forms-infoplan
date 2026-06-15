@@ -9,7 +9,7 @@
 
 **CEO:** Cesar
 
-**Status:** Phase 0 – Initialization (Brainstorm & Sprint Planning)
+**Status:** Sprint 2 - Execution & QA Closure
 
 **Objective:** Modernize legacy Oracle Forms applications by migrating UI logic to React and backend business logic to ORDS (Oracle REST Data Services).
 
@@ -191,14 +191,14 @@ migracion-forms-infoplan/
 - ✅ Frontend: Dev server running on localhost:3000, all components rendering correctly
 
 **In Progress (Sprint 2 - ACTIVE):**
-- 🔄 Execute SQL scripts against ORDS to create real handlers
-- 🔄 Deploy ORDS modules for transacciones/search, oficiales, gerentes, intermediarios
-- 🔄 Smoke test all endpoints from deployed handlers
-- 🔄 Validate Sprint 1 frontend still works with real ORDS handlers
+- ✅ ORDS module and critical handlers published (`gerentes`, `intermediarios`, `transacciones/search`)
+- ✅ Frontend connected to ORDS real with OAuth client credentials + Bearer
+- ✅ UI smoke for core flow passing (LOVs + search + 19-column table)
+- 🔄 QA deployment sign-off document and final handoff evidence
 
 **Next Milestones:**
-- Sprint 2: ORDS handlers real deployment (this sprint)
-- Sprint 3+: Additional forms (Wave 1/Wave 2 prioritization)
+- Sprint 2: QA sign-off + handoff closure (`docs/sprint-2/done.md`)
+- Sprint 3: Extend real handlers (`oficiales`, `seleccion`, `exportaciones`) and migrate next forms (Wave 1)
 
 **Timeline:**
 - Sprint 1: Completed ✅
@@ -209,12 +209,12 @@ migracion-forms-infoplan/
 
 ## 8. Current State
 
-**As of 2026-06-15 (Sprint 2 kickoff):**
+**As of 2026-06-15 (Sprint 2 execution):**
 
-- **Project Mode:** Production Sprint 2 - Deploy ORDS handlers created in Sprint 1.
-- **Runtime Target:** ORDS real endpoint deployment and validation.
-- **Delivery Target:** All 6 handlers (transacciones/search, oficiales, gerentes, intermediarios, seleccion, exportaciones) deployed and validated.
-- **QA Ready:** Sprint 1 frontend ready to test against real ORDS endpoints.
+- **Project Mode:** Sprint 2 hardening and evidence closure.
+- **Runtime Target:** Stable ORDS real integration for the active report flow.
+- **Delivery Target:** Keep deployed handlers stable and complete QA/handoff artifacts.
+- **QA Ready:** Frontend is already validated against ORDS real in the main path.
 
 **Sprint 1 Deliverables (Validated):**
 - 500+ transaction records accessible via real ORDS queries (2026-01 through 2026-04 date range)
@@ -225,27 +225,35 @@ migracion-forms-infoplan/
 - Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
 
 **Sprint 2 Active Next Actions:**
-1. Execute SQL scripts for ORDS handlers (create modules, register endpoints)
-2. Deploy handlers to ORDS at infoplan-web-dev.humano.local
-3. Validate each endpoint with Postman/curl
-4. Smoke test Sprint 1 frontend against real handlers
-5. Create docs/qa/sprint-2-deployment-signoff.md
+1. Consolidate QA evidence in `docs/qa/sprint-2-deployment-signoff.md`
+2. Confirm endpoint matrix coverage (core flow + pending handlers scope)
+3. Write `docs/sprint-2/done.md` with deployment and validation evidence
+4. Update brief for Sprint 3 kickoff scope
+5. Execute and close full-project evaluation report (not just structure): `docs/sprint-2/evaluacion-integral-proyecto.md`
+
+**Intake Structure Policy (mandatory):**
+- Each PBI uses a mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`
+- Inputs only in: `entradas/<nombre_pantalla>/`
+- Team outputs only in: `salidas/<nombre_pantalla>/`
+- Execution tracking in: `orquestacion/` (`plan.md`, `progress.md`, `done.md`)
+- No PBI operational artifacts outside its mother folder.
 
 **Current Blockers:**
-- ORDS handler deployment scripts need execution against real Oracle instance
-- No blockers for Sprint 1 frontend (already validated)
+- No critical blockers for core report flow
+- Pending formal QA sign-off and handoff documentation completion
 
 **Go/No-Go Conditions for Sprint 2 closure:**
-- [ ] All 6 ORDS handlers deployed and responding 200 OK
-- [ ] Postman smoke tests all pass
-- [ ] Sprint 1 frontend passes QA smoke test against real handlers
-- [ ] docs/sprint-2/done.md written with deployment evidence
+- [ ] QA sign-off document finalized and approved
+- [ ] Endpoint validation matrix documented (pass/fail by handler)
+- [ ] Frontend integration smoke evidence attached
+- [ ] `docs/sprint-2/done.md` written with final handoff evidence
+- [ ] Comprehensive evaluation findings closed or explicitly accepted with owner/date
 
 ---
 
 ## 9. Security Rules
 
-- **Authentication**: TBD (discuss with Sage + Dash in Sprint 0)
+- **Authentication**: OAuth client credentials for ORDS-protected endpoints (Bearer token from `/ords/infoplan/oauth/token`)
 - **Database Access**: ORDS only via REST, no direct Oracle client connections
 - **Secrets**: GitHub Secrets for DB credentials, API keys (Dash manages)
 - **Input Validation**: React + ORDS validation on all form inputs
@@ -301,6 +309,11 @@ npm run test:e2e     # E2E tests with Playwright
 ## 12. Cross-Chat Handoff Protocol
 
 ### Context Survival Strategy
+
+**Required handoff locations for PBI execution:**
+- Intake source: `docs/intake/solicitudes-pantallas.md` (minimal traceability)
+- PBI mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`
+- Sprint-global context: `docs/sprint-N/plan.md`, `docs/sprint-N/progress.md`, `docs/sprint-N/done.md`
 
 Each agent team works in a **separate VS Code window** with its own clone:
 - **Dev Team** (`project-dev/`) — Nova, Sage, Milo collaborate
@@ -401,9 +414,10 @@ git clone <repo> project-devops
 - **Brainstorm Format**: See prompt for Phase 0
 - **Sprint Plan Template**: See `docs/sprint-0/plan.md` (to be created)
 - **Anti-Patterns**: Avoid batch commits, vague tasks, lost bugs in chat
-- **PBI Orchestration Runbook**: See `docs/ORQUESTACION-PBI-ORDS-REACT.md`
-- **GitFlow Standard**: See `docs/GITFLOW.md`
-- **Master Sprint Roadmap**: See `docs/SPRINT-MASTER-PLAN.md`
+- **PBI Orchestration Runbook**: See `docs/governance/process/orquestacion-pbi-ords-react.md`
+- **GitFlow Standard**: See `docs/governance/process/gitflow.md`
+- **Master Sprint Roadmap**: See `docs/governance/process/sprint-master-plan.md`
+- **Visual Project Flow (presentation)**: See `docs/governance/visual-flujo-proyecto.md`
 
 ---
 
@@ -418,12 +432,44 @@ From 2026-06-15 onward, the default execution model for each Oracle Forms migrat
    - `REUTILIZABLE`
    - `ADAPTABLE`
    - `NUEVO`
+  - Governance rule: `REUTILIZABLE` is always the default. Creating a new module is allowed only when no existing module with functional/domain fit can host the endpoint safely.
 5. **Mandatory human checkpoint after ORDS assessment** before endpoint design.
+  - Checkpoint outcome must include one of:
+    - `REUSE_IN_EXISTING_MODULE` (preferred)
+    - `CREATE_NEW_MODULE_WITH_JUSTIFICATION` (exception)
 6. **Design ORDS endpoints** for `NUEVO` and `ADAPTABLE` operations.
 7. **Plan sprint tasks in Azure DevOps** inferred from real form logic.
 8. **Publish React/Next migration specification** mapped from Oracle blocks/triggers.
 
 All generated artifacts and operational communication must be in Spanish.
+
+### 15.1 Reuse-First Policy for ORDS Modules (MANDATORY)
+
+1. Do not create modules "just in case".
+2. If an existing module makes functional and ownership sense, endpoints must be created there.
+3. A new module requires explicit written justification in sprint artifacts, including:
+  - Why existing modules cannot be reused safely.
+  - Compatibility and regression risk analysis.
+  - Migration/backout plan.
+4. Every ORDS endpoint proposal must document target module and reason (`reused` or `new-with-justification`).
+5. Producer (Remy) cannot approve endpoint design without this evidence.
+
+### 15.2 Human-in-the-Loop ORDS Checkpoint (MANDATORY)
+
+Before designing or creating new ORDS endpoints/modules, the team must:
+
+1. Use SQL Developer MCP to list available ORDS modules and endpoints.
+2. Compare extracted form logic against existing GET/POST/PUT/DELETE endpoints.
+3. Publish reuse matrix (`REUTILIZABLE`, `ADAPTABLE`, `NUEVO`).
+4. Present analysis to human checkpoint (CEO/owner) and stop.
+
+Allowed outcomes:
+- `REUSE_IN_EXISTING_MODULE` (default)
+- `CREATE_NEW_MODULE_WITH_JUSTIFICATION` (exception)
+- `EN_ESPERA_APROBACION_HUMANA` (no implementation allowed)
+
+Hard rule:
+- No new ORDS module creation is allowed without explicit checkpoint approval.
 
 ---
 
@@ -433,13 +479,122 @@ All generated artifacts and operational communication must be in Spanish.
   - `prompts/awsome_prompt.md`
   - `prompts/agent_orchestration_prompt.html`
 - Operationalized documentation:
-  - `docs/ORQUESTACION-PBI-ORDS-REACT.md`
-  - `docs/GITFLOW.md`
+  - `docs/governance/process/orquestacion-pbi-ords-react.md`
+  - `docs/governance/process/gitflow.md`
 - Sprint execution alignment:
   - `docs/sprint-1/plan.md`
   - `docs/sprint-1/progress.md`
 
 ---
 
-**Last Updated:** 2026-06-12 (Cesar, CEO)  
-**Next Review:** After Brainstorm Phase 0
+## 17. Reinicio e Intake de Plantillas (MANDATORY)
+
+Desde este punto, cuando el CEO indique "migrar plantilla X", el equipo (Remy, Nova, Sage, Milo, Ivy) debe responder con solicitud estructurada de insumos antes de cualquier ejecucion tecnica.
+
+### 17.1 Solicitud obligatoria al iniciar plantilla
+
+Registro central obligatorio:
+- `docs/intake/solicitudes-pantallas.md`
+
+Plantilla de detalle:
+- `docs/templates/plantilla-intake-migracion.md`
+
+1. Plantilla objetivo.
+2. Insumos de descripcion y criterios de aceptacion.
+3. Recursos de apoyo (pruebas, transcripcion funcional, videos, evidencias).
+4. Estimacion de esfuerzo y estimacion de sprint por formulario.
+5. Estimacion de pantallas nuevas o cambios de pantalla.
+6. Cualquier informacion adicional relevante para ejecucion segura.
+
+### 17.2 Politica de ejecucion
+
+- Si falta cualquier insumo: estado `NO_GO_FALTAN_INSUMOS`.
+- Si todos los insumos estan completos: estado `GO_INTAKE_COMPLETO` y comienza el flujo de `docs/governance/process/orquestacion-pbi-ords-react.md`.
+- Remy no autoriza arranque de sprint por plantilla sin evidencia de intake.
+- Si la plantilla ya tiene intake base aprobado, usar modo incremental (deltas) y evitar solicitar nuevamente todo el paquete.
+
+### 17.2.1 Modo Continuidad (Delta-Only)
+
+Cuando una plantilla ya fue iniciada, el equipo debe pedir solo cambios respecto al baseline:
+1. Cambios en descripcion/criterios de aceptacion.
+2. Nuevos recursos o evidencias funcionales.
+3. Cambios de estimacion (esfuerzo/sprint/pantallas).
+4. Nuevos riesgos/restricciones.
+
+Estados permitidos en continuidad:
+- `GO_CONTINUIDAD_DELTA`
+- `NO_GO_FALTAN_DELTAS_CRITICOS`
+
+### 17.3 Entregable minimo por plantilla
+
+Antes del analisis tecnico, debe existir un artefacto de intake con:
+- resumen de la plantilla,
+- criterios de aceptacion consolidados,
+- inventario de recursos,
+- estimaciones (esfuerzo, sprint, pantallas),
+- riesgos y supuestos.
+
+Regla de usabilidad para CEO:
+- No repetir informacion ya aprobada en intake previo.
+- El equipo debe referenciar baseline y solicitar solo los deltas necesarios.
+
+---
+
+## 18. Gobernanza de Documentacion y Revision Multirol (MANDATORY)
+
+Con el objetivo de evitar dispersion documental, todo sprint debe pasar por una revision multirol antes de cierre.
+
+### 18.1 Fuente de verdad y estructura
+
+- Indice documental oficial: `docs/README.md`.
+- Cada tema debe tener una fuente de verdad unica.
+- Si un documento cambia una decision vigente, debe actualizar explicitamente el artefacto canonico relacionado.
+
+### 18.2 Revision por rol
+
+La revision debe ejecutarse y quedar registrada en:
+- `docs/sprint-N/revision-multiroles-documentacion.md`
+
+Roles y foco minimo:
+1. Kira: claridad funcional y criterios de aceptacion.
+2. Milo: consistencia visual y accesibilidad.
+3. Nova: coherencia doc vs frontend real (env, rutas, contratos).
+4. Sage: coherencia doc vs ORDS/DB (handlers y payloads).
+5. Dash: operacion, seguridad, despliegue, ACL/CORS.
+6. Ivy: cobertura QA y decision GO/NO-GO.
+7. Remy: trazabilidad, owners, blockers y handoff.
+
+### 18.3 Gate de cierre documental
+
+No se puede cerrar sprint si falta cualquiera de estos puntos:
+1. `progress.md` actualizado con evidencia reciente.
+2. sign-off QA final (o bloqueo explicitado con owner/fecha).
+3. `done.md` publicado.
+4. revision multirol registrada con estado de cierre.
+
+---
+
+## 19. Escalabilidad para 100+ Pantallas (MANDATORY)
+
+Este programa debe operar con disciplina de escala. La referencia obligatoria es:
+- `docs/governance/modelo-operativo-100-pantallas.md`
+
+Reglas de eficiencia:
+1. Sin intake no hay inicio de pantalla.
+2. Sin evidencia endpoint+QA no hay cierre funcional.
+3. Sin sign-off y done no hay cierre de sprint.
+4. Sin metricas de flujo (lead time, retrabajo, severidad) no hay mejora continua.
+
+Revision multirol obligatoria por sprint:
+- Kira, Milo, Nova, Sage, Dash, Ivy y Remy deben dejar hallazgos/accion en `docs/sprint-N/revision-multiroles-documentacion.md`.
+
+Controles anti-sobrecarga obligatorios:
+1. Limites WIP por rol activos y auditables.
+2. Tarjeta operativa por pantalla (`docs/templates/tarjeta-pantalla.md`).
+3. Gate por pantalla (inicio, construccion, validacion, cierre) antes de abrir nuevo trabajo.
+4. Plan de accion vigente: `docs/governance/plan-accion-anti-ahogo.md`.
+
+---
+
+**Last Updated:** 2026-06-15 (Cesar, CEO)  
+**Next Review:** End of Sprint 2 closure

@@ -40,15 +40,15 @@ Sprint: 0 (Reinicio)
 ## Documentacion reutilizable
 
 ### Gobierno y proceso
-- docs/ORQUESTACION-PBI-ORDS-REACT.md
-- docs/GITFLOW.md
-- docs/SPRINT-MASTER-PLAN.md
+- docs/governance/process/orquestacion-pbi-ords-react.md
+- docs/governance/process/gitflow.md
+- docs/governance/process/sprint-master-plan.md
 
 ### Contexto funcional y tecnico
 - docs/EXPLICACION-FUNCIONAL-REP-APROBACIONES.md
 - docs/TECHNICAL-LOGIC-EXTRACTION-rep-aprobaciones.md
-- docs/case-study-rep-aprobarechazo.md
-- docs/DECISION-rep-aprobarechazo-piloto.md
+- docs/case-study/case-study-rep-aprobarechazo.md
+- docs/case-study/decision-rep-aprobarechazo-piloto.md
 - docs/analysis-results/
 
 ## Riesgos de reutilizacion

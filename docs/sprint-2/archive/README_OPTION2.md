@@ -28,7 +28,7 @@ All scripts are in `backend/ords/scripts/` with:
 - ✅ `INDEX.md` — Script summary + troubleshooting
 - ✅ `docs/sprint-2/plan.md` — Full sprint scope (9 tasks)
 - ✅ `docs/sprint-2/progress.md` — Live tracker (update daily)
-- ✅ `docs/sprint-2/ORCHESTRATION.md` — Team role assignments
+- ✅ `docs/sprint-2/coordination/ORCHESTRATION.md` — Team role assignments
 
 ### Team Ready (4 Agents)
 - **Sage** ← Backend engineer (execute 5 SQL scripts)
@@ -182,7 +182,7 @@ sqlcl /
 **Timeline:** 40 min deployment + 1.5 hr validation = ~2 hours total
 
 ### Action 2: Hand to Sage
-1. Send Sage `backend/ords/scripts/` + `docs/sprint-2/ORCHESTRATION.md`
+1. Send Sage `backend/ords/scripts/` + `docs/sprint-2/coordination/ORCHESTRATION.md`
 2. Sage executes scripts when ready
 3. Ivy validates with Postman
 4. Nova tests frontend integration
