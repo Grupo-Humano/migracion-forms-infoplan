@@ -62,7 +62,7 @@
 
 Read PROJECT_BRIEF.md, then read docs/sprint-0/plan.md. Execute Sprint 0 reset.
 
-First: git pull origin develop && git checkout -b feature/sprint-0-restart
+First: git pull origin feature/sprint-1-orquestacion-gitflow && git checkout -b feature/sprint-0-restart
 
 Close GitHub Issues in commits: "fix: description (Fixes #NN)"
 Update docs/sprint-0/progress.md after each phase.

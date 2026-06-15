@@ -8,8 +8,8 @@
 | # | Task | Estado | Notas |
 |---|------|--------|-------|
 | 1 | Reinicio oficial del estado de proyecto | ✅ Done | Brief alineado al reinicio |
-| 2 | Inventario de activos reutilizables | ⬜ Not started | Pendiente inventario backend/frontend |
-| 3 | Hardening de extractores | ⬜ Not started | Pendiente correcciones CP1252 + rutas |
+| 2 | Inventario de activos reutilizables | ✅ Done | Inventario publicado en docs/sprint-0/inventory-assets.md |
+| 3 | Hardening de extractores | 🔨 In progress | Se inicia en este sprint tras cerrar inventario |
 | 4 | Validacion ORDS real end-to-end | ⬜ Not started | Confirmar host/puerto ORDS real |
 | 5 | Definir forma piloto Wave 1 | ⬜ Not started | Decision funcional pendiente |
 | 6 | Criterios de QA equivalencia | ⬜ Not started | Ivy define matriz minima |
@@ -30,3 +30,5 @@
 - Sprint 1 previo queda como baseline historico, no como plan activo.
 - A partir de este reinicio, los PBIs se ejecutan con runbook:
   docs/ORQUESTACION-PBI-ORDS-REACT.md
+- Sprint iniciado en rama: feature/sprint-0-restart.
+- Se detecto que origin no tiene rama develop publica; se trabajo desde la rama mas actual y se abrio sprint branch operativo.
