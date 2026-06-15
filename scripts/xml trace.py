@@ -12,15 +12,12 @@ Oracle Forms XML Inspector + Flowchart Trace (Mermaid + HTML)
 
 from pathlib import Path
 import xml.etree.ElementTree as ET
-import re, csv, json, sys, html
+import re, csv, json, sys, html, argparse
 
 # =======================
-# CONFIG (edita aquí) 
+# CONFIG
 # =======================
-XML_PATHS = [
-    r'C:\Users\rherreraf\Desktop\prompts ords\estado de cuenta\objetos analizar\seuscb37_fmb.xml',   # agrega aquí tus XML
-    # "./otro_form.xml",
-]
+XML_PATHS = []
 OUTPUT_DIR = Path.cwd()
 NS = {"f": "http://xmlns.oracle.com/Forms"}
 
@@ -45,6 +42,28 @@ forms = {
     "program_units": {}, # pname -> {"code": str}
     "canvas": {},        # cname -> {"attrs": {}, "items": []}
 }
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Oracle Forms XML Inspector + Flowchart Trace"
+    )
+    parser.add_argument(
+        "xml_files",
+        nargs="*",
+        help="Archivos XML de entrada. Si se omite, usa forms/*.xml",
+    )
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        help="Directorio de salida (por defecto: directorio actual)",
+    )
+    return parser.parse_args()
+
+def resolve_input_paths(cli_paths):
+    if cli_paths:
+        return [Path(p) for p in cli_paths]
+    default_forms_dir = Path(__file__).resolve().parents[1] / "forms"
+    return sorted(default_forms_dir.glob("*.xml"))
 
 # ======= Utilidades =======
 def read_text_attr(node, attr_name):
@@ -141,17 +160,17 @@ def parse_xml(path: Path):
                 tcode = read_text_attr(tr, "TriggerText")
                 meta["triggers"][tname] = tcode
 
-def load_all():
+def load_all(xml_paths):
     ok = False
-    for p in XML_PATHS:
+    for p in xml_paths:
         pth = Path(p)
         if not pth.exists():
-            print(f"ADVERTENCIA: No existe {pth.resolve()}")
+            print(f"WARN: No existe {pth.resolve()}")
             continue
-        print(f"Parseando: {pth}")
+        print(f"INFO: Parseando: {pth}")
         parse_xml(pth); ok = True
     if not ok:
-        print("No se cargó ningún XML. Revisa XML_PATHS.")
+        print("ERROR: No se cargo ningun XML. Proporciona archivos o usa forms/*.xml.")
         sys.exit(1)
 
 def list_all():
@@ -288,7 +307,7 @@ def export_canvas_to_json(canvas_name: str) -> bool:
     with json_filename.open("w", encoding="utf-8") as f:
         json.dump(json_data, f, indent=2, ensure_ascii=False)
     
-    print(f"\n✅ JSON exportado: {json_filename}")
+    print(f"\nOK: JSON exportado: {json_filename}")
     return True
 
 def list_canvas():
@@ -299,11 +318,11 @@ def list_canvas():
     
     print(f"\n=== CANVAS ENCONTRADOS ({len(forms['canvas'])}) ===")
     for cname, canvas_info in sorted(forms["canvas"].items()):
-        print(f"\n📋 Canvas: {cname}")
+        print(f"\nCanvas: {cname}")
         if canvas_info["items"]:
             print(f"   Items ({len(canvas_info['items'])}):")
             for item in canvas_info["items"]:
-                db_info = "🗄️" if item.get('databaseItem', False) else "🎯"
+                db_info = "[DB]" if item.get('databaseItem', False) else "[CTRL]"
                 column_info = f" -> {item.get('columnName', '')}" if item.get('columnName') else ""
                 tab_info = f" [Tab: {item.get('tabPageName', '')}]" if item.get('tabPageName') else ""
                 print(f"   {db_info} {item['block']}.{item['item']} [{item['itemType']}]{column_info}{tab_info}")
@@ -323,7 +342,7 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
     block_info = forms["blocks"].get(block_name)
     
     if not block_info:
-        print(f"❌ Bloque '{block_name}' no encontrado.")
+        print(f"ERROR: Bloque '{block_name}' no encontrado.")
         # Mostrar bloques disponibles
         available = list(forms["blocks"].keys())
         if available:
@@ -331,37 +350,37 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
         return
     
     print(f"\n{'='*60}")
-    print(f"📦 BLOQUE: {block_name}")
+    print(f"BLOQUE: {block_name}")
     print(f"{'='*60}")
     
     # Información de base de datos del bloque
     if block_info.get("databaseBlock", False):
-        print(f"🗄️  Tipo: Bloque de Base de Datos")
+        print("Tipo: Bloque de Base de Datos")
         if block_info.get("queryDataSourceName"):
-            print(f"📊 Fuente: {block_info['queryDataSourceName']} ({block_info.get('queryDataSourceType', 'None')})")
+            print(f"Fuente: {block_info['queryDataSourceName']} ({block_info.get('queryDataSourceType', 'None')})")
     else:
-        print(f"🎯 Tipo: Bloque de Control (no conectado a BD)")
+        print("Tipo: Bloque de Control (no conectado a BD)")
     
     # Triggers del bloque
     if block_info.get("triggers"):
-        print(f"\n⚡ Triggers del Bloque ({len(block_info['triggers'])}):")
+        print(f"\nTriggers del Bloque ({len(block_info['triggers'])}):")
         for tname in sorted(block_info["triggers"].keys()):
-            print(f"   • {tname}")
+            print(f"   - {tname}")
     
     # Items del bloque
     items = block_info.get("items", {})
     if not items:
-        print(f"\n   (sin items)")
+        print("\n   (sin items)")
         return
     
-    print(f"\n📋 Items del Bloque ({len(items)}):")
+    print(f"\nItems del Bloque ({len(items)}):")
     print(f"{'-'*60}")
     
     # Preparar datos para exportación
     items_data = []
     
     for item_name, item_meta in sorted(items.items()):
-        db_icon = "🗄️" if item_meta.get('databaseItem', False) else "🎯"
+        db_icon = "[DB]" if item_meta.get('databaseItem', False) else "[CTRL]"
         item_type = item_meta.get('itemType', 'Unknown')
         canvas = item_meta.get('canvas', '')
         tab_page = item_meta.get('tabPageName', '')
@@ -385,7 +404,7 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
         if triggers:
             print(f"   Triggers ({len(triggers)}): {', '.join(sorted(triggers.keys()))}")
         else:
-            print(f"   Triggers: (ninguno)")
+            print("   Triggers: (ninguno)")
         
         # Agregar a datos de exportación
         item_data = {
@@ -415,7 +434,7 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
             w = csv.DictWriter(f, fieldnames=fieldnames)
             w.writeheader()
             w.writerows(csv_rows)
-        print(f"\n✅ CSV exportado: {csv_filename}")
+        print(f"\nOK: CSV exportado: {csv_filename}")
     
     # Exportar JSON si se solicitó
     if export_json and items_data:
@@ -434,7 +453,7 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
         json_filename = OUTPUT_DIR / f"block_{sanitize(block_name)}_items.json"
         with json_filename.open("w", encoding="utf-8") as f:
             json.dump(json_data, f, indent=2, ensure_ascii=False)
-        print(f"\n✅ JSON exportado: {json_filename}")
+        print(f"\nOK: JSON exportado: {json_filename}")
 
 def get_block_triggers(block):
     return forms["blocks"].get(block,{}).get("triggers",{})
@@ -449,7 +468,7 @@ def resolve_program_unit(name):
 def pretty_code(code, max_len=None):
     if not code: return ""
     txt = "\n".join(ln.rstrip() for ln in code.splitlines())
-    return (txt if not max_len or len(txt)<=max_len else txt[:max_len]+" …")
+    return (txt if not max_len or len(txt)<=max_len else txt[:max_len]+" ...")
 
 # ======= Traza =======
 def trace_from(element_name: str, max_depth: int = 3):
@@ -733,7 +752,7 @@ def main_menu():
             name = input("Elemento inicio (BLOCK.ITEM o ITEM único o BLOCK): ").strip()
             try:
                 depth = int(input("Profundidad de Program Units [3]: ").strip() or "3")
-            except:
+            except ValueError:
                 depth = 3
             tr = trace_from(name, max_depth=depth)
             export_trace_bundle(tr, name)
@@ -744,15 +763,15 @@ def main_menu():
             if canvas_name:
                 items = get_canvas_items(canvas_name)
                 if items is None:
-                    print(f"❌ Canvas '{canvas_name}' no encontrado.")
+                    print(f"ERROR: Canvas '{canvas_name}' no encontrado.")
                     # Mostrar canvas disponibles
                     available = list(forms["canvas"].keys())
                     if available:
                         print(f"Canvas disponibles: {', '.join(sorted(available))}")
                 elif not items:
-                    print(f"📋 Canvas '{canvas_name}' encontrado pero sin elementos.")
+                    print(f"INFO: Canvas '{canvas_name}' encontrado pero sin elementos.")
                 else:
-                    print(f"\n📋 Canvas '{canvas_name}' - Elementos ({len(items)}):")
+                    print(f"\nCanvas '{canvas_name}' - Elementos ({len(items)}):")
                     # Agrupar por bloque para mostrar información de fuente de datos
                     blocks_info = {}
                     for item in items:
@@ -768,14 +787,14 @@ def main_menu():
                         blocks_info[block_name]["items"].append(item)
                     
                     for block_name, block_data in sorted(blocks_info.items()):
-                        print(f"\n   📦 Bloque: {block_name}")
+                        print(f"\n   Bloque: {block_name}")
                         if block_data["databaseBlock"] and block_data["queryDataSourceName"]:
-                            print(f"      🗄️ Fuente: {block_data['queryDataSourceName']} ({block_data['queryDataSourceType']})")
+                            print(f"      Fuente: {block_data['queryDataSourceName']} ({block_data['queryDataSourceType']})")
                         else:
-                            print(f"      🎯 Bloque de control (no conectado a BD)")
+                            print("      Bloque de control (no conectado a BD)")
                         
                         for item in block_data["items"]:
-                            db_icon = "🗄️" if item.get('databaseItem', False) else "🎯"
+                            db_icon = "[DB]" if item.get('databaseItem', False) else "[CTRL]"
                             column_info = f" -> {item.get('columnName', '')}" if item.get('columnName') else ""
                             tab_info = f" [Tab: {item.get('tabPageName', '')}]" if item.get('tabPageName') else ""
                             print(f"      {db_icon} {item['item']} [{item['itemType']}]{column_info}{tab_info}")
@@ -785,7 +804,7 @@ def main_menu():
                     if export == '' or export == 's' or export == 'si' or export == 'yes' or export == 'y':
                         export_canvas_to_json(canvas_name)
             else:
-                print("❌ Debe especificar un nombre de Canvas.")
+                print("ERROR: Debe especificar un nombre de Canvas.")
         elif op == "5":
             block_name = input("Nombre del Bloque: ").strip()
             if block_name:
@@ -797,14 +816,21 @@ def main_menu():
                 
                 list_block_items(block_name, export_csv=export_csv, export_json=export_json)
             else:
-                print("❌ Debe especificar un nombre de Bloque.")
+                print("ERROR: Debe especificar un nombre de Bloque.")
         elif op == "6":
             break
         else:
             print("Opción inválida.")
 
 if __name__ == "__main__":
-    load_all()
+    args = parse_args()
+    if args.output_dir:
+        OUTPUT_DIR = Path(args.output_dir)
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    XML_PATHS = resolve_input_paths(args.xml_files)
+    load_all(XML_PATHS)
     if not (forms["blocks"] or forms["alerts"] or forms["program_units"]):
-        print("No se detectó contenido en los XML configurados."); sys.exit(1)
+        print("ERROR: No se detecto contenido en los XML configurados.")
+        sys.exit(1)
     main_menu()

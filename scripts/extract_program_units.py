@@ -168,21 +168,21 @@ def main():
         specific_pu = sys.argv[2]
     
     if not xml_file.exists():
-        print(f"❌ Error: No se encuentra el archivo '{xml_file}'")
+        print(f"ERROR: No se encuentra el archivo '{xml_file}'")
         sys.exit(1)
     
-    print(f"📖 Leyendo: {xml_file}")
+    print(f"INFO: Leyendo: {xml_file}")
     if remove_comments:
-        print("🧹 Modo: Omitiendo comentarios")
+        print("INFO: Modo: Omitiendo comentarios")
     
     try:
         if specific_pu:
             # Extraer un Program Unit específico
-            print(f"🔍 Buscando Program Unit: {specific_pu}\n")
+            print(f"INFO: Buscando Program Unit: {specific_pu}\n")
             result = extract_single_program_unit(xml_file, specific_pu, remove_comments)
             
             if result is None:
-                print(f"❌ No se encontró el Program Unit '{specific_pu}' en el archivo XML")
+                print(f"ERROR: No se encontro el Program Unit '{specific_pu}' en el archivo XML")
                 sys.exit(1)
             
             # Preparar datos para JSON (siempre)
@@ -199,12 +199,12 @@ def main():
             if output_json:
                 # Solo mostrar JSON en consola si se solicita
                 print(json.dumps(output, indent=2, ensure_ascii=False))
-                print(f"\n✅ Program Unit guardado en: {json_file}")
+                print(f"\nOK: Program Unit guardado en: {json_file}")
             else:
                 # Salida formateada en consola
                 print("="*70)
-                print(f"📦 PROGRAM UNIT: {result['name']}")
-                print(f"🔧 Tipo: {result['type']}")
+                print(f"PROGRAM UNIT: {result['name']}")
+                print(f"Tipo: {result['type']}")
                 print("="*70)
                 print(result['code'])
                 print()
@@ -218,17 +218,17 @@ def main():
                     f.write(result['code'])
                     f.write("\n")
                 
-                print(f"✅ Archivos guardados:")
-                print(f"   📄 SQL: {sql_file}")
-                print(f"   📋 JSON: {json_file}")
+                print("OK: Archivos guardados:")
+                print(f"   SQL: {sql_file}")
+                print(f"   JSON: {json_file}")
         
         else:
             # Extraer TODOS los Program Units
-            print(f"🔍 Extrayendo todos los Program Units\n")
+            print("INFO: Extrayendo todos los Program Units\n")
             program_units = extract_all_program_units(xml_file, remove_comments)
             
             if not program_units:
-                print("⚠️ No se encontraron Program Units en el archivo XML")
+                print("WARN: No se encontraron Program Units en el archivo XML")
                 sys.exit(0)
             
             # Preparar datos para JSON (siempre)
@@ -246,11 +246,11 @@ def main():
             if output_json:
                 # Solo mostrar JSON en consola si se solicita
                 print(json.dumps(output, indent=2, ensure_ascii=False))
-                print(f"\n✅ Program Units guardados en: {json_file}")
+                print(f"\nOK: Program Units guardados en: {json_file}")
             else:
                 # Salida formateada
                 print("="*70)
-                print(f"📦 PROGRAM UNITS ENCONTRADOS: {len(program_units)}")
+                print(f"PROGRAM UNITS ENCONTRADOS: {len(program_units)}")
                 print("="*70)
                 
                 for idx, (pu_name, pu_info) in enumerate(sorted(program_units.items()), 1):
@@ -279,7 +279,7 @@ def main():
                         f.write("\n\n" + "-- " + "="*68 + "\n\n")
                 
                 # También guardar cada uno en archivos individuales
-                print(f"\n📁 Guardando archivos individuales...")
+                print("\nINFO: Guardando archivos individuales...")
                 pu_dir = Path("program_units")
                 pu_dir.mkdir(exist_ok=True)
                 
@@ -294,16 +294,16 @@ def main():
                         f.write(pu_info['code'])
                         f.write("\n")
                 
-                print(f"\n✅ Archivos generados:")
-                print(f"   📄 SQL consolidado: {sql_file}")
-                print(f"   📋 JSON completo: {json_file}")
-                print(f"   📁 Individuales ({len(program_units)}): {pu_dir}/")
+                print("\nOK: Archivos generados:")
+                print(f"   SQL consolidado: {sql_file}")
+                print(f"   JSON completo: {json_file}")
+                print(f"   Individuales ({len(program_units)}): {pu_dir}/")
     
     except ET.ParseError as e:
-        print(f"❌ Error al parsear XML: {e}")
+        print(f"ERROR: Error al parsear XML: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"ERROR: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

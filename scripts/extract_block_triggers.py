@@ -79,17 +79,17 @@ def main():
     output_json = "--json" in sys.argv
     
     if not xml_file.exists():
-        print(f"❌ Error: No se encuentra el archivo '{xml_file}'")
+        print(f"ERROR: No se encuentra el archivo '{xml_file}'")
         sys.exit(1)
     
-    print(f"📖 Leyendo: {xml_file}")
-    print(f"🔍 Buscando bloque: {block_name}\n")
+    print(f"INFO: Leyendo: {xml_file}")
+    print(f"INFO: Buscando bloque: {block_name}\n")
     
     try:
         result = extract_block_triggers(xml_file, block_name)
         
         if result is None:
-            print(f"❌ No se encontró el bloque '{block_name}' en el archivo XML")
+            print(f"ERROR: No se encontro el bloque '{block_name}' en el archivo XML")
             sys.exit(1)
         
         block_info = result["block_info"]
@@ -108,21 +108,21 @@ def main():
             output_file = Path(f"triggers_{block_info['name']}.json")
             with output_file.open("w", encoding="utf-8") as f:
                 json.dump(output, f, indent=2, ensure_ascii=False)
-            print(f"\n✅ Triggers guardados en: {output_file}")
+            print(f"\nOK: Triggers guardados en: {output_file}")
         else:
             # Salida formateada para consola
             print("="*70)
-            print(f"📦 BLOQUE: {block_info['name']}")
+            print(f"BLOQUE: {block_info['name']}")
             print("="*70)
             
             if block_info['databaseBlock']:
-                print(f"🗄️  Tipo: Bloque de Base de Datos")
+                print("Tipo: Bloque de Base de Datos")
                 if block_info['queryDataSourceName']:
-                    print(f"📊 Fuente: {block_info['queryDataSourceName']} ({block_info['queryDataSourceType']})")
+                    print(f"Fuente: {block_info['queryDataSourceName']} ({block_info['queryDataSourceType']})")
             else:
-                print(f"🎯 Tipo: Bloque de Control")
+                print("Tipo: Bloque de Control")
             
-            print(f"\n⚡ TRIGGERS ENCONTRADOS: {len(triggers)}")
+            print(f"\nTRIGGERS ENCONTRADOS: {len(triggers)}")
             print("-"*70)
             
             if not triggers:
@@ -148,13 +148,13 @@ def main():
                     f.write(trigger_code + "\n")
                     f.write("\n" + "="*70 + "\n\n")
             
-            print(f"✅ Triggers guardados en: {output_file}")
+            print(f"OK: Triggers guardados en: {output_file}")
     
     except ET.ParseError as e:
-        print(f"❌ Error al parsear XML: {e}")
+        print(f"ERROR: Error al parsear XML: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"ERROR: {e}")
         sys.exit(1)
 
 

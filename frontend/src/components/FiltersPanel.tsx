@@ -7,6 +7,7 @@ type Props = {
   onSearch: () => void;
   onLoadOficial: () => void;
   searching: boolean;
+  dateCrossError?: string;
 };
 
 export function FiltersPanel({
@@ -14,7 +15,8 @@ export function FiltersPanel({
   onChange,
   onSearch,
   onLoadOficial,
-  searching
+  searching,
+  dateCrossError = ""
 }: Readonly<Props>) {
   const updateField =
     (field: keyof SearchFilters) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -29,20 +31,23 @@ export function FiltersPanel({
       <h2>Criterios de consulta</h2>
       <div className="grid">
         <label>
-          <span>Fecha desde</span>
+          <span>Fecha desde <span className="required">*</span></span>
           <input
             type="date"
             value={filters.fec_ini}
             onChange={updateField("fec_ini")}
+            aria-invalid={Boolean(dateCrossError)}
           />
         </label>
         <label>
-          <span>Fecha hasta</span>
+          <span>Fecha hasta <span className="required">*</span></span>
           <input
             type="date"
             value={filters.fec_fin}
             onChange={updateField("fec_fin")}
+            aria-invalid={Boolean(dateCrossError)}
           />
+          {dateCrossError && <span className="field-error">{dateCrossError}</span>}
         </label>
         <label>
           <span>Cliente</span>
@@ -87,7 +92,13 @@ export function FiltersPanel({
         </label>
       </div>
       <div className="actions-row">
-        <button type="button" className="primary" onClick={onSearch}>
+        <button
+          type="button"
+          className="primary"
+          onClick={onSearch}
+          disabled={searching || Boolean(dateCrossError)}
+          aria-busy={searching}
+        >
           {searching ? "Buscando..." : "Buscar"}
         </button>
       </div>

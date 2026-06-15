@@ -110,6 +110,30 @@ button.primary {
   font-weight: 600;
 }
 
+.status-panel .loading {
+  color: #555;
+  font-style: italic;
+}
+
+.field-error {
+  color: var(--warn);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.required {
+  color: var(--warn);
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--warn);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .badge {
   display: inline-block;
   background: #0f766e;

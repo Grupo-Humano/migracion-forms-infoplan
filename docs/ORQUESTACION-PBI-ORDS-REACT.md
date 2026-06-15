@@ -73,11 +73,29 @@ Checkpoint humano obligatorio:
 3. Definir estructura de paginas/componentes/servicios.
 4. Publicar especificacion y vincular al PBI.
 
+### Fase 8: Validacion de Equivalencia de Pantalla
+1. Ejecutar matriz QA en docs/qa/screen-migration-equivalence-checklist.md.
+2. Validar endpoints ORDS reales (no localhost) y registrar evidencia HTTP.
+3. Comparar resultado esperado vs actual por caso.
+4. Emitir recomendacion GO/NO-GO para la pantalla.
+
+Salida:
+- evidencia_equivalencia
+- decision_go_no_go
+
+### Fase 9: Retroalimentacion y Mejora de Reglas
+1. Registrar lecciones aprendidas al cierre de cada sprint.
+2. Actualizar este flujo solo con mejoras comprobadas por evidencia.
+3. Versionar cambios de regla en commit dedicado con motivo.
+4. Propagar cambios al PROJECT_BRIEF (secciones 7, 8, 12, 13, 14) y al progress del sprint.
+
 ## Reglas
 - Artefactos en espanol.
 - No inventar reglas no presentes en codigo/video.
 - Si hay contradiccion entre video y forma, documentar ambas y marcar pendiente funcional.
 - Confirmar disponibilidad de MCP antes de cada fase.
+- No cerrar migracion de pantalla sin evidencia en matriz de equivalencia.
+- Toda mejora de proceso debe dejar traza en docs/sprint-N/progress.md.
 
 ## Fuentes
 - prompts/awsome_prompt.md

@@ -137,7 +137,7 @@ def link_lovs_to_record_groups(lovs, record_groups):
 
 def parse_xml(xml_path: Path):
     """Parsea el XML y extrae LOVs y Record Groups"""
-    print(f"\n📄 Parseando: {xml_path.name}")
+    print(f"\nINFO: Parseando: {xml_path.name}")
     
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -165,13 +165,13 @@ def export_to_json(lovs, record_groups, output_dir: Path, form_name: str):
     lovs_file = output_dir / f"{form_name}_lovs.json"
     with lovs_file.open("w", encoding="utf-8") as f:
         json.dump(lovs, f, indent=2, ensure_ascii=False)
-    print(f"\n✅ LOVs exportados a: {lovs_file}")
+    print(f"\nOK: LOVs exportados a: {lovs_file}")
     
     # JSON de Record Groups
     rg_file = output_dir / f"{form_name}_record_groups.json"
     with rg_file.open("w", encoding="utf-8") as f:
         json.dump(record_groups, f, indent=2, ensure_ascii=False)
-    print(f"✅ Record Groups exportados a: {rg_file}")
+    print(f"OK: Record Groups exportados a: {rg_file}")
     
     # JSON combinado
     combined_file = output_dir / f"{form_name}_lovs_and_records.json"
@@ -184,7 +184,7 @@ def export_to_json(lovs, record_groups, output_dir: Path, form_name: str):
     }
     with combined_file.open("w", encoding="utf-8") as f:
         json.dump(combined, f, indent=2, ensure_ascii=False)
-    print(f"✅ Combinado exportado a: {combined_file}")
+    print(f"OK: Combinado exportado a: {combined_file}")
 
 def export_to_csv(lovs, record_groups, output_dir: Path, form_name: str):
     """Exporta LOVs y Record Groups a CSV"""
@@ -209,7 +209,7 @@ def export_to_csv(lovs, record_groups, output_dir: Path, form_name: str):
                 "usedByCount": len(lov_info.get("usedByItems", [])),
                 "hasQuery": "Yes" if lov_info.get("recordGroupQuery", "") else "No"
             })
-    print(f"✅ LOVs CSV exportado a: {lovs_csv}")
+    print(f"OK: LOVs CSV exportado a: {lovs_csv}")
     
     # CSV de Record Groups
     rg_csv = output_dir / f"{form_name}_record_groups.csv"
@@ -230,37 +230,37 @@ def export_to_csv(lovs, record_groups, output_dir: Path, form_name: str):
                 "hasQuery": "Yes" if query else "No",
                 "queryPreview": query_preview.replace("\n", " ").replace("\r", "")
             })
-    print(f"✅ Record Groups CSV exportado a: {rg_csv}")
+    print(f"OK: Record Groups CSV exportado a: {rg_csv}")
 
 def print_summary(lovs, record_groups):
     """Imprime un resumen en consola"""
     print(f"\n{'='*70}")
-    print(f"📊 RESUMEN DE LOVs Y RECORD GROUPS")
+    print("RESUMEN DE LOVs Y RECORD GROUPS")
     print(f"{'='*70}")
     
-    print(f"\n📋 LOVs ({len(lovs)}):")
+    print(f"\nLOVs ({len(lovs)}):")
     for lov_name, lov_info in sorted(lovs.items()):
-        print(f"\n  • {lov_name}")
+        print(f"\n  - {lov_name}")
         print(f"    Título: {lov_info.get('title', 'N/A')}")
         print(f"    Record Group: {lov_info.get('recordGroup', 'N/A')}")
         print(f"    Columnas: {len(lov_info.get('columns', []))}")
         print(f"    Usado por: {len(lov_info.get('usedByItems', []))} items")
         
         if lov_info.get('usedByItems'):
-            print(f"    Items:")
+            print("    Items:")
             for item in lov_info.get('usedByItems', []):
                 print(f"      - {item['block']}.{item['item']}")
         
         if lov_info.get('columns'):
-            print(f"    Columnas LOV:")
+            print("    Columnas LOV:")
             for col in lov_info.get('columns', []):
-                display_icon = "👁️" if col.get('display', True) else "🚫"
-                return_info = f" → {col['returnItem']}" if col.get('returnItem') else ""
+                display_icon = "[V]" if col.get('display', True) else "[ ]"
+                return_info = f" -> {col['returnItem']}" if col.get('returnItem') else ""
                 print(f"      {display_icon} {col['name']} [{col.get('title', '')}]{return_info}")
     
-    print(f"\n📦 Record Groups ({len(record_groups)}):")
+    print(f"\nRecord Groups ({len(record_groups)}):")
     for rg_name, rg_info in sorted(record_groups.items()):
-        print(f"\n  • {rg_name}")
+        print(f"\n  - {rg_name}")
         print(f"    Tipo: {rg_info.get('type', 'N/A')}")
         print(f"    Columnas: {len(rg_info.get('columns', []))}")
         print(f"    Usado por: {len(rg_info.get('usedByLOVs', []))} LOVs")
@@ -269,13 +269,13 @@ def print_summary(lovs, record_groups):
             print(f"    LOVs: {', '.join(rg_info.get('usedByLOVs', []))}")
         
         if rg_info.get('columns'):
-            print(f"    Columnas:")
+            print("    Columnas:")
             for col in rg_info.get('columns', []):
                 print(f"      - {col['name']} ({col.get('datatype', 'N/A')})")
         
         if rg_info.get('query'):
             query = rg_info['query'].strip()
-            print(f"    Query:")
+            print("    Query:")
             # Mostrar primeras líneas del query
             lines = query.split('\n')[:5]
             for line in lines:
@@ -298,7 +298,7 @@ def main():
     # Validar archivo XML
     xml_path = Path(args.xml_file)
     if not xml_path.exists():
-        print(f"❌ Error: No se encuentra el archivo {xml_path}")
+        print(f"ERROR: No se encuentra el archivo {xml_path}")
         sys.exit(1)
     
     # Directorio de salida
@@ -312,7 +312,7 @@ def main():
     try:
         lovs, record_groups = parse_xml(xml_path)
     except Exception as e:
-        print(f"❌ Error al parsear XML: {e}")
+        print(f"ERROR: Error al parsear XML: {e}")
         sys.exit(1)
     
     # Exportar según opciones
@@ -325,8 +325,8 @@ def main():
     if args.summary:
         print_summary(lovs, record_groups)
     
-    print(f"\n✅ Proceso completado exitosamente")
-    print(f"📁 Archivos generados en: {output_dir.absolute()}")
+    print("\nOK: Proceso completado exitosamente")
+    print(f"INFO: Archivos generados en: {output_dir.absolute()}")
 
 if __name__ == "__main__":
     main()

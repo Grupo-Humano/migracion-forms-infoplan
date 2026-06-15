@@ -21,9 +21,16 @@ function validateFilters(filters: SearchFilters): string | null {
     return "Dato Fecha es requerido para poder ejecutar la busqueda.";
   }
   if (filters.fec_ini > filters.fec_fin) {
-    return "Fecha Desde no puede ser mayor que Fecha Hasta.";
+    return "Fecha Desde no puede ser mayor que Fecha Hasta, favor verificar..!";
   }
   return null;
+}
+
+function getDateCrossError(filters: SearchFilters): string {
+  if (filters.fec_ini && filters.fec_fin && filters.fec_ini > filters.fec_fin) {
+    return "Fecha Desde no puede ser mayor que Fecha Hasta, favor verificar..!";
+  }
+  return "";
 }
 
 export default function App() {
@@ -33,6 +40,8 @@ export default function App() {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [oficialName, setOficialName] = useState<string>("");
+
+  const dateCrossError = getDateCrossError(filters);
 
   const canExportJasper = useMemo(
     () => Boolean(filters.fec_ini && filters.fec_fin),
@@ -133,10 +142,8 @@ export default function App() {
   return (
     <main className="page">
       <header>
-        <h1>Consulta de Aprobacion y Rechazo (Mock ORDS)</h1>
-        <p>
-          Sprint 1: UI React conectada a ORDS mock para validar flujo funcional end-to-end.
-        </p>
+        <h1>Consulta de Aprobaciones y Rechazos</h1>
+        <p>Migracion Oracle Forms → React + ORDS</p>
       </header>
 
       <FiltersPanel
@@ -145,18 +152,15 @@ export default function App() {
         onSearch={runSearch}
         onLoadOficial={runLoadOficial}
         searching={loading}
+        dateCrossError={dateCrossError}
       />
 
       <section className="panel status-panel">
-        <h2>Estado</h2>
-        <p>
-          <strong>Modo:</strong> ORDS real
-        </p>
-        <p>
-          <strong>Nombre oficial:</strong> {oficialName || "-"}
-        </p>
+        {dateCrossError && <p className="error">{dateCrossError}</p>}
         {message ? <p className="ok">{message}</p> : null}
         {error ? <p className="error">{error}</p> : null}
+        {loading ? <p className="loading">Consultando...</p> : null}
+        {oficialName && <p><strong>Oficial:</strong> {oficialName}</p>}
       </section>
 
       <section className="panel actions-grid">
@@ -167,10 +171,10 @@ export default function App() {
           Desmarcar todas
         </button>
         <button type="button" onClick={runExportOle}>
-          Export OLE (mock)
+          Exportar OLE
         </button>
-        <button type="button" onClick={runExportJasper}>
-          Export Jasper (mock)
+        <button type="button" onClick={runExportJasper} disabled={!canExportJasper}>
+          Exportar Jasper
         </button>
       </section>
 
