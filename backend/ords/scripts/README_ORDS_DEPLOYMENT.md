@@ -296,7 +296,7 @@ END;
 
 - **Sprint 2 Plan:** `docs/sprint-2/plan.md`
 - **Progress Tracker:** `docs/sprint-2/progress.md`
-- **Orchestration Guide:** `docs/sprint-2/ORCHESTRATION.md`
+- **Orchestration Guide:** `docs/sprint-2/coordination/ORCHESTRATION.md`
 - **QA Sign-off Template:** `docs/qa/sprint-2-deployment-signoff.md` (to be created after deployment)
 
 ---

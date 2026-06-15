@@ -205,7 +205,7 @@ backend/ords/scripts/
 - **Questions about scripts?** Review inline comments in each .sql file
 - **ORDS deployment issues?** Contact DevOps/Database team
 - **Frontend integration issues?** Check `docs/sprint-2/frontend-integration.md`
-- **Sprint coordination?** See `docs/sprint-2/ORCHESTRATION.md`
+- **Sprint coordination?** See `docs/sprint-2/coordination/ORCHESTRATION.md`
 
 ---
 

@@ -120,7 +120,7 @@ curl -X POST "http://localhost:8080/ords/infoplan/rep-aprobarechazo/search" \\
 **Archivos a modificar:**
 - `scripts/extract_program_units.py` → reemplazar emojis en líneas: 174, 182, 184, 227, 242, 268, 282, 297
 - `scripts/extract_block_triggers.py` → reemplazar emojis en líneas: 85, 119, 123
-- `scripts/xml trace.py` → reemplazar emojis + refactor XML_PATHS
+- `scripts/xml_trace.py` → reemplazar emojis + refactor XML_PATHS
 
 **Cambios específicos:**
 ```python
