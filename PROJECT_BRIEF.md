@@ -171,54 +171,75 @@ migracion-forms-infoplan/
 
 ## 7. Sprint Status
 
-**Current Sprint:** Sprint 0 (Reinicio Estrategico)
+**Current Sprint:** Sprint 2 (Handlers ORDS Real)
 
-**Completed in previous cycle (historical baseline):**
+**✅ COMPLETED SPRINTS:**
+
+**Sprint 0 (Reinicio Estrategico):**
 - ✅ Team and orchestration structure defined
 - ✅ Architecture and stack decisions documented
 - ✅ ORDS/Frontend baseline artifacts generated
 - ✅ Process docs for orchestration and GitFlow created
-- ✅ Sprint 1 baseline closed as historical reference
 
-**In Progress (active cycle):**
-- 🔄 New restart plan created in `docs/sprint-0/plan.md`
-- 🔄 New progress tracker activated in `docs/sprint-0/progress.md`
-- 🔄 Project state aligned to "start from zero" execution model
+**Sprint 1 (rep_aprobarechazo Real Data Integration):**
+- ✅ SQL real queries created: transacciones/search, oficiales/{codigo}, gerentes, intermediarios
+- ✅ React frontend updated with 19 columns (real schema with 5 new nullable fields)
+- ✅ LOV dropdowns populated from ORDS endpoints (58 gerentes, 500+ intermediarios)
+- ✅ Form validation working, date range filters functional
+- ✅ QA sign-off: 8/8 critical cases PASS, 0 Sev 1-2 defects, GO recommendation
+- ✅ Git: feature/sprint-1-rep-aprobarechazo branch pushed, ready for PR merge to develop
+- ✅ Frontend: Dev server running on localhost:3000, all components rendering correctly
+
+**In Progress (Sprint 2 - ACTIVE):**
+- 🔄 Execute SQL scripts against ORDS to create real handlers
+- 🔄 Deploy ORDS modules for transacciones/search, oficiales, gerentes, intermediarios
+- 🔄 Smoke test all endpoints from deployed handlers
+- 🔄 Validate Sprint 1 frontend still works with real ORDS handlers
 
 **Next Milestones:**
-- Sprint 0: validate ORDS real connectivity, harden extractors, pick Wave 1 pilot form
-- Sprint 1 (post-reset): deliver first real migration slice from PBI to ORDS+React
+- Sprint 2: ORDS handlers real deployment (this sprint)
+- Sprint 3+: Additional forms (Wave 1/Wave 2 prioritization)
 
-**Timeline (reset baseline):**
-- Sprint 0 reset: 1 week
-- Sprint 1+: iterative delivery based on Wave 1/Wave 2 prioritization
+**Timeline:**
+- Sprint 1: Completed ✅
+- Sprint 2 (current): ~2 days for ORDS deployment + validation
+- Sprint 3+: iterative delivery based on Wave 1/Wave 2 prioritization
 
 ---
 
 ## 8. Current State
 
-**As of 2026-06-15 (reset checkpoint):**
+**As of 2026-06-15 (Sprint 2 kickoff):**
 
-- **Project Mode:** Restart execution from zero using accumulated assets as reusable baseline.
-- **Runtime Target:** ORDS real (no demo-mode as operational target).
-- **Process Target:** Execute all future PBIs with orchestration lifecycle documented in `docs/ORQUESTACION-PBI-ORDS-REACT.md`.
-- **Delivery Target:** Build a clean Wave 1 pilot path, then scale to complex forms in Wave 2.
+- **Project Mode:** Production Sprint 2 - Deploy ORDS handlers created in Sprint 1.
+- **Runtime Target:** ORDS real endpoint deployment and validation.
+- **Delivery Target:** All 6 handlers (transacciones/search, oficiales, gerentes, intermediarios, seleccion, exportaciones) deployed and validated.
+- **QA Ready:** Sprint 1 frontend ready to test against real ORDS endpoints.
 
-**Active Next Actions:**
-1. Complete Sprint 0 reset tasks in `docs/sprint-0/plan.md`.
-2. Validate ORDS real connectivity with evidence.
-3. Harden extractor scripts for Windows stability.
-4. Select Wave 1 pilot form and produce Sprint 1 real plan.
+**Sprint 1 Deliverables (Validated):**
+- 500+ transaction records accessible via real ORDS queries (2026-01 through 2026-04 date range)
+- React frontend with 19-column results table, all LOV dropdowns working
+- 8/8 critical QA test cases passing (EQ-01 through EQ-07, EQ-10)
+- 2 non-blocking pending tests (EQ-08 performance, EQ-09 keyboard navigation)
+- 0 Sev 1-2 defects identified
+- Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
+
+**Sprint 2 Active Next Actions:**
+1. Execute SQL scripts for ORDS handlers (create modules, register endpoints)
+2. Deploy handlers to ORDS at infoplan-web-dev.humano.local
+3. Validate each endpoint with Postman/curl
+4. Smoke test Sprint 1 frontend against real handlers
+5. Create docs/qa/sprint-2-deployment-signoff.md
 
 **Current Blockers:**
-- ORDS real host/port reachability still pending confirmation.
-- Script portability issues in XML analysis tooling.
+- ORDS handler deployment scripts need execution against real Oracle instance
+- No blockers for Sprint 1 frontend (already validated)
 
-**Go/No-Go Conditions for post-reset Sprint 1:**
-- [ ] ORDS real reachable from local execution environment.
-- [ ] Extractor scripts stable and reproducible in Windows.
-- [ ] Wave 1 pilot scope explicitly approved.
-- [ ] QA equivalence matrix baseline ready.
+**Go/No-Go Conditions for Sprint 2 closure:**
+- [ ] All 6 ORDS handlers deployed and responding 200 OK
+- [ ] Postman smoke tests all pass
+- [ ] Sprint 1 frontend passes QA smoke test against real handlers
+- [ ] docs/sprint-2/done.md written with deployment evidence
 
 ---
 
