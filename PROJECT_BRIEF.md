@@ -382,6 +382,7 @@ git clone <repo> project-devops
 - **Anti-Patterns**: Avoid batch commits, vague tasks, lost bugs in chat
 - **PBI Orchestration Runbook**: See `docs/ORQUESTACION-PBI-ORDS-REACT.md`
 - **GitFlow Standard**: See `docs/GITFLOW.md`
+- **Master Sprint Roadmap**: See `docs/SPRINT-MASTER-PLAN.md`
 
 ---
 
