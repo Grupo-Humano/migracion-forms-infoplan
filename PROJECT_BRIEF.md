@@ -52,8 +52,10 @@ Legacy Oracle Forms applications contain:
 | **Backend API** | ORDS (Oracle REST Data Services) | MVP: pure ORDS, no Node middleware (Phase 2 if needed) | 2026-06-12 |
 | **Database** | Oracle 19c+ | Source of truth, accessed via ORDS | 2026-06-12 |
 | **Testing - E2E** | Playwright 1.44+ | Multi-browser, component testing | 2026-06-12 |
-| **Testing - Unit** | Jest 29+ + React Testing Library | 85% code coverage target | 2026-06-12 |
-| **CI/CD** | GitHub Actions | Parallel testing, artifact storage | 2026-06-12 |
+| **Testing - Unit** | Jest 29+ + React Testing Library | 90% code coverage target (ELEVATED from 85%) | 2026-06-15 |
+| **Code Quality** | SonarQube Cloud | Static analysis, security hotspots, maintainability | 2026-06-15 |
+| **Linting** | ESLint + TypeScript strict | 0 errors policy (warnings OK with justification) | 2026-06-15 |
+| **CI/CD** | GitHub Actions | Parallel testing, coverage, SonarQube scan | 2026-06-12 |
 | **Deployment** | Static hosting (frontend) + TBD (backend) | Vercel/Netlify for React, cloud container for ORDS | 2026-06-12 |
 
 **Rationale:** See [Architecture Decision Records (ADRs)](./docs/architecture-decisions/) for detailed trade-offs.
@@ -267,6 +269,128 @@ migracion-forms-infoplan/
 - **Secrets**: GitHub Secrets for DB credentials, API keys (Dash manages)
 - **Input Validation**: React + ORDS validation on all form inputs
 - **Compliance**: TBD (if forms handle sensitive data, discuss with Kira)
+
+---
+
+## 9.1. Jasper Parameter Extraction Protocol (MANDATORY for all exports)
+
+**Objetivo:** Garantizar que cada pantalla migrada con Jasper extrae los parámetros exactos del XML original.
+
+**Proceso de Extracción:**
+
+1. **Identificar Jasper en XML Form**
+   - Buscar en `forms/*.fmb.xml` cualquier referencia a `P_JASPER_A_EXCEL` o handler Jasper
+   - Documentar nombre de reporte exacto: `rep_*` 
+   - Documentar tipo de documento: `XLS`, `PDF`, etc.
+
+2. **Extraer Parámetros Obligatorios**
+   ```
+   - name: rep_aprobaciones_rechazos
+   - documentType: XLS
+   - PCODIGO_COMPANIA: (compania ID, típicamente 30)
+   - PDESDE: (fecha inicio, formato: dd-MON-YYYY, e.g., 01-JUN-2026)
+   - PHAS: (fecha fin, formato: dd-MON-YYYY)
+   ```
+
+3. **Extraer Parámetros Opcionales**
+   ```
+   Parámetros que Jasper respeta si están presentes:
+   - POFICIAL (oficial ID)
+   - PGERENTE (gerente ID)
+   - PINTERMEDIARIO (intermediario ID)
+   
+   REGLA CRÍTICA: 
+   - Si parámetro ESTÁ VACÍO en forma: OMITIR del URL (NO enviar con valor "")
+   - Si parámetro TIENE VALOR: INCLUIR en URL con ese valor
+   - NUNCA enviar parámetro vacío como POFICIAL=0 (Jasper lo interpreta como "filtrar por ID 0")
+   ```
+
+4. **Validar Contra Jasper Server**
+   ```bash
+   # Test URL antes de mergear a main
+   curl "http://172.24.208.208:31522/api/report?name=rep_aprobaciones_rechazos&documentType=XLS&PCODIGO_COMPANIA=30&PDESDE=01-JUN-2026&PHAS=15-JUN-2026"
+   
+   # Verificar: 
+   # - HTTP 200 (no error)
+   # - File size > 5000 bytes (contiene datos, no template vacío)
+   # - Abrir en Excel: contiene al menos 1 fila de datos
+   ```
+
+5. **Documentar en Sprint Artifacts**
+   ```markdown
+   ### Jasper Integration Checklist
+   - [x] Parámetro extraído del XML: `rep_aprobaciones_rechazos`
+   - [x] Parámetros obligatorios: name, documentType, PCODIGO_COMPANIA, PDESDE, PHAS
+   - [x] Parámetros opcionales: POFICIAL, PGERENTE, PINTERMEDIARIO (omitir si vacío)
+   - [x] URL validada contra server (contiene datos)
+   - [x] Frontend code implementado con omisión condicional
+   ```
+
+---
+
+## 9.2. External Dependencies & Data Sync Rules
+
+**Critical Constraint:** Esta aplicación depende de **dos sistemas distintos** que DEBEN estar sincronizados.
+
+| System | URL | Purpose | Data Range | Status |
+|--------|-----|---------|-----------|--------|
+| **ORDS Backend** | `/ords/infoplan/aprobaciones-rechazos` | Search, filtering, selection | Mock: 2026-06-01 to 2026-06-15 | ✅ Working |
+| **Jasper Reports** | `http://172.24.208.208:31522/api/report` | Excel/PDF exports | Production: 2026-01-01 to 2026-06-15 | ⚠️ Data mismatch |
+
+**Known Issue (2026-06-15):**
+- ORDS mock contiene datos para `2026-06-01` a `2026-06-15`
+- Jasper NO contiene datos para ese rango específico (retorna Excel vacío)
+- Jasper SÍ contiene datos para rango amplio (`2026-01-01` a `2026-06-15`)
+- **Workaround**: Test con rango más amplio o sincronizar datos
+
+**Escalation Rule:**
+- Si datos ORDS no matchean con Jasper: "Levanta la mano" (comunicar bloqueador a CEO)
+- No es responsabilidad del dev team sincronizar DBs en producción
+- Documentar en GitHub Issues bajo etiqueta `data-sync-blocker`
+
+**Resolution Options (pick one per sprint):**
+```
+A) Sincronizar ORDS mock data al rango que Jasper tiene (ene-jun)
+B) Sincronizar Jasper database al rango que ORDS mockea (jun 01-15)
+C) Crear mock en Jasper que devuelva datos como ORDS
+D) Aceptar bloqueador y esperar disponibilidad real de Jasper en producción
+```
+
+---
+
+## 9.3. Code Quality & Testing Standards (ELEVATED from 85% to 90%)
+
+**Requirement:** Todo código mergeable MUST cumplir:
+
+| Criteria | Target | Tool | Owner |
+|----------|--------|------|-------|
+| **Unit Test Coverage** | 90%+ | Jest + React Testing Library | Nova |
+| **E2E Test Coverage** | Key user flows | Playwright | Ivy |
+| **Code Quality** | Grade A (SonarQube) | SonarQube Cloud/Scanner | CI Pipeline |
+| **Type Safety** | No `any` except escape hatches | TypeScript strict | Sage |
+| **Accessibility** | WCAG 2.1 AA minimum | axe DevTools + manual | Kira |
+
+**Pre-Merge Checklist (MANDATORY):**
+```markdown
+## Before `git push`
+- [ ] `npm run test -- --coverage` reports >= 90% coverage
+- [ ] SonarQube report shows **no Critical/High issues**
+- [ ] `npm run build` completes without errors
+- [ ] `npm run lint` (eslint) shows 0 errors (warnings OK with justification)
+- [ ] E2E test: happy path works locally
+
+## Before PR Merge
+- [ ] GitHub Actions CI passes (tests + coverage + SonarQube)
+- [ ] Code review approval (2 people minimum for critical paths)
+- [ ] QA sign-off (Ivy) if user-facing feature
+- [ ] Commit message follows semantic convention: `feat|fix|docs|test(scope): description`
+```
+
+**SonarQube Rules (Non-Negotiable):**
+- ❌ Cognitive complexity > 15: BLOCKER
+- ❌ Duplicated code blocks > 10 lines: BLOCKER
+- ❌ Security hotspots: BLOCKER (must document or fix)
+- ⚠️ Code smells: Must resolve or justify in PR comment
 
 ---
 
