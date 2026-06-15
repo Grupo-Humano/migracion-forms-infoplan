@@ -1,0 +1,26 @@
+{
+  "RG_OFICIALES": {
+    "name": "RG_OFICIALES",
+    "type": "Query",
+    "query": "select substr(decode(clte.tipo,'C',clte.nom_emp,clte.pri_nom||' '||clte.pri_ape),1,100) nombre_oficial,d.cdofic&#10;  from cliente clte, moficial d&#10; where clte.codigo = d.cdperson&#10;   and d.estatus = 76&#10;order by 1     ",
+    "fetchSize": "0",
+    "columns": [],
+    "usedByLOVs": []
+  },
+  "RG_GERENTE": {
+    "name": "RG_GERENTE",
+    "type": "Query",
+    "query": "select distinct substr(n.nombre_gerente,1,100) nombre,n.cod_ger&#10;  from int_ger_dir01_v n&#10; where n.COMPANIA  = :CG$CTRL.CODIGO_COMPANIA&#10;order by 1 ",
+    "fetchSize": "0",
+    "columns": [],
+    "usedByLOVs": []
+  },
+  "RG_INTERMED": {
+    "name": "RG_INTERMED",
+    "type": "Query",
+    "query": "select distinct substr(n.nombre_intermediario,1,100) nombre,n.intermediario&#10;  from int_ger_dir01_v n&#10; where n.COMPANIA  = :CG$CTRL.CODIGO_COMPANIA&#10;order by 1 ",
+    "fetchSize": "0",
+    "columns": [],
+    "usedByLOVs": []
+  }
+}
