@@ -11,6 +11,8 @@ export type TransactionRow = {
   id_transaccion: number;
   fec_tra: string;
   cliente: number;
+  tipo_documento: string | null;
+  num_documento: string | null;
   compania: number;
   ramo: number;
   secuencial: number;
@@ -27,6 +29,15 @@ export type TransactionRow = {
   nombre_oficial: string | null;
   nombre_gerente: string | null;
   nombre_intermediario: string | null;
+  nombre_director: string | null;
+  grupo: string | null;
+  user_crea: string | null;
+  fecha_crea: string | null;
+  user_actualiza: string | null;
+  fecha_actualiza: string | null;
+  telefono_1: string | null;
+  telefono_2: string | null;
+  telefono_3: string | null;
   cliente_poliza: string | null;
   estatus_poliza: string | null;
   frecuencia_pago: string | null;

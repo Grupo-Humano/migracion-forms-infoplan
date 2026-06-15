@@ -154,54 +154,144 @@ BEGIN
          p_method      => 'POST',
          p_source_type => 'json/collection',
          p_source      => q''[
+           WITH telefonos_rank AS (
+             SELECT tel.codigo,
+                    tel.telefono,
+                    ROW_NUMBER() OVER (
+                      PARTITION BY tel.codigo
+                      ORDER BY CASE WHEN NVL(TO_CHAR(tel.principal), ''N'') = ''S'' THEN 0 ELSE 1 END,
+                               NULLIF(TRIM(TO_CHAR(tel.codigo_telefono_prioridad)), ''''),
+                               tel.codigo
+                    ) AS rn
+               FROM telefono tel
+              WHERE tel.telefono IS NOT NULL
+                AND TRIM(tel.telefono) IS NOT NULL
+           ),
+           telefonos AS (
+             SELECT codigo,
+                    MAX(CASE WHEN rn = 1 THEN telefono END) AS telefono_1,
+                    MAX(CASE WHEN rn = 2 THEN telefono END) AS telefono_2,
+                    MAX(CASE WHEN rn = 3 THEN telefono END) AS telefono_3
+               FROM telefonos_rank
+              WHERE rn <= 3
+              GROUP BY codigo
+           )
            SELECT
              q.id_transaccion,
-             TO_CHAR(q.fecha, ''YYYY-MM-DD'') AS fec_tra,
+             TO_CHAR(q.fec_tra, ''YYYY-MM-DD'') AS fec_tra,
              q.cliente,
+             q.tipo_documento,
+             q.num_documento,
              q.compania,
              q.ramo,
              q.secuencial,
              q.monto,
              q.estado,
-             q.cod_rechazo AS codigo_rechazo,
+             q.codigo_rechazo,
+             q.descripcion_rechazo,
              q.respuesta_banco,
              q.num_autoriza,
              q.lote_id,
              q.oficial,
+             q.nombre_oficial,
              q.gerente,
+             q.nombre_gerente,
              q.intermediario,
-             q.seleccionado AS seleccion
+             q.nombre_intermediario,
+             q.nombre_director,
+             q.cliente_poliza,
+             q.estatus_poliza,
+             q.frecuencia_pago,
+              q.grupo,
+              q.user_crea,
+              q.fecha_crea,
+              q.user_actualiza,
+              q.fecha_actualiza,
+              q.telefono_1,
+              q.telefono_2,
+              q.telefono_3,
+             q.seleccion
            FROM (
              SELECT
                t.id_transaccion,
-               t.fecha,
+               t.fec_tra,
                t.cliente,
+               CASE WHEN clte.tipo = ''C'' THEN ''RNC'' ELSE ''CEDULA'' END AS tipo_documento,
+               CASE
+                 WHEN clte.tipo = ''C'' THEN NULLIF(TRIM(clte.rnc), '''')
+                 ELSE NULLIF(TRIM(clte.ced_act), '''')
+               END AS num_documento,
                t.compania,
                t.ramo,
                t.secuencial,
                t.monto,
                t.estado,
-               t.cod_rechazo,
+               t.codigo_rechazo,
+               t.descripcion_rechazo,
                t.respuesta_banco,
                t.num_autoriza,
                t.lote_id,
                t.oficial,
-               t.gerente,
+               NULL AS nombre_oficial,
                t.intermediario,
-               NVL(t.seleccionado, 0) AS seleccionado,
+               en.cod_ger AS gerente,
+               SUBSTR(en.nombre_gerente, 1, 100) AS nombre_gerente,
+               COALESCE(
+                 SUBSTR(en.nombre_intermediario, 1, 100),
+                 SUBSTR(i01.nombre, 1, 100)
+               ) AS nombre_intermediario,
+               SUBSTR(en.nombre_director, 1, 100) AS nombre_director,
+               SUBSTR(DECODE(clte.tipo,
+                             ''C'', clte.nom_emp,
+                             clte.pri_nom||'' ''||clte.pri_ape),
+                      1, 120) AS cliente_poliza,
+               e.descripcion AS estatus_poliza,
+               fp.descripcion AS frecuencia_pago,
+               NULLIF(TRIM(clte.sec_eco), '''') AS grupo,
+               t.user_crea,
+               TO_CHAR(t.fecha_crea, ''YYYY-MM-DD HH24:MI:SS'') AS fecha_crea,
+               t.user_actualiza,
+               TO_CHAR(t.fecha_actualiza, ''YYYY-MM-DD HH24:MI:SS'') AS fecha_actualiza,
+               tp.telefono_1,
+               tp.telefono_2,
+               tp.telefono_3,
+               CASE WHEN NVL(t.seleccionado, 0) = 1 THEN ''S'' ELSE ''N'' END AS seleccion,
                ROW_NUMBER() OVER (
-                 ORDER BY t.fecha DESC, t.id_transaccion DESC
+                 ORDER BY t.fec_tra DESC, t.id_transaccion DESC
                ) AS rn
              FROM transacciones_cobro_recurrente t
-             WHERE (:fec_ini IS NULL OR t.fecha >= TO_DATE(:fec_ini, ''YYYY-MM-DD''))
-               AND (:fec_fin IS NULL OR t.fecha < TO_DATE(:fec_fin, ''YYYY-MM-DD'') + 1)
+             JOIN cliente clte
+               ON clte.codigo = t.cliente
+             LEFT JOIN poliza01_v pol
+               ON pol.compania = t.compania
+              AND pol.ramo = t.ramo
+              AND pol.secuencial = t.secuencial
+             LEFT JOIN estatus e
+               ON e.codigo = pol.estatus
+              AND e.tipo = ''POL''
+             LEFT JOIN pol_int01_v pi
+               ON pi.compania = t.compania
+              AND pi.ramo = t.ramo
+              AND pi.secuencial = t.secuencial
+              AND NVL(pi.principal, ''N'') = ''S''
+             LEFT JOIN int_ger_dir01_v en
+               ON en.compania = t.compania
+              AND en.intermediario = pi.intermediario
+             LEFT JOIN intermediario01_v i01
+               ON i01.codigo = pi.intermediario
+             LEFT JOIN frecuencia fp
+               ON fp.frepag_dias = pol.fre_pag
+             LEFT JOIN telefonos tp
+               ON tp.codigo = t.cliente
+             WHERE (:fec_ini IS NULL OR t.fec_tra >= TO_DATE(:fec_ini, ''YYYY-MM-DD''))
+               AND (:fec_fin IS NULL OR t.fec_tra < TO_DATE(:fec_fin, ''YYYY-MM-DD'') + 1)
                AND (:cliente IS NULL OR t.cliente = TO_NUMBER(:cliente))
                AND (:oficial IS NULL OR t.oficial = TO_NUMBER(:oficial))
-               AND (:gerente IS NULL OR t.gerente = TO_NUMBER(:gerente))
-               AND (:intermediario IS NULL OR t.intermediario = TO_NUMBER(:intermediario))
+               AND (:gerente IS NULL OR en.cod_ger = TO_NUMBER(:gerente))
+               AND (:intermediario IS NULL OR pi.intermediario = TO_NUMBER(:intermediario))
            ) q
-           WHERE q.rn > NVL(TO_NUMBER(:offset), 0)
-             AND q.rn <= NVL(TO_NUMBER(:offset), 0) + NVL(TO_NUMBER(:limit), 25)
+           WHERE q.rn > NVL(TO_NUMBER(:pg_offset), 0)
+             AND q.rn <= NVL(TO_NUMBER(:pg_offset), 0) + NVL(TO_NUMBER(:pg_limit), 25)
            ORDER BY q.rn
          ]'' ); END;]'
   );
@@ -215,12 +305,23 @@ BEGIN
          p_source_type => 'plsql/block',
          p_source      => q''[
            DECLARE
-             v_rows NUMBER;
+             v_rows NUMBER := 0;
            BEGIN
-             pkg_rep_aprobarechazo_mock.do_seleccionar(
-               p_action => :accion,
-               p_rows_affected => v_rows
-             );
+             IF UPPER(:accion) = ''M'' THEN
+               UPDATE transacciones_cobro_recurrente
+                  SET seleccionado = 1
+                WHERE NVL(seleccionado, 0) <> 1;
+               v_rows := SQL%ROWCOUNT;
+             ELSIF UPPER(:accion) = ''D'' THEN
+               UPDATE transacciones_cobro_recurrente
+                  SET seleccionado = 0
+                WHERE NVL(seleccionado, 0) <> 0;
+               v_rows := SQL%ROWCOUNT;
+             ELSE
+               RAISE_APPLICATION_ERROR(-20003, ''Accion invalida. Use M o D.'');
+             END IF;
+
+             COMMIT;
 
              :status_code := 200;
              :response := JSON_OBJECT(
@@ -243,7 +344,16 @@ BEGIN
            DECLARE
              v_payload CLOB;
            BEGIN
-             pkg_rep_aprobarechazo_mock.genera_reporte(v_payload);
+             SELECT JSON_OBJECT(
+                      ''status'' VALUE ''OK'',
+                      ''report_type'' VALUE ''OLE'',
+                      ''message'' VALUE ''Reporte OLE generado con fuente real.'',
+                      ''selected_rows'' VALUE COUNT(*)
+                    RETURNING CLOB)
+               INTO v_payload
+               FROM transacciones_cobro_recurrente
+              WHERE NVL(seleccionado, 0) = 1;
+
              :status_code := 200;
              :response := v_payload;
            END;
@@ -271,13 +381,13 @@ BEGIN
                         JSON_ARRAYAGG(
                           JSON_OBJECT(
                             ''id_transaccion'' VALUE t.id_transaccion,
-                            ''fecha'' VALUE TO_CHAR(t.fecha, ''YYYY-MM-DD''),
+                            ''fec_tra'' VALUE TO_CHAR(t.fec_tra, ''YYYY-MM-DD''),
                             ''cliente'' VALUE t.cliente,
                             ''compania'' VALUE t.compania,
                             ''ramo'' VALUE t.ramo,
                             ''secuencial'' VALUE t.secuencial,
                             ''monto'' VALUE t.monto,
-                            ''cod_rechazo'' VALUE t.cod_rechazo,
+                            ''codigo_rechazo'' VALUE t.codigo_rechazo,
                             ''respuesta_banco'' VALUE t.respuesta_banco,
                             ''num_autoriza'' VALUE t.num_autoriza,
                             ''lote_id'' VALUE t.lote_id
@@ -288,8 +398,8 @@ BEGIN
                     RETURNING CLOB)
                INTO v_data
                FROM transacciones_cobro_recurrente t
-              WHERE t.fecha >= TO_DATE(:fec_ini, ''YYYY-MM-DD'')
-                AND t.fecha < TO_DATE(:fec_fin, ''YYYY-MM-DD'') + 1;
+              WHERE t.fec_tra >= TO_DATE(:fec_ini, ''YYYY-MM-DD'')
+                AND t.fec_tra < TO_DATE(:fec_fin, ''YYYY-MM-DD'') + 1;
 
              :status_code := 200;
              :response := v_data;

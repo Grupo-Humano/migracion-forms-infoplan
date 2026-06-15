@@ -6,6 +6,7 @@ import type { LovItem, SearchFilters, TransactionRow } from "./types";
 
 const apiClient = ordsClient;
 const DEFAULT_PAGE_SIZE = 100;
+const MAX_ENRICHMENT_BATCH = 5;
 
 type LoadMoreResult = {
   loaded: number;
@@ -51,8 +52,12 @@ export default function App() {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [oficialName, setOficialName] = useState<string>("");
+  const [oficialLookup, setOficialLookup] = useState<Record<number, string>>({});
   const [gerentes, setGerentes] = useState<LovItem[]>([]);
   const [intermediarios, setIntermediarios] = useState<LovItem[]>([]);
+  const [polizaLookup, setPolizaLookup] = useState<Record<string, Record<string, unknown>>>({});
+  const [clientePolizasLookup, setClientePolizasLookup] = useState<Record<number, Record<string, unknown>[]>>({});
+  const [frecuenciaPagoLookup, setFrecuenciaPagoLookup] = useState<Record<number, string>>({});
   const [page, setPage] = useState(1);
   const [viewPage, setViewPage] = useState(1);
   const [pageJumpInput, setPageJumpInput] = useState("1");
@@ -87,6 +92,221 @@ export default function App() {
     return rows.slice(start, start + pageSize);
   }, [rows, viewPage, pageSize]);
 
+  const gerentesLookup = useMemo(() => {
+    return gerentes.reduce<Record<number, string>>((acc, item) => {
+      acc[item.codigo] = item.nombre;
+      return acc;
+    }, {});
+  }, [gerentes]);
+
+  const intermediariosLookup = useMemo(() => {
+    return intermediarios.reduce<Record<number, string>>((acc, item) => {
+      acc[item.codigo] = item.nombre;
+      return acc;
+    }, {});
+  }, [intermediarios]);
+
+  const buildPolizaKey = (row: TransactionRow): string =>
+    `${row.compania}-${row.ramo}-${row.secuencial}`;
+
+  const enrichRows = async (incomingRows: TransactionRow[]): Promise<TransactionRow[]> => {
+    let updatedFrecuenciaLookup = frecuenciaPagoLookup;
+    if (Object.keys(updatedFrecuenciaLookup).length === 0) {
+      try {
+        const frecuencias = await apiClient.getFrecuenciasPago();
+        updatedFrecuenciaLookup = frecuencias.reduce<Record<number, string>>((acc, item) => {
+          acc[item.codigo] = item.description;
+          return acc;
+        }, {});
+        setFrecuenciaPagoLookup(updatedFrecuenciaLookup);
+      } catch {
+        updatedFrecuenciaLookup = frecuenciaPagoLookup;
+      }
+    }
+
+    const missingPolizaKeys = Array.from(
+      new Set(
+        incomingRows
+          .map((row) => ({ key: buildPolizaKey(row), row }))
+          .filter(({ key }) => !polizaLookup[key])
+      )
+    ).slice(0, MAX_ENRICHMENT_BATCH);
+
+    let updatedPolizaLookup = polizaLookup;
+    if (missingPolizaKeys.length > 0) {
+      const polizaResults = await Promise.allSettled(
+        missingPolizaKeys.map(async ({ key, row }) => {
+          const data = await apiClient.getPolizaIntermediario(
+            Number(row.compania),
+            Number(row.ramo),
+            Number(row.secuencial)
+          );
+          return { key, data };
+        })
+      );
+
+      const polizaEntries: Record<string, Record<string, unknown>> = {};
+      polizaResults.forEach((result) => {
+        if (result.status === "fulfilled" && result.value.data) {
+          polizaEntries[result.value.key] = result.value.data;
+        }
+      });
+
+      if (Object.keys(polizaEntries).length > 0) {
+        updatedPolizaLookup = { ...polizaLookup, ...polizaEntries };
+        setPolizaLookup(updatedPolizaLookup);
+      }
+    }
+
+    const missingClienteCodes = Array.from(
+      new Set(
+        incomingRows
+          .map((row) => row.cliente)
+          .filter((cliente) => !clientePolizasLookup[cliente])
+      )
+    ).slice(0, MAX_ENRICHMENT_BATCH);
+
+    let updatedClientePolizasLookup = clientePolizasLookup;
+    if (missingClienteCodes.length > 0) {
+      const clienteResults = await Promise.allSettled(
+        missingClienteCodes.map(async (cliente) => {
+          const polizas = await apiClient.getClientePolizas(cliente);
+          return { cliente, polizas };
+        })
+      );
+
+      const clienteEntries: Record<number, Record<string, unknown>[]> = {};
+      clienteResults.forEach((result) => {
+        if (result.status === "fulfilled") {
+          clienteEntries[result.value.cliente] = result.value.polizas;
+        }
+      });
+
+      if (Object.keys(clienteEntries).length > 0) {
+        updatedClientePolizasLookup = { ...clientePolizasLookup, ...clienteEntries };
+        setClientePolizasLookup(updatedClientePolizasLookup);
+      }
+    }
+
+    const missingOficialCodes = Array.from(
+      new Set(
+        incomingRows
+          .map((row) => row.oficial)
+          .filter((value): value is number =>
+            value !== null && value !== undefined && !oficialLookup[value]
+          )
+      )
+    );
+
+    let updatedOficialLookup = oficialLookup;
+
+    if (missingOficialCodes.length > 0) {
+      const lookups = await Promise.allSettled(
+        missingOficialCodes.map(async (codigo) => {
+          const result = await apiClient.getOficial(String(codigo));
+          return { codigo, nombre: result.nombre };
+        })
+      );
+
+      const newEntries: Record<number, string> = {};
+      lookups.forEach((result) => {
+        if (result.status === "fulfilled" && result.value.nombre) {
+          newEntries[result.value.codigo] = result.value.nombre;
+        }
+      });
+
+      if (Object.keys(newEntries).length > 0) {
+        updatedOficialLookup = { ...oficialLookup, ...newEntries };
+        setOficialLookup(updatedOficialLookup);
+      }
+    }
+
+    return incomingRows.map((row) => {
+      const polizaKey = buildPolizaKey(row);
+      const polizaData = updatedPolizaLookup[polizaKey] as
+        | {
+            codGerente?: number;
+            nombreGerente?: string;
+            codSupervisor?: number;
+            nombreSupervisor?: string;
+            codInt?: number;
+            frePag?: number;
+          }
+        | undefined;
+
+      const clientePolizas = updatedClientePolizasLookup[row.cliente] as
+        | Array<{
+            compania?: number;
+            ramo?: number;
+            secuencial?: number;
+            descripcionEstatus?: string;
+          }>
+        | undefined;
+
+      const matchingPoliza = clientePolizas?.find(
+        (item) =>
+          Number(item.compania) === Number(row.compania) &&
+          Number(item.ramo) === Number(row.ramo) &&
+          Number(item.secuencial) === Number(row.secuencial)
+      );
+
+      const nombreOficial =
+        row.nombre_oficial ??
+        (row.oficial !== null && row.oficial !== undefined
+          ? updatedOficialLookup[row.oficial] ?? null
+          : polizaData?.nombreSupervisor ?? null);
+
+      const oficialCodigo =
+        row.oficial ??
+        (typeof polizaData?.codSupervisor === "number"
+          ? polizaData.codSupervisor
+          : null);
+
+      const nombreGerente =
+        row.nombre_gerente ??
+        (row.gerente !== null && row.gerente !== undefined
+          ? gerentesLookup[row.gerente] ?? null
+          : polizaData?.nombreGerente ?? null);
+
+      const gerenteCodigo =
+        row.gerente ??
+        (typeof polizaData?.codGerente === "number" ? polizaData.codGerente : null);
+
+      let intermediarioNombreDesdeLookup: string | null = null;
+      if (row.intermediario !== null && row.intermediario !== undefined) {
+        intermediarioNombreDesdeLookup = intermediariosLookup[row.intermediario] ?? null;
+      } else if (typeof polizaData?.codInt === "number") {
+        intermediarioNombreDesdeLookup = intermediariosLookup[polizaData.codInt] ?? null;
+      }
+
+      const nombreIntermediario = row.nombre_intermediario ?? intermediarioNombreDesdeLookup;
+
+      const intermediarioCodigo =
+        row.intermediario ??
+        (typeof polizaData?.codInt === "number" ? polizaData.codInt : null);
+
+      const frecuenciaPago =
+        row.frecuencia_pago ??
+        (typeof polizaData?.frePag === "number"
+          ? updatedFrecuenciaLookup[polizaData.frePag] ?? String(polizaData.frePag)
+          : null);
+
+      const estatusPoliza = row.estatus_poliza ?? matchingPoliza?.descripcionEstatus ?? null;
+
+      return {
+        ...row,
+        oficial: oficialCodigo,
+        gerente: gerenteCodigo,
+        intermediario: intermediarioCodigo,
+        nombre_oficial: nombreOficial,
+        nombre_gerente: nombreGerente,
+        nombre_intermediario: nombreIntermediario,
+        frecuencia_pago: frecuenciaPago,
+        estatus_poliza: estatusPoliza
+      };
+    });
+  };
+
   useEffect(() => {
     if (viewPage > totalViewPages) {
       setViewPage(totalViewPages);
@@ -110,7 +330,8 @@ export default function App() {
         offset: 0,
         limit: pageSize
       });
-      setRows(result.items);
+      const enrichedRows = await enrichRows(result.items);
+      setRows(enrichedRows);
       setPage(1);
       setViewPage(1);
       setPageJumpInput("1");
@@ -121,7 +342,7 @@ export default function App() {
       const likelyMoreRows =
         typeof result.hasMore === "boolean" && result.hasMore
           ? true
-          : result.items.length >= effectiveLimit;
+          : enrichedRows.length >= effectiveLimit;
       setHasMoreServerRows(likelyMoreRows);
       setServerLimit(pageSize);
       setServerOffset(result.offset ?? null);
@@ -129,7 +350,7 @@ export default function App() {
         ? " Navegue con Siguiente pagina para cargar mas resultados bajo demanda."
         : "";
       setMessage(
-        `Busqueda completada: ${result.items.length} registros cargados. (ORDS real)${paginationNote}`
+        `Busqueda completada: ${enrichedRows.length} registros cargados. (ORDS real)${paginationNote}`
       );
     } catch (err) {
       setError((err as Error).message);
@@ -213,23 +434,24 @@ export default function App() {
         };
       }
 
-      setRows((prev) => [...prev, ...finalIncoming]);
+      const enrichedIncoming = await enrichRows(finalIncoming);
+      setRows((prev) => [...prev, ...enrichedIncoming]);
       setMessage(
-        `Se cargaron ${finalIncoming.length} registros adicionales desde ORDS. Total acumulado: ${rows.length + finalIncoming.length}.`
+        `Se cargaron ${enrichedIncoming.length} registros adicionales desde ORDS. Total acumulado: ${rows.length + enrichedIncoming.length}.`
       );
 
       const nextLimit = result.limit ?? serverLimit ?? pageSize;
       const moreFromServer =
         typeof result.hasMore === "boolean"
           ? result.hasMore
-          : finalIncoming.length >= nextLimit;
+          : enrichedIncoming.length >= nextLimit;
 
       setHasMoreServerRows(moreFromServer);
       setServerLimit(nextLimit);
       // Keep offset progression deterministic even when ORDS metadata returns stale offset=0.
       setServerOffset(pageOffsetUsed);
       return {
-        loaded: finalIncoming.length,
+        loaded: enrichedIncoming.length,
         exhausted: !moreFromServer,
         failed: false,
         duplicated: false

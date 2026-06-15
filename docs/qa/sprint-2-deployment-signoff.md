@@ -39,7 +39,17 @@
 - `GET /gerentes`: validated in integrated flow.
 - `GET /intermediarios`: validated in integrated flow.
 - `POST /transacciones/search`: validated in integrated flow and direct tests.
-- Remaining handler matrix (`oficiales`, `seleccion`, `exportaciones`) requires explicit pass/fail registry in final sign-off revision.
+
+### 3.3 Endpoint Matrix (Sprint 2)
+
+| Handler | Endpoint | Estado QA | Evidencia actual | Brecha pendiente |
+|---|---|---|---|---|
+| gerentes | GET /gerentes | PASS (flujo integrado) | Carga LOV en UI | Consolidar request/response final en tabla unica |
+| intermediarios | GET /intermediarios | PASS (flujo integrado) | Carga LOV en UI | Consolidar request/response final en tabla unica |
+| transacciones/search | POST /transacciones/search | PASS PARCIAL | Busqueda y tabla UI operativa; SQL real extendido actualizado | Revalidar endpoint publicado post-redeploy |
+| oficiales/{codigo} | GET /oficiales/{codigo} | PENDIENTE | Sin evidencia consolidada en este sign-off | Ejecutar prueba directa y registrar resultado |
+| transacciones/seleccion/{M\|D} | POST /transacciones/seleccion/{M\|D} | PENDIENTE | Sin evidencia consolidada en este sign-off | Ejecutar prueba directa y registrar resultado |
+| exportaciones/{ole\|jasper} | POST /exportaciones/{ole\|jasper} | FUERA DE CIERRE ESTRICTO | Alcance historico con comportamiento mixto | Documentar politica Jasper-first por pantalla |
 
 ---
 
@@ -55,6 +65,18 @@
 
 - Full 6/6 handler matrix is not yet documented in one consolidated QA table.
 - Final go/no-go should include explicit status for each non-core handler.
+- Rediseno reciente en SQL de `transacciones/search` requiere validacion final en runtime publicado.
+- Diferencia de volumen entre XLS Jasper (3913) y universo DB base R/C (39283) en la misma ventana; falta replicar filtro Jasper exacto para equivalencia total.
+- Bloqueador de fuente: el handler publicado `facturacion-aprobaciones-rechazos-v1/transacciones/search` apunta a `mock_transacciones` (no a tablas reales), por lo que nombres como `Intermediario 1` no representan catalogo productivo.
+
+### Evidencia extendida (datos reales)
+
+- Cobertura en DB de campos extendidos (ventana 2026-01-01..2026-02-17):
+	- `con_num_documento`: 34508 / 39284
+	- `con_grupo`: 38825 / 39284
+	- `con_telefono_1`: 32424 / 39284
+	- `con_telefono_2`: 12302 / 39284
+	- `con_telefono_3`: 0 / 39284
 
 ---
 
@@ -70,3 +92,6 @@
 1. Complete endpoint matrix with evidence links/logs for all Sprint 2 handlers.
 2. Confirm payload conformance for remaining handlers vs `frontend/src/types.ts`.
 3. Convert this file from draft to final sign-off with definitive GO/NO-GO.
+4. Adjuntar evidencia de campos extendidos (`tipo_documento`, `num_documento`, `nombre_director`, `grupo`, `telefono_1/2/3`) en una corrida real.
+5. Definir y aplicar filtro Jasper faltante para alinear volumen y habilitar GO total de equivalencia.
+6. Republicar `transacciones/search` con SQL real (sin `mock_transacciones`) y repetir validacion E2E.

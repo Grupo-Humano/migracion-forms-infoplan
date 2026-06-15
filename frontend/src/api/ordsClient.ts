@@ -59,7 +59,46 @@ type EndpointProbeResult = {
   reason: "not_found" | "unreachable";
 };
 
+type PolizaIntermediarioData = {
+  compania?: number;
+  ramo?: number;
+  secuencial?: number;
+  codGerente?: number;
+  nombreGerente?: string;
+  codSupervisor?: number;
+  nombreSupervisor?: string;
+  codInt?: number;
+  frePag?: number;
+};
+
+type PolizaIntermediarioResponse = {
+  data?: PolizaIntermediarioData;
+};
+
+type ClientePolizaItem = {
+  compania?: number;
+  ramo?: number;
+  secuencial?: number;
+  descripcionEstatus?: string;
+};
+
+type ClientePolizasResponse = {
+  data?: {
+    polizas?: ClientePolizaItem[];
+  };
+};
+
+type FrecuenciaPagoItem = {
+  codigo: number;
+  description: string;
+};
+
+type FrecuenciasPagoResponse = {
+  data?: FrecuenciaPagoItem[];
+};
+
 let tokenCache: TokenCache | null = null;
+let tokenRefreshPromise: Promise<void> | null = null;
 
 function toErrorMessage(err: unknown): string {
   if (err instanceof Error) {
@@ -189,28 +228,40 @@ async function getAuthHeaders(contentType?: string): Promise<Record<string, stri
 
   const now = Date.now();
   if (!tokenCache || now >= tokenCache.expiresAt - 30_000) {
-    const response = await fetchWithTimeout(tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${basicAuth}`
-      },
-      body: new URLSearchParams({ grant_type: "client_credentials" })
+    tokenRefreshPromise ??= (async () => {
+      const response = await fetchWithTimeout(tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${basicAuth}`
+        },
+        body: new URLSearchParams({ grant_type: "client_credentials" })
+      });
+
+      const tokenPayload = await parseJson<{
+        access_token: string;
+        expires_in?: number;
+      }>(response);
+
+      tokenCache = {
+        accessToken: tokenPayload.access_token,
+        expiresAt: Date.now() + (tokenPayload.expires_in ?? 3600) * 1000
+      };
+    })().finally(() => {
+      tokenRefreshPromise = null;
     });
 
-    const tokenPayload = await parseJson<{
-      access_token: string;
-      expires_in?: number;
-    }>(response);
-
-    tokenCache = {
-      accessToken: tokenPayload.access_token,
-      expiresAt: now + (tokenPayload.expires_in ?? 3600) * 1000
-    };
+    await tokenRefreshPromise;
   }
 
   headers.Authorization = `Bearer ${tokenCache.accessToken}`;
   return headers;
+}
+
+async function fetchAbsolutePath<T>(path: string): Promise<T> {
+  const headers = await getAuthHeaders();
+  const response = await fetchWithTimeout(path, { headers });
+  return parseJson<T>(response);
 }
 
 function cleanNullableNumber(value: string): number | null {
@@ -250,9 +301,9 @@ export function buildXmlJasperUrl(filters: SearchFilters): string {
   searchParams.set("PDESDE", toJasperDate(filters.fec_ini));
   searchParams.set("PHAS", toJasperDate(filters.fec_fin));
   
-  // Legacy Forms behavior: Only include optional filters if they have a value.
-  // When empty in Forms, these parameters were omitted or sent as NULL,
-  // NOT as "0". Jasper interprets absence/NULL as "no filter" vs "0" as a specific official.
+  // Jasper behavior: OMIT optional filters when not set.
+  // When filters are empty, Jasper expects the parameter to NOT exist in the URL.
+  // Only include them if they have a value.
   const oficial = filters.oficial?.trim();
   if (oficial) {
     searchParams.set("POFICIAL", oficial);
@@ -465,4 +516,38 @@ export async function getGerentes(): Promise<LovItem[]> {
 
 export async function getIntermediarios(): Promise<LovItem[]> {
   return fetchLovList("intermediarios");
+}
+
+export async function getPolizaIntermediario(
+  compania: number,
+  ramo: number,
+  secuencial: number
+): Promise<PolizaIntermediarioData | null> {
+  const query = new URLSearchParams({
+    compania: String(compania),
+    ramo: String(ramo),
+    secuencial: String(secuencial)
+  });
+
+  const payload = await fetchAbsolutePath<PolizaIntermediarioResponse>(
+    `/ords/infoplan/api/v1/gestion-poliza/poliza-intermediario?${query.toString()}`
+  );
+
+  return payload.data ?? null;
+}
+
+export async function getClientePolizas(cliente: number): Promise<ClientePolizaItem[]> {
+  const payload = await fetchAbsolutePath<ClientePolizasResponse>(
+    `/ords/infoplan/api/v1/clientes-polizas/${cliente}/polizas?pagina=1&tamanio=200`
+  );
+
+  return payload.data?.polizas ?? [];
+}
+
+export async function getFrecuenciasPago(): Promise<FrecuenciaPagoItem[]> {
+  const payload = await fetchAbsolutePath<FrecuenciasPagoResponse>(
+    "/ords/infoplan/api/v1/gestion-poliza/catalogo/frecuenciasPagos"
+  );
+
+  return payload.data ?? [];
 }

@@ -8,6 +8,41 @@
 
 ---
 
+## Cierre Sprint 2 (2026-06-15, noche)
+
+- Estado de sprint: **CERRADO (GO CONDICIONAL)**.
+- Flujo en pantalla estabilizado con ORDS real y enrichment reuse-first.
+- Campos criticos enriquecidos en UI sin duplicar servicios (`estatus_poliza`, `frecuencia_pago`, `oficial`, `gerente`, `intermediario`).
+- Resto de certificacion formal ORDS vs Jasper movida a Sprint 3 como objetivo principal.
+
+### Handoff directo a Sprint 3
+
+1. Certificar equivalencia ORDS vs Jasper por `id_transaccion`.
+2. Replicar filtros Jasper que explican diferencia 3913 vs universo ORDS.
+3. Emitir acta QA de equivalencia con decision GO/NO-GO final de datos.
+
+---
+
+## Actualizacion Operativa (2026-06-15, tarde)
+
+- Se destrabo la ejecucion de diagnosticos SQL (corrida secuencial estable).
+- Diagnosticos clave confirmados para mapeo extendido:
+  - `phones_by_codigo_match`: 44726
+  - `phones_by_proprietario_match`: 208
+  - Distribucion `sec_eco` en ventana de reporte: P=15674, N=2172, M=1999, C=460, vacio=299.
+- Se actualizaron scripts ORDS reales para campos extendidos en `transacciones/search`:
+  - `tipo_documento`, `num_documento`, `nombre_director`, `grupo`, `telefono_1`, `telefono_2`, `telefono_3`.
+- Se sincronizo el checklist de publicacion para no sobrescribir contrato incompleto.
+- Se corrigio riesgo de `ORA-01722` en ranking de telefonos (normalizacion de tipos en `ORDER BY`).
+- Cobertura extendida validada en DB real (2026-01-01..2026-02-17):
+  - total=39284, con_num_documento=34508, con_grupo=38825, con_telefono_1=32424, con_telefono_2=12302, con_telefono_3=0.
+- Se detecto brecha de volumen entre XLS Jasper (3913) y universo DB base R/C (39283), indicando filtro Jasper adicional pendiente de replicar.
+- Hallazgo critico de runtime: el handler publicado `facturacion-aprobaciones-rechazos-v1/transacciones/search` sigue leyendo `mock_transacciones`.
+  - Evidencia: consulta a `user_ords_handlers.source` (module `facturacion-aprobaciones-rechazos-v1`, template `transacciones/search`).
+  - Impacto: valores como `Oficial 1`, `Gerente 1`, `Intermediario 1` provienen del mock y no de catalogos reales.
+
+---
+
 ## Live Task Status
 
 ### Task 1: Create ORDS Module (0.5d)
@@ -26,16 +61,16 @@
 ---
 
 ### Task 2: Deploy Handler - transacciones/search (0.75d)
-- **Status:** ⏳ BLOCKED (waiting for Task 1)
+- **Status:** 🔄 IN PROGRESS
 - **Owner:** Sage
 - **Description:** Deploy POST /transacciones/search handler with parameterized query
 - **Progress:**
-  - [ ] Load SQL from `backend/ords/sql/01_transacciones_search_real.sql`
-  - [ ] Register as ORDS handler type: plsql/block
-  - [ ] Configure bind variables (fec_ini, fec_fin, cliente, oficial, gerente, intermediario)
-  - [ ] Test with Postman (date range 2026-01-01 to 2026-01-31)
-  - [ ] Verify 500+ rows returned
-- **Blockers:** Waiting for Task 1 module creation
+  - [x] Ajuste SQL real aplicado en scripts de handler para contrato extendido
+  - [x] Bind variables y paginacion `pg_offset/pg_limit` mantenidas
+  - [x] Mapeo extendido incorporado (documento/director/grupo/telefonos)
+  - [ ] Publicar/republicar handler en ORDS runtime destino
+  - [ ] Revalidar payload final desde endpoint publicado
+- **Blockers:** Ninguno critico de codigo; pendiente publicacion en runtime objetivo
 - **ETA:** 2026-06-15 to 2026-06-16
 - **Notes:** Most complex handler - has parameterized query with CTEs
 
@@ -258,6 +293,8 @@
   - `/ords/infoplan/aprobaciones-rechazos/gerentes`
   - `/ords/infoplan/aprobaciones-rechazos/transacciones/search`
   - `/ords/infoplan/facturacion/aprobaciones-rechazos/gerentes`
+- 2026-06-15 (tarde): Se estabilizo diagnostico SQL en modo secuencial para evitar cancelaciones por paralelo.
+- 2026-06-15 (tarde): Se aplico mapeo real de campos extendidos y fix de tipo para prevenir ORA-01722 en ranking telefonico.
   - `/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos`
   Conclusion: module/handlers are not published (or not enabled) in target ORDS schema/environment.
 - 2026-06-15 12:00: Recovery plan activated:

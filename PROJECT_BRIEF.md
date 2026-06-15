@@ -173,7 +173,7 @@ migracion-forms-infoplan/
 
 ## 7. Sprint Status
 
-**Current Sprint:** Sprint 2 (Handlers ORDS Real)
+**Current Sprint:** Sprint 3 (Certificacion ORDS vs Jasper)
 
 **✅ COMPLETED SPRINTS:**
 
@@ -192,31 +192,38 @@ migracion-forms-infoplan/
 - ✅ Git: feature/sprint-1-rep-aprobarechazo branch pushed, ready for PR merge to develop
 - ✅ Frontend: Dev server running on localhost:3000, all components rendering correctly
 
-**In Progress (Sprint 2 - ACTIVE):**
+**Recently Completed (Sprint 2):**
 - ✅ ORDS module and critical handlers published (`gerentes`, `intermediarios`, `transacciones/search`)
 - ✅ Frontend connected to ORDS real with OAuth client credentials + Bearer
-- ✅ UI smoke for core flow passing (LOVs + search + 19-column table)
-- 🔄 QA deployment sign-off document and final handoff evidence
+- ✅ UI smoke for core flow passing
+- ✅ Reuse-first enrichment aplicado sin duplicar servicios (`gestion-poliza`, `clientes-polizas`)
+- ✅ Campos antes vacios enriquecidos en UI (`estatus_poliza`, `frecuencia_pago`, `oficial`, `gerente`, `intermediario`)
+- ✅ Sprint 2 cerrado en `docs/sprint-2/done.md` con GO condicional
+
+**In Progress (Sprint 3 - ACTIVE):**
+- 🔄 Certificacion campo-a-campo de data ORDS vs Jasper por `id_transaccion`
+- 🔄 Alineacion de filtro Jasper para resolver diferencia de conteo
+- 🔄 Consolidacion de evidencia para QA sign-off final de equivalencia
 
 **Next Milestones:**
-- Sprint 2: QA sign-off + handoff closure (`docs/sprint-2/done.md`)
-- Sprint 3: Extend real handlers (`oficiales`, `seleccion`, `exportaciones`) and migrate next forms (Wave 1)
+- Sprint 3: equivalencia ORDS/Jasper + acta QA final (`docs/qa/sprint-3-signoff.md`)
+- Sprint 4: continuidad funcional post-certificacion
 
 **Timeline:**
 - Sprint 1: Completed ✅
-- Sprint 2 (current): ~2 days for ORDS deployment + validation
-- Sprint 3+: iterative delivery based on Wave 1/Wave 2 prioritization
+- Sprint 2: Completed ✅
+- Sprint 3 (current): certificacion de datos y cierre funcional final
 
 ---
 
 ## 8. Current State
 
-**As of 2026-06-15 (Sprint 2 execution):**
+**As of 2026-06-15 (Sprint 3 kickoff):**
 
-- **Project Mode:** Sprint 2 hardening and evidence closure.
-- **Runtime Target:** Stable ORDS real integration for the active report flow.
-- **Delivery Target:** Keep deployed handlers stable and complete QA/handoff artifacts.
-- **QA Ready:** Frontend is already validated against ORDS real in the main path.
+- **Project Mode:** Certificacion final de datos ORDS vs Jasper.
+- **Runtime Target:** Mantener integracion ORDS estable mientras se valida equivalencia.
+- **Delivery Target:** Cerrar diferencias de conteo y valor campo-a-campo.
+- **QA Ready:** Flujo principal estable; pendiente acta final de equivalencia.
 
 **Sprint 1 Deliverables (Validated):**
 - 500+ transaction records accessible via real ORDS queries (2026-01 through 2026-04 date range)
@@ -226,12 +233,13 @@ migracion-forms-infoplan/
 - 0 Sev 1-2 defects identified
 - Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
 
-**Sprint 2 Active Next Actions:**
-1. Consolidate QA evidence in `docs/qa/sprint-2-deployment-signoff.md`
-2. Confirm endpoint matrix coverage (core flow + pending handlers scope)
-3. Write `docs/sprint-2/done.md` with deployment and validation evidence
-4. Update brief for Sprint 3 kickoff scope
-5. Execute and close full-project evaluation report (not just structure): `docs/sprint-2/evaluacion-integral-proyecto.md`
+**Sprint 3 Active Next Actions:**
+1. Ejecutar matriz de equivalencia ORDS vs Jasper por `id_transaccion`.
+2. Replicar filtro Jasper exacto para alinear conteo final.
+3. Publicar evidencia de diferencias y correcciones en `docs/sprint-3/progress.md`.
+4. Completar checklist de equivalencia en `docs/sprint-2/checklist-equivalencia-ords-jasper.md`.
+5. Emitir sign-off QA final en `docs/qa/sprint-3-signoff.md`.
+6. Mantener regla de cierre: explorar OpenAPI/metadata-catalog y reutilizar endpoints existentes antes de proponer servicios nuevos.
 
 **Intake Structure Policy (mandatory):**
 - Each PBI uses a mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`
@@ -244,6 +252,11 @@ migracion-forms-infoplan/
 - No critical blockers for core report flow
 - Pending formal QA sign-off and handoff documentation completion
 
+**Latest technical delta (2026-06-15, tarde):**
+- ORDS `transacciones/search` SQL was updated to include real extended fields (`tipo_documento`, `num_documento`, `nombre_director`, `grupo`, `telefono_1/2/3`).
+- Phone ranking SQL adjusted to avoid runtime `ORA-01722` due to implicit type conversion.
+- Sequential SQL diagnostics confirmed phone mapping preference by `telefono.codigo` over `telefono.propietario` for this flow.
+
 **Go/No-Go Conditions for Sprint 2 closure:**
 - [ ] QA sign-off document finalized and approved
 - [ ] Endpoint validation matrix documented (pass/fail by handler)
@@ -251,6 +264,8 @@ migracion-forms-infoplan/
 - [ ] `docs/sprint-2/done.md` written with final handoff evidence
 - [ ] Comprehensive evaluation findings closed or explicitly accepted with owner/date
 - [ ] Regla Jasper-first documentada por pantalla (o tarea Jasper creada si no existe)
+- [ ] Evidencia de exploracion ORDS (metadata + open-api-catalog) adjunta y decision `REUSE_IN_EXISTING_MODULE` documentada
+- [ ] Confirmacion explicita de no-duplicacion de servicios (si hay endpoint existente, se reutiliza)
 
 **Lecciones aprendidas operativas (2026-06-15):**
 - Se confirmo que `rep-aprobarechazo` era un modulo mock para parte del flujo, con conteos acotados.
@@ -618,6 +633,19 @@ Before finalizing frontend integration and QA sign-off, the team must:
 
 Hard rule:
 - Production-like validation cannot rely on mock endpoints unless the objective is an explicit mock-only test case.
+
+### 15.4 Exploracion Continua y No Duplicacion (MANDATORY)
+
+Esta regla aplica siempre, en todos los sprints y antes de cerrar cualquier pantalla:
+
+1. Explorar `metadata-catalog` y `open-api-catalog` de ORDS como primer paso tecnico.
+2. Intentar resolver campos faltantes reutilizando endpoints ya existentes antes de crear SQL nuevo.
+3. Si existe endpoint funcional en otro modulo, reutilizarlo (directo o por orquestacion) y registrar evidencia.
+4. Solo se permite crear servicio nuevo cuando la matriz de exploracion demuestre brecha real.
+5. El cierre del sprint requiere evidencia de esta exploracion y de la decision de reutilizacion.
+
+Hard rule:
+- "No duplicar servicio" es una restriccion de arquitectura, no una recomendacion.
 
 ---
 
