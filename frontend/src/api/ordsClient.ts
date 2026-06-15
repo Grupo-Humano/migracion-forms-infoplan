@@ -23,9 +23,26 @@ const baseUrls = [configuredBaseUrl, ...defaultBaseUrls]
 
 const tokenUrl = import.meta.env.VITE_ORDS_TOKEN_URL as string | undefined;
 const basicAuth = import.meta.env.VITE_ORDS_BASIC_AUTH as string | undefined;
+
+function sanitizeJasperBaseUrl(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+
+    // Some environments carried a placeholder query like ?null=null.
+    // Remove it to avoid polluting the report request contract.
+    url.searchParams.delete("null");
+
+    return url.toString();
+  } catch {
+    return rawUrl.replace(/\?null=null$/i, "");
+  }
+}
+
 const jasperXmlBaseUrl =
-  (import.meta.env.VITE_JASPER_XML_BASE_URL as string | undefined) ??
-  "http://172.24.208.208:31522/api/report?null=null";
+  sanitizeJasperBaseUrl(
+    (import.meta.env.VITE_JASPER_XML_BASE_URL as string | undefined) ??
+      "http://172.24.208.208:31522/api/report"
+  );
 const jasperXmlCompania =
   (import.meta.env.VITE_JASPER_XML_COD_COMPANIA as string | undefined) ??
   "30";
@@ -232,11 +249,56 @@ export function buildXmlJasperUrl(filters: SearchFilters): string {
   searchParams.set("PCODIGO_COMPANIA", jasperXmlCompania);
   searchParams.set("PDESDE", toJasperDate(filters.fec_ini));
   searchParams.set("PHAS", toJasperDate(filters.fec_fin));
-  searchParams.set("POFICIAL", filters.oficial.trim());
-  searchParams.set("PGERENTE", filters.gerente.trim());
-  searchParams.set("PINTERMEDIARIO", filters.intermediario.trim());
+  
+  // Legacy Forms behavior: Only include optional filters if they have a value.
+  // When empty in Forms, these parameters were omitted or sent as NULL,
+  // NOT as "0". Jasper interprets absence/NULL as "no filter" vs "0" as a specific official.
+  const oficial = filters.oficial?.trim();
+  if (oficial) {
+    searchParams.set("POFICIAL", oficial);
+  }
+  
+  const gerente = filters.gerente?.trim();
+  if (gerente) {
+    searchParams.set("PGERENTE", gerente);
+  }
+  
+  const intermediario = filters.intermediario?.trim();
+  if (intermediario) {
+    searchParams.set("PINTERMEDIARIO", intermediario);
+  }
 
   return url.toString();
+}
+
+export async function exportJasper(
+  fec_ini: string,
+  fec_fin: string
+): Promise<ExportResponse | null> {
+  const headers = await getAuthHeaders("application/json");
+
+  try {
+    const response = await fetchFirstOk(
+      ["/exportaciones/jasper"],
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ fec_ini, fec_fin })
+      }
+    );
+
+    return parseJson<ExportResponse>(response);
+  } catch (err) {
+    const message = toErrorMessage(err).toLowerCase();
+
+    // Legacy-compatible fallback: if ORDS export handler is not published,
+    // use direct Jasper URL launch flow.
+    if (message.includes("http 404")) {
+      return null;
+    }
+
+    throw err;
+  }
 }
 
 async function parseJson<T>(response: Response): Promise<T> {
@@ -353,23 +415,6 @@ export async function exportOle(): Promise<ExportResponse> {
       headers
     }
   );
-  return parseJson<ExportResponse>(response);
-}
-
-export async function exportJasper(
-  fec_ini: string,
-  fec_fin: string
-): Promise<ExportResponse> {
-  const headers = await getAuthHeaders("application/json");
-  const response = await fetchFirstOk(
-    ["/exportaciones/jasper", "/export/jasper"],
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ fec_ini, fec_fin })
-    }
-  );
-
   return parseJson<ExportResponse>(response);
 }
 

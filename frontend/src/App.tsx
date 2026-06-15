@@ -288,6 +288,14 @@ export default function App() {
     }
 
     try {
+      const ordsPayload = await apiClient.exportJasper(filters.fec_ini, filters.fec_fin);
+      if (ordsPayload) {
+        setMessage(
+          `Export Jasper (ORDS): ${ordsPayload.message} (${filters.fec_ini} a ${filters.fec_fin}).`
+        );
+        return;
+      }
+
       const jasperUrl = apiClient.buildXmlJasperUrl(filters);
       const popup = globalThis.open(jasperUrl, "_blank", "noopener,noreferrer");
 
