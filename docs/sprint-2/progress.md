@@ -271,6 +271,7 @@
   Next gate: Sage publishes reachable endpoints, then Nova/Ivy rerun Task 7B.
 - 2026-06-15 12:12: Sage published minimum handlers in DBAPER (`gerentes`, `intermediarios`, `transacciones/search`) under module `facturacion-aprobaciones-rechazos-v1`.
 - 2026-06-15 12:15: Nova switched dev base path to `/ords/infoplan/aprobaciones-rechazos`; browser rerun on `http://localhost:3002` now returns `403 Forbidden` (route exists, auth/policy pending).
+- 2026-06-15 12:18: Cross-check on `NCF` connection (`RPA_RM`) shows `user_ords_modules = 0`; no matching module there. Confirms current unblock depends on ORDS pool/schema authorization/mapping by Dash.
 - ...
 
 ---
