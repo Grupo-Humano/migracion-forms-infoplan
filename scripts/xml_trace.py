@@ -12,7 +12,12 @@ Oracle Forms XML Inspector + Flowchart Trace (Mermaid + HTML)
 
 from pathlib import Path
 import xml.etree.ElementTree as ET
-import re, csv, json, sys, html, argparse
+import re
+import csv
+import json
+import sys
+import html
+import argparse
 
 # =======================
 # CONFIG
@@ -22,26 +27,29 @@ OUTPUT_DIR = Path.cwd()
 NS = {"f": "http://xmlns.oracle.com/Forms"}
 
 # ======= Regex útiles =======
-RX_GO_BLOCK   = re.compile(r"\bGO_BLOCK\s*\(\s*'([^']+)'\s*\)", re.I)
-RX_GO_ITEM    = re.compile(r"\bGO_ITEM\s*\(\s*'([^']+)'\s*\)", re.I)
+RX_GO_BLOCK = re.compile(r"\bGO_BLOCK\s*\(\s*'([^']+)'\s*\)", re.I)
+RX_GO_ITEM = re.compile(r"\bGO_ITEM\s*\(\s*'([^']+)'\s*\)", re.I)
 RX_EXEC_QUERY = re.compile(r"\bEXECUTE_QUERY\b", re.I)
-RX_CLEAR_BLK  = re.compile(r"\bCLEAR_BLOCK\s*\(([^)]*)\)", re.I)
-RX_CALL_FORM  = re.compile(r"\b(CALL_FORM|OPEN_FORM|NEW_FORM)\s*\(\s*'([^']+)'", re.I)
-RX_ITEM_REF   = re.compile(r":([A-Za-z0-9_$#]+)\.([A-Za-z0-9_$#]+)")
-RX_PROC_CALL  = re.compile(r"\b([A-Z][A-Z0-9_$#]*)\s*\(", re.I)
+RX_CLEAR_BLK = re.compile(r"\bCLEAR_BLOCK\s*\(([^)]*)\)", re.I)
+RX_CALL_FORM = re.compile(
+    r"\b(CALL_FORM|OPEN_FORM|NEW_FORM)\s*\(\s*'([^']+)'", re.I)
+RX_ITEM_REF = re.compile(r":([A-Za-z0-9_$#]+)\.([A-Za-z0-9_$#]+)")
+RX_PROC_CALL = re.compile(r"\b([A-Z][A-Z0-9_$#]*)\s*\(", re.I)
 RESERVED = {
-    "IF","ELSIF","ELSE","END","BEGIN","LOOP","EXIT","THEN","WHILE","FOR","NULL",
-    "GO_BLOCK","GO_ITEM","EXECUTE_QUERY","CLEAR_BLOCK","CALL_FORM","OPEN_FORM","NEW_FORM",
-    "MSG_ALERT","MESSAGE","SYNCHRONIZE","RAISE","FORM_TRIGGER_FAILURE","IIF"
+    "IF", "ELSIF", "ELSE", "END", "BEGIN", "LOOP", "EXIT", "THEN", "WHILE", "FOR", "NULL",
+    "GO_BLOCK", "GO_ITEM", "EXECUTE_QUERY", "CLEAR_BLOCK", "CALL_FORM", "OPEN_FORM", "NEW_FORM",
+    "MSG_ALERT", "MESSAGE", "SYNCHRONIZE", "RAISE", "FORM_TRIGGER_FAILURE", "IIF"
 }
 
 # ======= Estructuras =======
 forms = {
-    "blocks": {},        # bname -> {"triggers":{t:code}, "items":{iname:{itemType, triggers{t:code}, attrs}}}
+    # bname -> {"triggers":{t:code}, "items":{iname:{itemType, triggers{t:code}, attrs}}}
+    "blocks": {},
     "alerts": {},        # aname -> attrs
-    "program_units": {}, # pname -> {"code": str}
+    "program_units": {},  # pname -> {"code": str}
     "canvas": {},        # cname -> {"attrs": {}, "items": []}
 }
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -59,6 +67,7 @@ def parse_args():
     )
     return parser.parse_args()
 
+
 def resolve_input_paths(cli_paths):
     if cli_paths:
         return [Path(p) for p in cli_paths]
@@ -66,11 +75,14 @@ def resolve_input_paths(cli_paths):
     return sorted(default_forms_dir.glob("*.xml"))
 
 # ======= Utilidades =======
+
+
 def read_text_attr(node, attr_name):
     txt = node.get(attr_name)
     if txt is None:
         txt = "".join(node.itertext() or [])
     return txt or ""
+
 
 def parse_xml(path: Path):
     tree = ET.parse(path)
@@ -109,9 +121,9 @@ def parse_xml(path: Path):
         query_data_source_name = b.get("QueryDataSourceName") or ""
         query_data_source_type = b.get("QueryDataSourceType") or "None"
         database_block = b.get("DatabaseBlock", "false").lower() == "true"
-        
+
         blk = forms["blocks"].setdefault(bname, {
-            "triggers": {}, 
+            "triggers": {},
             "items": {},
             "queryDataSourceName": query_data_source_name,
             "queryDataSourceType": query_data_source_type,
@@ -126,24 +138,27 @@ def parse_xml(path: Path):
         for it in b.findall("./f:Item", NS):
             iname = it.get("Name") or it.get("name")
             itype = it.get("ItemType") or it.get("itemtype") or ""
-            canvas_name = it.get("CanvasName") or it.get("canvasname") or it.get("Canvas") or it.get("canvas")
-            tab_page_name = it.get("TabPageName") or it.get("tabpagename") or ""
+            canvas_name = it.get("CanvasName") or it.get(
+                "canvasname") or it.get("Canvas") or it.get("canvas")
+            tab_page_name = it.get("TabPageName") or it.get(
+                "tabpagename") or ""
             if not iname:
                 continue
             # Propiedades de base de datos
-            database_item = it.get("DatabaseItem", "true").lower() == "true"  # Por defecto true si no se especifica
+            database_item = it.get("DatabaseItem", "true").lower(
+            ) == "true"  # Por defecto true si no se especifica
             column_name = it.get("ColumnName") or ""
-            
+
             meta = blk["items"].setdefault(iname, {
-                "itemType": itype, 
-                "triggers": {}, 
+                "itemType": itype,
+                "triggers": {},
                 "attrs": dict(it.attrib),
                 "canvas": canvas_name,
                 "tabPageName": tab_page_name,
                 "databaseItem": database_item,
                 "columnName": column_name
             })
-            
+
             # Asociar item al canvas
             if canvas_name and canvas_name in forms["canvas"]:
                 forms["canvas"][canvas_name]["items"].append({
@@ -154,11 +169,12 @@ def parse_xml(path: Path):
                     "databaseItem": database_item,
                     "columnName": column_name
                 })
-            
+
             for tr in it.findall("./f:Trigger", NS):
                 tname = tr.get("Name") or tr.get("name")
                 tcode = read_text_attr(tr, "TriggerText")
                 meta["triggers"][tname] = tcode
+
 
 def load_all(xml_paths):
     ok = False
@@ -168,62 +184,67 @@ def load_all(xml_paths):
             print(f"WARN: No existe {pth.resolve()}")
             continue
         print(f"INFO: Parseando: {pth}")
-        parse_xml(pth); ok = True
+        parse_xml(pth)
+        ok = True
     if not ok:
         print("ERROR: No se cargo ningun XML. Proporciona archivos o usa forms/*.xml.")
         sys.exit(1)
+
 
 def list_all():
     out_csv = OUTPUT_DIR / "items_catalog.csv"
     rows = []
     for bname, b in sorted(forms["blocks"].items()):
         rows.append({
-            "kind":"BLOCK","block":bname,"item":"","itemType":"","trigger":";".join(sorted(b["triggers"])),
-            "canvas":"","databaseItem":"","columnName":"",
-            "queryDataSourceName":b.get("queryDataSourceName",""),
-            "queryDataSourceType":b.get("queryDataSourceType","None"),
-            "databaseBlock":str(b.get("databaseBlock",False))
+            "kind": "BLOCK", "block": bname, "item": "", "itemType": "", "trigger": ";".join(sorted(b["triggers"])),
+            "canvas": "", "databaseItem": "", "columnName": "",
+            "queryDataSourceName": b.get("queryDataSourceName", ""),
+            "queryDataSourceType": b.get("queryDataSourceType", "None"),
+            "databaseBlock": str(b.get("databaseBlock", False))
         })
         for iname, meta in sorted(b["items"].items()):
             rows.append({
-                "kind":"ITEM","block":bname,"item":iname,"itemType":meta.get("itemType",""),
-                "trigger":";".join(sorted(meta["triggers"])),
-                "canvas":meta.get("canvas",""),
-                "tabPageName":meta.get("tabPageName",""),
-                "databaseItem":str(meta.get("databaseItem",False)),
-                "columnName":meta.get("columnName",""),
-                "queryDataSourceName":"","queryDataSourceType":"","databaseBlock":""
+                "kind": "ITEM", "block": bname, "item": iname, "itemType": meta.get("itemType", ""),
+                "trigger": ";".join(sorted(meta["triggers"])),
+                "canvas": meta.get("canvas", ""),
+                "tabPageName": meta.get("tabPageName", ""),
+                "databaseItem": str(meta.get("databaseItem", False)),
+                "columnName": meta.get("columnName", ""),
+                "queryDataSourceName": "", "queryDataSourceType": "", "databaseBlock": ""
             })
     for aname in sorted(forms["alerts"]):
         rows.append({
-            "kind":"ALERT","block":"","item":aname,"itemType":"Alert","trigger":"","canvas":"","tabPageName":"",
-            "databaseItem":"","columnName":"","queryDataSourceName":"","queryDataSourceType":"","databaseBlock":""
+            "kind": "ALERT", "block": "", "item": aname, "itemType": "Alert", "trigger": "", "canvas": "", "tabPageName": "",
+            "databaseItem": "", "columnName": "", "queryDataSourceName": "", "queryDataSourceType": "", "databaseBlock": ""
         })
     for pname in sorted(forms["program_units"]):
         rows.append({
-            "kind":"PROGRAM_UNIT","block":"","item":pname,"itemType":"ProgramUnit","trigger":"","canvas":"","tabPageName":"",
-            "databaseItem":"","columnName":"","queryDataSourceName":"","queryDataSourceType":"","databaseBlock":""
+            "kind": "PROGRAM_UNIT", "block": "", "item": pname, "itemType": "ProgramUnit", "trigger": "", "canvas": "", "tabPageName": "",
+            "databaseItem": "", "columnName": "", "queryDataSourceName": "", "queryDataSourceType": "", "databaseBlock": ""
         })
 
     # Agregar Canvas al CSV
     for cname, canvas_info in sorted(forms["canvas"].items()):
         rows.append({
-            "kind":"CANVAS","block":"","item":cname,"itemType":"Canvas",
-            "trigger":"","canvas":cname,"tabPageName":"",
-            "databaseItem":"","columnName":"","queryDataSourceName":"","queryDataSourceType":"","databaseBlock":""
+            "kind": "CANVAS", "block": "", "item": cname, "itemType": "Canvas",
+            "trigger": "", "canvas": cname, "tabPageName": "",
+            "databaseItem": "", "columnName": "", "queryDataSourceName": "", "queryDataSourceType": "", "databaseBlock": ""
         })
 
     with out_csv.open("w", newline="", encoding="utf-8") as f:
-        fieldnames = ["kind","block","item","itemType","trigger","canvas","tabPageName","databaseItem","columnName",
-                     "queryDataSourceName","queryDataSourceType","databaseBlock"]
+        fieldnames = ["kind", "block", "item", "itemType", "trigger", "canvas", "tabPageName", "databaseItem", "columnName",
+                      "queryDataSourceName", "queryDataSourceType", "databaseBlock"]
         w = csv.DictWriter(f, fieldnames=fieldnames)
-        w.writeheader(); w.writerows(rows)
+        w.writeheader()
+        w.writerows(rows)
     print(f"Catálogo exportado: {out_csv}")
+
 
 def find_item(full_or_short_name: str):
     if "." in full_or_short_name:
-        b,i = full_or_short_name.split(".",1)
-        b = b.strip(); i = i.strip()
+        b, i = full_or_short_name.split(".", 1)
+        b = b.strip()
+        i = i.strip()
         blk = forms["blocks"].get(b)
         if blk and i in blk["items"]:
             return b, i, blk["items"][i]
@@ -232,32 +253,40 @@ def find_item(full_or_short_name: str):
         matches = []
         for bname, b in forms["blocks"].items():
             if full_or_short_name in b["items"]:
-                matches.append((bname, full_or_short_name, b["items"][full_or_short_name]))
-        if len(matches)==1: return matches[0]
+                matches.append((bname, full_or_short_name,
+                               b["items"][full_or_short_name]))
+        if len(matches) == 1:
+            return matches[0]
         return None, None, None
+
 
 def code_actions(code: str):
     actions = []
     for blk in RX_GO_BLOCK.findall(code):
-        actions.append({"type":"GO_BLOCK","target_block":blk})
+        actions.append({"type": "GO_BLOCK", "target_block": blk})
     for itm in RX_GO_ITEM.findall(code):
-        actions.append({"type":"GO_ITEM","target_item":itm})
+        actions.append({"type": "GO_ITEM", "target_item": itm})
     if RX_EXEC_QUERY.search(code):
-        actions.append({"type":"EXECUTE_QUERY"})
+        actions.append({"type": "EXECUTE_QUERY"})
     for m in RX_CLEAR_BLK.findall(code):
-        actions.append({"type":"CLEAR_BLOCK","arg":m.strip()})
-    for kind,mod in RX_CALL_FORM.findall(code):
-        actions.append({"type":kind.upper(),"module":mod})
-    refs = sorted({f"{b}.{i}" for b,i in RX_ITEM_REF.findall(code)})
-    if refs: actions.append({"type":"ITEM_REFS","items":refs})
+        actions.append({"type": "CLEAR_BLOCK", "arg": m.strip()})
+    for kind, mod in RX_CALL_FORM.findall(code):
+        actions.append({"type": kind.upper(), "module": mod})
+    refs = sorted({f"{b}.{i}" for b, i in RX_ITEM_REF.findall(code)})
+    if refs:
+        actions.append({"type": "ITEM_REFS", "items": refs})
     procs = []
     for name in RX_PROC_CALL.findall(code):
         up = name.upper()
-        if up not in RESERVED: procs.append(name)
-    if procs: actions.append({"type":"CALLS","procs":sorted(set(procs))})
+        if up not in RESERVED:
+            procs.append(name)
+    if procs:
+        actions.append({"type": "CALLS", "procs": sorted(set(procs))})
     return actions
 
 # ======= Funciones para Canvas =======
+
+
 def get_canvas_items(canvas_name: str):
     """Retorna todos los items que pertenecen a un canvas específico"""
     canvas_info = forms["canvas"].get(canvas_name)
@@ -265,12 +294,13 @@ def get_canvas_items(canvas_name: str):
         return None
     return canvas_info["items"]
 
+
 def export_canvas_to_json(canvas_name: str) -> bool:
     """Exporta la información de un canvas a un archivo JSON"""
     items = get_canvas_items(canvas_name)
     if items is None:
         return False
-    
+
     # Agrupar por bloque y obtener información completa
     blocks_info = {}
     for item in items:
@@ -284,7 +314,7 @@ def export_canvas_to_json(canvas_name: str) -> bool:
                 "items": []
             }
         blocks_info[block_name]["items"].append(item)
-    
+
     # Crear estructura JSON
     json_data = {
         "canvasName": canvas_name,
@@ -301,33 +331,39 @@ def export_canvas_to_json(canvas_name: str) -> bool:
             for block_name, block_data in sorted(blocks_info.items())
         ]
     }
-    
+
     # Exportar a archivo
     json_filename = OUTPUT_DIR / f"canvas_{sanitize(canvas_name)}.json"
     with json_filename.open("w", encoding="utf-8") as f:
         json.dump(json_data, f, indent=2, ensure_ascii=False)
-    
+
     print(f"\nOK: JSON exportado: {json_filename}")
     return True
+
 
 def list_canvas():
     """Lista todos los canvas y sus elementos"""
     if not forms["canvas"]:
         print("No se encontraron Canvas en los formularios.")
         return
-    
+
     print(f"\n=== CANVAS ENCONTRADOS ({len(forms['canvas'])}) ===")
     for cname, canvas_info in sorted(forms["canvas"].items()):
         print(f"\nCanvas: {cname}")
         if canvas_info["items"]:
             print(f"   Items ({len(canvas_info['items'])}):")
             for item in canvas_info["items"]:
-                db_info = "[DB]" if item.get('databaseItem', False) else "[CTRL]"
-                column_info = f" -> {item.get('columnName', '')}" if item.get('columnName') else ""
-                tab_info = f" [Tab: {item.get('tabPageName', '')}]" if item.get('tabPageName') else ""
-                print(f"   {db_info} {item['block']}.{item['item']} [{item['itemType']}]{column_info}{tab_info}")
+                db_info = "[DB]" if item.get(
+                    'databaseItem', False) else "[CTRL]"
+                column_info = f" -> {item.get('columnName', '')}" if item.get(
+                    'columnName') else ""
+                tab_info = f" [Tab: {item.get('tabPageName', '')}]" if item.get(
+                    'tabPageName') else ""
+                print(
+                    f"   {db_info} {item['block']}.{item['item']} [{item['itemType']}]{column_info}{tab_info}")
         else:
             print("   (sin elementos)")
+
 
 def search_canvas_by_item(block_name: str, item_name: str):
     """Busca en qué canvas está un item específico"""
@@ -337,10 +373,11 @@ def search_canvas_by_item(block_name: str, item_name: str):
                 return cname
     return None
 
+
 def list_block_items(block_name: str, export_csv: bool = False, export_json: bool = False):
     """Lista todos los items de un bloque específico con sus detalles"""
     block_info = forms["blocks"].get(block_name)
-    
+
     if not block_info:
         print(f"ERROR: Bloque '{block_name}' no encontrado.")
         # Mostrar bloques disponibles
@@ -348,37 +385,38 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
         if available:
             print(f"\nBloques disponibles: {', '.join(sorted(available))}")
         return
-    
+
     print(f"\n{'='*60}")
     print(f"BLOQUE: {block_name}")
     print(f"{'='*60}")
-    
+
     # Información de base de datos del bloque
     if block_info.get("databaseBlock", False):
         print("Tipo: Bloque de Base de Datos")
         if block_info.get("queryDataSourceName"):
-            print(f"Fuente: {block_info['queryDataSourceName']} ({block_info.get('queryDataSourceType', 'None')})")
+            print(
+                f"Fuente: {block_info['queryDataSourceName']} ({block_info.get('queryDataSourceType', 'None')})")
     else:
         print("Tipo: Bloque de Control (no conectado a BD)")
-    
+
     # Triggers del bloque
     if block_info.get("triggers"):
         print(f"\nTriggers del Bloque ({len(block_info['triggers'])}):")
         for tname in sorted(block_info["triggers"].keys()):
             print(f"   - {tname}")
-    
+
     # Items del bloque
     items = block_info.get("items", {})
     if not items:
         print("\n   (sin items)")
         return
-    
+
     print(f"\nItems del Bloque ({len(items)}):")
     print(f"{'-'*60}")
-    
+
     # Preparar datos para exportación
     items_data = []
-    
+
     for item_name, item_meta in sorted(items.items()):
         db_icon = "[DB]" if item_meta.get('databaseItem', False) else "[CTRL]"
         item_type = item_meta.get('itemType', 'Unknown')
@@ -386,26 +424,27 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
         tab_page = item_meta.get('tabPageName', '')
         column = item_meta.get('columnName', '')
         triggers = item_meta.get('triggers', {})
-        
+
         print(f"\n{db_icon} {item_name}")
         print(f"   Tipo: {item_type}")
-        
+
         if canvas:
             print(f"   Canvas: {canvas}")
-        
+
         if tab_page:
             print(f"   Tab Page: {tab_page}")
-        
+
         if column:
             print(f"   Columna BD: {column}")
         elif item_meta.get('databaseItem', False):
             print(f"   Columna BD: {item_name}")
-        
+
         if triggers:
-            print(f"   Triggers ({len(triggers)}): {', '.join(sorted(triggers.keys()))}")
+            print(
+                f"   Triggers ({len(triggers)}): {', '.join(sorted(triggers.keys()))}")
         else:
             print("   Triggers: (ninguno)")
-        
+
         # Agregar a datos de exportación
         item_data = {
             "block": block_name,
@@ -419,7 +458,7 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
             "triggerCount": len(triggers)
         }
         items_data.append(item_data)
-    
+
     # Exportar CSV si se solicitó
     if export_csv and items_data:
         csv_rows = [{
@@ -427,15 +466,16 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
             "databaseItem": str(item["databaseItem"]),
             "triggers": ";".join(item["triggers"])
         } for item in items_data]
-        
+
         csv_filename = OUTPUT_DIR / f"block_{sanitize(block_name)}_items.csv"
         with csv_filename.open("w", newline="", encoding="utf-8") as f:
-            fieldnames = ["block", "item", "itemType", "canvas", "tabPageName", "databaseItem", "columnName", "triggers", "triggerCount"]
+            fieldnames = ["block", "item", "itemType", "canvas", "tabPageName",
+                          "databaseItem", "columnName", "triggers", "triggerCount"]
             w = csv.DictWriter(f, fieldnames=fieldnames)
             w.writeheader()
             w.writerows(csv_rows)
         print(f"\nOK: CSV exportado: {csv_filename}")
-    
+
     # Exportar JSON si se solicitó
     if export_json and items_data:
         json_data = {
@@ -449,47 +489,55 @@ def list_block_items(block_name: str, export_csv: bool = False, export_json: boo
             "itemCount": len(items_data),
             "items": items_data
         }
-        
+
         json_filename = OUTPUT_DIR / f"block_{sanitize(block_name)}_items.json"
         with json_filename.open("w", encoding="utf-8") as f:
             json.dump(json_data, f, indent=2, ensure_ascii=False)
         print(f"\nOK: JSON exportado: {json_filename}")
 
-def get_block_triggers(block):
-    return forms["blocks"].get(block,{}).get("triggers",{})
 
-def get_item_triggers(block,item):
-    return forms["blocks"].get(block,{}).get("items",{}).get(item,{}).get("triggers",{})
+def get_block_triggers(block):
+    return forms["blocks"].get(block, {}).get("triggers", {})
+
+
+def get_item_triggers(block, item):
+    return forms["blocks"].get(block, {}).get("items", {}).get(item, {}).get("triggers", {})
+
 
 def resolve_program_unit(name):
     pu = forms["program_units"].get(name)
     return pu["code"] if pu else None
 
+
 def pretty_code(code, max_len=None):
-    if not code: return ""
+    if not code:
+        return ""
     txt = "\n".join(ln.rstrip() for ln in code.splitlines())
-    return (txt if not max_len or len(txt)<=max_len else txt[:max_len]+" ...")
+    return (txt if not max_len or len(txt) <= max_len else txt[:max_len]+" ...")
 
 # ======= Traza =======
+
+
 def trace_from(element_name: str, max_depth: int = 3):
     trace = {"start": element_name, "steps": []}
     visited_pu = set()
 
-    b,i,meta = find_item(element_name)
+    b, i, meta = find_item(element_name)
     if b and i:
         trigger_order = [
-            "WHEN-MOUSE-ENTER","WHEN-BUTTON-PRESSED","WHEN-MOUSE-CLICK","WHEN-MOUSE-LEAVE",
-            "KEY-ENTER","WHEN-VALIDATE-ITEM","POST-CHANGE"
+            "WHEN-MOUSE-ENTER", "WHEN-BUTTON-PRESSED", "WHEN-MOUSE-CLICK", "WHEN-MOUSE-LEAVE",
+            "KEY-ENTER", "WHEN-VALIDATE-ITEM", "POST-CHANGE"
         ]
-        triggers = get_item_triggers(b,i)
-        ordered = [t for t in trigger_order if t in triggers] + [t for t in triggers if t not in trigger_order]
+        triggers = get_item_triggers(b, i)
+        ordered = [t for t in trigger_order if t in triggers] + \
+            [t for t in triggers if t not in trigger_order]
 
         for tname in ordered:
             code = triggers[tname]
             actions = code_actions(code)
             step = {
                 "element": f"{b}.{i}",
-                "itemType": meta.get("itemType",""),
+                "itemType": meta.get("itemType", ""),
                 "trigger": tname,
                 "code": code,
                 "actions": actions
@@ -497,14 +545,16 @@ def trace_from(element_name: str, max_depth: int = 3):
             trace["steps"].append(step)
             # seguir program units
             for a in actions:
-                if a["type"]=="CALLS":
+                if a["type"] == "CALLS":
                     for pu_name in a["procs"]:
-                        follow_program_unit(trace, pu_name, visited_pu, max_depth-1)
+                        follow_program_unit(
+                            trace, pu_name, visited_pu, max_depth-1)
 
     else:
         blk = forms["blocks"].get(element_name)
         if not blk:
-            print(f"No se encontró '{element_name}'. Usa 'BLOCK.ITEM' o ITEM único o BLOCK.")
+            print(
+                f"No se encontró '{element_name}'. Usa 'BLOCK.ITEM' o ITEM único o BLOCK.")
             return trace
         for tname, code in blk["triggers"].items():
             actions = code_actions(code)
@@ -517,15 +567,19 @@ def trace_from(element_name: str, max_depth: int = 3):
             }
             trace["steps"].append(step)
             for a in actions:
-                if a["type"]=="CALLS":
+                if a["type"] == "CALLS":
                     for pu_name in a["procs"]:
-                        follow_program_unit(trace, pu_name, visited_pu, max_depth-1)
+                        follow_program_unit(
+                            trace, pu_name, visited_pu, max_depth-1)
     return trace
 
+
 def follow_program_unit(trace, pu_name, visited, depth):
-    if depth < 0: return
+    if depth < 0:
+        return
     key = pu_name.upper()
-    if key in visited: return
+    if key in visited:
+        return
     code = resolve_program_unit(pu_name)
     visited.add(key)
     if code:
@@ -539,11 +593,13 @@ def follow_program_unit(trace, pu_name, visited, depth):
         }
         trace["steps"].append(step)
         for a in actions:
-            if a["type"]=="CALLS":
+            if a["type"] == "CALLS":
                 for next_name in a["procs"]:
                     follow_program_unit(trace, next_name, visited, depth-1)
 
 # ======= Exports =======
+
+
 def export_dot(trace):
     out = OUTPUT_DIR / "forms_trace.dot"
     with out.open("w", encoding="utf-8") as f:
@@ -553,16 +609,18 @@ def export_dot(trace):
             nid = f"n{idx}"
             label = f"{idx}. {st['element']}\\n[{st['itemType']}]\\n{st['trigger']}"
             f.write(f'  {nid} [label="{label}"];\n')
-            if last: f.write(f"  {last} -> {nid};\n")
+            if last:
+                f.write(f"  {last} -> {nid};\n")
             # acciones navegacionales como nodos chicos
             for ai, a in enumerate(st["actions"], start=1):
-                if a["type"] in ("EXECUTE_QUERY","CLEAR_BLOCK"):
+                if a["type"] in ("EXECUTE_QUERY", "CLEAR_BLOCK"):
                     aid = f"{nid}_a{ai}"
                     f.write(f'  {aid} [shape=ellipse,label="{a["type"]}"];\n')
                     f.write(f"  {nid} -> {aid};\n")
             last = nid
         f.write("}\n")
     print(f"Grafo DOT: {out}")
+
 
 def export_mermaid_and_html(trace, element_name):
     # Mermaid
@@ -590,7 +648,7 @@ def export_mermaid_and_html(trace, element_name):
 
     # Bifurcaciones por acciones
     def add_node(_id, label):
-        _label = label.replace('"','\\"')
+        _label = label.replace('"', '\\"')
         extra_nodes.append((_id, _label))
 
     for idx, st in enumerate(trace["steps"], start=1):
@@ -604,7 +662,7 @@ def export_mermaid_and_html(trace, element_name):
                 extra_edges.append((nid, bid, "GO_BLOCK"))
                 # posibles triggers en destino
                 btr = get_block_triggers(tb)
-                for tname in ("WHEN-NEW-BLOCK-INSTANCE","PRE-QUERY","POST-QUERY","WHEN-NEW-RECORD-INSTANCE"):
+                for tname in ("WHEN-NEW-BLOCK-INSTANCE", "PRE-QUERY", "POST-QUERY", "WHEN-NEW-RECORD-INSTANCE"):
                     if tname in btr:
                         tid = f"{bid}_{clean_id(tname)}"
                         add_node(tid, f"{tb}\\n{tname}")
@@ -614,32 +672,35 @@ def export_mermaid_and_html(trace, element_name):
                 tgt = a["target_item"]
                 if "." not in tgt:
                     # relativo: asume mismo bloque del paso actual
-                    base_block = st["element"].split(".",1)[0] if "." in st["element"] else ""
+                    base_block = st["element"].split(
+                        ".", 1)[0] if "." in st["element"] else ""
                     tgt = f"{base_block}.{tgt}"
-                tb, ti, _ = find_item(tgt) if "." in tgt else (None,None,None)
+                tb, ti, _ = find_item(
+                    tgt) if "." in tgt else (None, None, None)
                 iid = f"I_{clean_id(tgt)}"
                 if tb and ti:
-                    itype = forms["blocks"][tb]["items"][ti].get("itemType","")
+                    itype = forms["blocks"][tb]["items"][ti].get(
+                        "itemType", "")
                     add_node(iid, f"Item: {tb}.{ti}\\n[{itype}]")
                     extra_edges.append((nid, iid, "GO_ITEM"))
                     itr = get_item_triggers(tb, ti)
-                    for tname in ("WHEN-NEW-ITEM-INSTANCE","WHEN-VALIDATE-ITEM","POST-CHANGE"):
+                    for tname in ("WHEN-NEW-ITEM-INSTANCE", "WHEN-VALIDATE-ITEM", "POST-CHANGE"):
                         if tname in itr:
                             tid = f"{iid}_{clean_id(tname)}"
                             add_node(tid, f"{tb}.{ti}\\n{tname}")
-                            extra_edges.append((iid, tid, ""))                    
+                            extra_edges.append((iid, tid, ""))
                 else:
                     add_node(iid, f"Item: {tgt}")
                     extra_edges.append((nid, iid, "GO_ITEM"))
 
-            elif a["type"] in ("EXECUTE_QUERY","CLEAR_BLOCK"):
+            elif a["type"] in ("EXECUTE_QUERY", "CLEAR_BLOCK"):
                 aid = f"A_{idx}_{ai}"
                 add_node(aid, a["type"])
                 extra_edges.append((nid, aid, ""))
 
-            elif a["type"] in ("CALL_FORM","OPEN_FORM","NEW_FORM"):
+            elif a["type"] in ("CALL_FORM", "OPEN_FORM", "NEW_FORM"):
                 aid = f"F_{idx}_{ai}"
-                add_node(aid, f'{a["type"]}: {a.get("module","")}')
+                add_node(aid, f'{a["type"]}: {a.get("module", "")}')
                 extra_edges.append((nid, aid, ""))
 
             elif a["type"] == "CALLS":
@@ -674,8 +735,10 @@ def export_mermaid_and_html(trace, element_name):
         code_html = html.escape(st["code"] or "")
         actions_html = ""
         if st["actions"]:
-            actions_html = "<ul>" + "".join(f"<li>{html.escape(str(a))}</li>" for a in st["actions"]) + "</ul>"
-        item_type = html.escape(st.get("itemType",""))
+            actions_html = "<ul>" + \
+                "".join(
+                    f"<li>{html.escape(str(a))}</li>" for a in st["actions"]) + "</ul>"
+        item_type = html.escape(st.get("itemType", ""))
         body_steps.append(f"""
 <section id="step{idx}">
   <h3>Paso {idx}: {html.escape(st['element'])} &nbsp;&nbsp;<small>[{item_type}]</small> — <code>{html.escape(st['trigger'])}</code></h3>
@@ -725,17 +788,22 @@ small {{ color:#666; }}
         f.write(html_doc)
     print(f"HTML exportado: {html_path}")
 
+
 def export_trace_bundle(trace, element_name):
     export_dot(trace)
     export_mermaid_and_html(trace, element_name)
 
+
 def sanitize(s: str) -> str:
-    return re.sub(r"[^A-Za-z0-9_.-]+","_", s)
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", s)
+
 
 def clean_id(s: str) -> str:
-    return re.sub(r"[^A-Za-z0-9_]+","_", s)
+    return re.sub(r"[^A-Za-z0-9_]+", "_", s)
 
 # ======= CLI =======
+
+
 def main_menu():
     while True:
         print("\n=== Oracle Forms XML Inspector ===")
@@ -749,9 +817,11 @@ def main_menu():
         if op == "1":
             list_all()
         elif op == "2":
-            name = input("Elemento inicio (BLOCK.ITEM o ITEM único o BLOCK): ").strip()
+            name = input(
+                "Elemento inicio (BLOCK.ITEM o ITEM único o BLOCK): ").strip()
             try:
-                depth = int(input("Profundidad de Program Units [3]: ").strip() or "3")
+                depth = int(
+                    input("Profundidad de Program Units [3]: ").strip() or "3")
             except ValueError:
                 depth = 3
             tr = trace_from(name, max_depth=depth)
@@ -767,11 +837,14 @@ def main_menu():
                     # Mostrar canvas disponibles
                     available = list(forms["canvas"].keys())
                     if available:
-                        print(f"Canvas disponibles: {', '.join(sorted(available))}")
+                        print(
+                            f"Canvas disponibles: {', '.join(sorted(available))}")
                 elif not items:
-                    print(f"INFO: Canvas '{canvas_name}' encontrado pero sin elementos.")
+                    print(
+                        f"INFO: Canvas '{canvas_name}' encontrado pero sin elementos.")
                 else:
-                    print(f"\nCanvas '{canvas_name}' - Elementos ({len(items)}):")
+                    print(
+                        f"\nCanvas '{canvas_name}' - Elementos ({len(items)}):")
                     # Agrupar por bloque para mostrar información de fuente de datos
                     blocks_info = {}
                     for item in items:
@@ -785,22 +858,28 @@ def main_menu():
                                 "items": []
                             }
                         blocks_info[block_name]["items"].append(item)
-                    
+
                     for block_name, block_data in sorted(blocks_info.items()):
                         print(f"\n   Bloque: {block_name}")
                         if block_data["databaseBlock"] and block_data["queryDataSourceName"]:
-                            print(f"      Fuente: {block_data['queryDataSourceName']} ({block_data['queryDataSourceType']})")
+                            print(
+                                f"      Fuente: {block_data['queryDataSourceName']} ({block_data['queryDataSourceType']})")
                         else:
                             print("      Bloque de control (no conectado a BD)")
-                        
+
                         for item in block_data["items"]:
-                            db_icon = "[DB]" if item.get('databaseItem', False) else "[CTRL]"
-                            column_info = f" -> {item.get('columnName', '')}" if item.get('columnName') else ""
-                            tab_info = f" [Tab: {item.get('tabPageName', '')}]" if item.get('tabPageName') else ""
-                            print(f"      {db_icon} {item['item']} [{item['itemType']}]{column_info}{tab_info}")
-                    
+                            db_icon = "[DB]" if item.get(
+                                'databaseItem', False) else "[CTRL]"
+                            column_info = f" -> {item.get('columnName', '')}" if item.get(
+                                'columnName') else ""
+                            tab_info = f" [Tab: {item.get('tabPageName', '')}]" if item.get(
+                                'tabPageName') else ""
+                            print(
+                                f"      {db_icon} {item['item']} [{item['itemType']}]{column_info}{tab_info}")
+
                     # Preguntar si se desea exportar a JSON
-                    export = input("\n¿Exportar a JSON? (s/n) [s]: ").strip().lower()
+                    export = input(
+                        "\n¿Exportar a JSON? (s/n) [s]: ").strip().lower()
                     if export == '' or export == 's' or export == 'si' or export == 'yes' or export == 'y':
                         export_canvas_to_json(canvas_name)
             else:
@@ -808,19 +887,23 @@ def main_menu():
         elif op == "5":
             block_name = input("Nombre del Bloque: ").strip()
             if block_name:
-                export_csv = input("¿Exportar a CSV? (s/n) [n]: ").strip().lower()
+                export_csv = input(
+                    "¿Exportar a CSV? (s/n) [n]: ").strip().lower()
                 export_csv = export_csv == 's' or export_csv == 'si' or export_csv == 'yes' or export_csv == 'y'
-                
-                export_json = input("¿Exportar a JSON? (s/n) [s]: ").strip().lower()
+
+                export_json = input(
+                    "¿Exportar a JSON? (s/n) [s]: ").strip().lower()
                 export_json = export_json == '' or export_json == 's' or export_json == 'si' or export_json == 'yes' or export_json == 'y'
-                
-                list_block_items(block_name, export_csv=export_csv, export_json=export_json)
+
+                list_block_items(
+                    block_name, export_csv=export_csv, export_json=export_json)
             else:
                 print("ERROR: Debe especificar un nombre de Bloque.")
         elif op == "6":
             break
         else:
             print("Opción inválida.")
+
 
 if __name__ == "__main__":
     args = parse_args()
