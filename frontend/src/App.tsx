@@ -148,47 +148,82 @@ export default function App() {
   };
 
   return (
-    <main className="page">
-      <header>
-        <h1>Consulta de Aprobaciones y Rechazos</h1>
-        <p>Migracion Oracle Forms → React + ORDS</p>
-      </header>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="brand-block">
+          <div className="brand-mark">I</div>
+          <div>
+            <p className="brand-title">Infoplan</p>
+            <p className="brand-subtitle">Portal de Aplicaciones</p>
+          </div>
+        </div>
 
-      <FiltersPanel
-        filters={filters}
-        onChange={setFilters}
-        onSearch={runSearch}
-        onLoadOficial={runLoadOficial}
-        searching={loading}
-        dateCrossError={dateCrossError}
-        gerentes={gerentes}
-        intermediarios={intermediarios}
-      />
+        <nav className="side-nav" aria-label="Navegacion principal">
+          <button type="button" className="side-link active">Inicio</button>
+          <button type="button" className="side-link">Mi Perfil</button>
+        </nav>
 
-      <section className="panel status-panel">
-        {dateCrossError && <p className="error">{dateCrossError}</p>}
-        {message ? <p className="ok">{message}</p> : null}
-        {error ? <p className="error">{error}</p> : null}
-        {loading ? <p className="loading">Consultando...</p> : null}
-        {oficialName && <p><strong>Oficial:</strong> {oficialName}</p>}
-      </section>
+        <button type="button" className="side-logout">Cerrar Sesion</button>
+      </aside>
 
-      <section className="panel actions-grid">
-        <button type="button" onClick={runMarcar}>
-          Marcar todas
-        </button>
-        <button type="button" onClick={runDesmarcar}>
-          Desmarcar todas
-        </button>
-        <button type="button" onClick={runExportOle}>
-          Exportar OLE
-        </button>
-        <button type="button" onClick={runExportJasper} disabled={!canExportJasper}>
-          Exportar Jasper
-        </button>
-      </section>
+      <div className="content-shell">
+        <header className="topbar">
+          <p className="topbar-title">Inicio</p>
+          <div className="topbar-user">
+            <div>
+              <p className="topbar-name">Cesar Ricardo</p>
+              <p className="topbar-mail">cericardo@humano.com.do</p>
+            </div>
+            <span className="topbar-avatar">CR</span>
+          </div>
+        </header>
 
-      <ResultsTable rows={rows} />
-    </main>
+        <main className="page">
+          <section className="hero-card">
+            <div>
+              <h1>Consulta de Aprobaciones y Rechazos</h1>
+              <p>Migracion Oracle Forms → React + ORDS</p>
+            </div>
+            <div className="hero-chip">Facturacion</div>
+          </section>
+
+          <FiltersPanel
+            filters={filters}
+            onChange={setFilters}
+            onSearch={runSearch}
+            onLoadOficial={runLoadOficial}
+            searching={loading}
+            dateCrossError={dateCrossError}
+            gerentes={gerentes}
+            intermediarios={intermediarios}
+          />
+
+          <section className="panel status-panel">
+            {dateCrossError && <p className="error">{dateCrossError}</p>}
+            {message ? <p className="ok">{message}</p> : null}
+            {error ? <p className="error">{error}</p> : null}
+            {loading ? <p className="loading">Consultando...</p> : null}
+            {oficialName && <p><strong>Oficial:</strong> {oficialName}</p>}
+          </section>
+
+          <section className="panel actions-grid">
+            <button type="button" onClick={runMarcar}>
+              Marcar todas
+            </button>
+            <button type="button" onClick={runDesmarcar}>
+              Desmarcar todas
+            </button>
+            <button type="button" onClick={runExportOle}>
+              Exportar OLE
+            </button>
+            <button type="button" onClick={runExportJasper} disabled={!canExportJasper}>
+              Exportar Jasper
+            </button>
+          </section>
+
+          <ResultsTable rows={rows} />
+        </main>
+      </div>
+    </div>
   );
 }
