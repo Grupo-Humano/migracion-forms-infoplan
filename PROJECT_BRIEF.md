@@ -171,62 +171,54 @@ migracion-forms-infoplan/
 
 ## 7. Sprint Status
 
-**Current Sprint:** Sprint 1 (Baseline Mock Hardening + Alignment)
+**Current Sprint:** Sprint 0 (Reinicio Estrategico)
 
-**Completed:**
-- ✅ Project brief created
-- ✅ Team assembled (7 senior agents)
-- ✅ **Brainstorm Phase 0 executed** (8 questions, 3 risks mitigated)
-- ✅ Architecture decisions locked (ORDS MVP, no Node middleware)
-- ✅ Tech stack finalized (Vite, TanStack Query, Tailwind, Playwright)
-- ✅ Risk assessment & mitigation plan created ($45K investment)
-- ✅ Sprint 1 technical baseline mock created (frontend + ORDS mock SQL)
+**Completed in previous cycle (historical baseline):**
+- ✅ Team and orchestration structure defined
+- ✅ Architecture and stack decisions documented
+- ✅ ORDS/Frontend baseline artifacts generated
+- ✅ Process docs for orchestration and GitFlow created
+- ✅ Sprint 1 baseline closed as historical reference
 
-**In Progress (Sprint 1 Week 1):**
-- 🔄 Script hardening for Windows execution (Sage)
-- 🔄 Analysis artifacts generation in docs/analysis-results (Sage + Remy)
-- 🔄 Documentation alignment across brief/readme/decision docs (Remy)
-- 🔄 Sprint tracking setup (`docs/sprint-1/plan.md`, `docs/sprint-1/progress.md`) (Remy)
+**In Progress (active cycle):**
+- 🔄 New restart plan created in `docs/sprint-0/plan.md`
+- 🔄 New progress tracker activated in `docs/sprint-0/progress.md`
+- 🔄 Project state aligned to "start from zero" execution model
 
-**Upcoming:**
-- **Sprint 1 Gate:** QA smoke + ORDS reproducible setup + Wave 1/Wave 2 scope decision
-- **Sprint 2+:** Remaining forms (phased rollout)
+**Next Milestones:**
+- Sprint 0: validate ORDS real connectivity, harden extractors, pick Wave 1 pilot form
+- Sprint 1 (post-reset): deliver first real migration slice from PBI to ORDS+React
 
-**Timeline:** 
-- **Sprint 0:** 8 weeks (validation + hiring + risk mitigation)
-- **Sprint 1-8:** 18-24 months for all 200 forms (estimated post-brainstorm)
+**Timeline (reset baseline):**
+- Sprint 0 reset: 1 week
+- Sprint 1+: iterative delivery based on Wave 1/Wave 2 prioritization
 
 ---
 
 ## 8. Current State
 
-**As of 2026-06-15 (Remy orchestration checkpoint):**
+**As of 2026-06-15 (reset checkpoint):**
 
-- **Project:** Phase 0 complete with a Sprint 1 mock baseline running in frontend demo mode
-- **Architecture:** DECIDED → Pure ORDS MVP (no Node.js middleware initially), React SPA on Vite
-- **Tech Stack:** FINALIZED → React 18 + TypeScript strict, TanStack Query, Tailwind, Playwright, Jest
-- **Team:** 11-person structure defined (design squad + dev squad + QA + DevOps + Producer)
-- **Skills Gap:** ORDS expertise = HIGH PRIORITY → Hiring consultant for Week 1 Sprint 1
-- **Risk Assessment:** 3 critical risks identified + mitigation plans ($45K investment, 6 weeks Sprint 0)
-- **Next Actions:** 
-  1. Fix extraction scripts for Windows-safe execution (Sage)
-  2. Regenerate full XML analysis outputs (Sage + Remy)
-  3. Run QA smoke baseline and register issues (Ivy)
-  4. Publish ORDS local setup guidance for reproducible validation (Dash + Sage)
-  5. Close product scope gate for rep_aprobarechazo (Remy + Kira + Sage)
+- **Project Mode:** Restart execution from zero using accumulated assets as reusable baseline.
+- **Runtime Target:** ORDS real (no demo-mode as operational target).
+- **Process Target:** Execute all future PBIs with orchestration lifecycle documented in `docs/ORQUESTACION-PBI-ORDS-REACT.md`.
+- **Delivery Target:** Build a clean Wave 1 pilot path, then scale to complex forms in Wave 2.
 
-**Blockers:** Script portability issues (encoding + hardcoded paths) and scope narrative mismatch (decision doc vs sprint baseline).
+**Active Next Actions:**
+1. Complete Sprint 0 reset tasks in `docs/sprint-0/plan.md`.
+2. Validate ORDS real connectivity with evidence.
+3. Harden extractor scripts for Windows stability.
+4. Select Wave 1 pilot form and produce Sprint 1 real plan.
 
-**Risks (Mitigated):**
-1. **Undocumented Forms logic** → Archaeology sprint + legacy expert pairing (1 week)
-2. **ORDS expertise gap** → Hire consultant + training ($15K, 3 weeks)
-3. **Testing at scale** → Automation-heavy + 2 QA engineers ($30K, ongoing)
+**Current Blockers:**
+- ORDS real host/port reachability still pending confirmation.
+- Script portability issues in XML analysis tooling.
 
-**Conditions for Sprint 1 Go/No-Go:**
-- [ ] Program units/triggers/LOVs extraction working end-to-end on Windows
-- [ ] QA smoke run completed with no blocker defects
-- [ ] ORDS setup steps documented and reproducible
-- [ ] Product scope decision documented (Wave 1 piloto vs Wave 2 complexity)
+**Go/No-Go Conditions for post-reset Sprint 1:**
+- [ ] ORDS real reachable from local execution environment.
+- [ ] Extractor scripts stable and reproducible in Windows.
+- [ ] Wave 1 pilot scope explicitly approved.
+- [ ] QA equivalence matrix baseline ready.
 
 ---
 
