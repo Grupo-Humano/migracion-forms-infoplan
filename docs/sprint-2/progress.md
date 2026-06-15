@@ -252,6 +252,18 @@
 - 2026-06-15 11:47: Task 7A validated - `frontend/.env.local` points to real ORDS and `npm run build` passed.
 - 2026-06-15 11:48: Task 7B blocked - browser call to `/transacciones/search` failed by CORS preflight (`Access-Control-Allow-Origin` missing).
 - 2026-06-15 11:52: Task 7B rerun with Vite proxy (`http://localhost:3002`) removed CORS preflight failure; backend now responds `404 NotFound` from ORDS route.
+- 2026-06-15 11:56: ORDS route probe from terminal confirmed `404` on all candidate paths:
+  - `/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos/gerentes`
+  - `/ords/infoplan/aprobaciones-rechazos/gerentes`
+  - `/ords/infoplan/aprobaciones-rechazos/transacciones/search`
+  - `/ords/infoplan/facturacion/aprobaciones-rechazos/gerentes`
+  - `/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos`
+  Conclusion: module/handlers are not published (or not enabled) in target ORDS schema/environment.
+- 2026-06-15 12:00: Recovery plan activated:
+  1) Sage validates module + templates + handlers in DB metadata.
+  2) Sage republishes endpoints using ORDS APIs compatible with current package version.
+  3) Dash validates ORDS mapping/restart and definitive CORS policy.
+  4) Nova + Ivy rerun Task 7B immediately after publish.
 - ...
 
 ---
