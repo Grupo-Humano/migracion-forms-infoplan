@@ -126,9 +126,9 @@
     - [ ] No 404 or CORS errors in console
   - [ ] Screenshot of working page
   - [ ] Document in `docs/sprint-2/frontend-integration.md`
-- **Blockers:** CORS preflight blocked by ORDS (`No 'Access-Control-Allow-Origin' header` on `/transacciones/search`). Pending DevOps/ORDS CORS config + handler verification.
+- **Blockers:** ORDS returns `404 NotFound` for integration calls after proxy rerun. Indicates handlers/paths not published or mismatch between frontend routes and deployed ORDS module.
 - **ETA:** 2026-06-17
-- **Notes:** UI loads on `http://localhost:3000`, but integration call fails with `net::ERR_FAILED` due to CORS policy from ORDS origin.
+- **Notes:** Local CORS workaround applied (Vite proxy + relative base URL) and verified from `http://localhost:3002`; current failure moved to backend availability (`NotFound` payload from ORDS).
 
 ---
 
@@ -207,7 +207,8 @@
 |---------|--------|-------|--------|
 | ORDS credentials not provided | SPRINT BLOCKING | Sage + DevOps | 🔄 TBD |
 | Oracle DB connection timeout | SPRINT BLOCKING | Sage + DevOps | 🔄 TBD |
-| CORS headers not configured on ORDS | HIGH | Sage + DevOps | 🔴 ACTIVE (reproduced on Task 7 search call) |
+| CORS headers not configured on ORDS | HIGH | Sage + DevOps | 🟡 MITIGATED LOCAL (Vite proxy in dev) |
+| ORDS handlers/path mismatch (404 NotFound) | HIGH | Sage | 🔴 ACTIVE (reproduced on Task 7 rerun) |
 | Frontend env configuration error | MEDIUM | Nova | ✅ RESOLVED (`.env.local` configured, build OK) |
 
 ---
@@ -250,6 +251,7 @@
 - 2026-06-15 08:00: Sprint 2 kickoff - awaiting ORDS credentials
 - 2026-06-15 11:47: Task 7A validated - `frontend/.env.local` points to real ORDS and `npm run build` passed.
 - 2026-06-15 11:48: Task 7B blocked - browser call to `/transacciones/search` failed by CORS preflight (`Access-Control-Allow-Origin` missing).
+- 2026-06-15 11:52: Task 7B rerun with Vite proxy (`http://localhost:3002`) removed CORS preflight failure; backend now responds `404 NotFound` from ORDS route.
 - ...
 
 ---
