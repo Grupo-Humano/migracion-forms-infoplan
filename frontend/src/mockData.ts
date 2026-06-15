@@ -1,7 +1,81 @@
 import type { TransactionRow } from "./types";
 
-// Mock data retained for unit test scaffolding only.
-// Runtime always uses real ORDS endpoints.
-export const mockTransactions: TransactionRow[] = [];
+export const mockTransactions: TransactionRow[] = [
+	{
+		id_transaccion: 1001,
+		fec_tra: "2026-06-03",
+		cliente: 12001,
+		compania: 1,
+		ramo: 15,
+		secuencial: 771001,
+		monto: 15420.5,
+		estado: "APROBADA",
+		codigo_rechazo: null,
+		descripcion_rechazo: null,
+		respuesta_banco: "00",
+		num_autoriza: "AUTH-7781",
+		lote_id: 501,
+		oficial: 501,
+		gerente: 301,
+		intermediario: 401,
+		nombre_oficial: "Juan Perez",
+		nombre_gerente: "Gerente 301",
+		nombre_intermediario: "Intermediario 401",
+		cliente_poliza: "CP-12001",
+		estatus_poliza: "VIGENTE",
+		frecuencia_pago: "MENSUAL",
+		seleccion: "N"
+	},
+	{
+		id_transaccion: 1002,
+		fec_tra: "2026-06-10",
+		cliente: 12002,
+		compania: 1,
+		ramo: 22,
+		secuencial: 771002,
+		monto: 8200,
+		estado: "RECHAZADA",
+		codigo_rechazo: "R14",
+		descripcion_rechazo: "Fondos insuficientes",
+		respuesta_banco: "51",
+		num_autoriza: null,
+		lote_id: 502,
+		oficial: 502,
+		gerente: 302,
+		intermediario: 402,
+		nombre_oficial: "Maria Garcia",
+		nombre_gerente: "Gerente 302",
+		nombre_intermediario: "Intermediario 402",
+		cliente_poliza: "CP-12002",
+		estatus_poliza: "PENDIENTE",
+		frecuencia_pago: "TRIMESTRAL",
+		seleccion: "N"
+	},
+	{
+		id_transaccion: 1003,
+		fec_tra: "2026-06-14",
+		cliente: 12003,
+		compania: 2,
+		ramo: 18,
+		secuencial: 771003,
+		monto: 23000,
+		estado: "APROBADA",
+		codigo_rechazo: null,
+		descripcion_rechazo: null,
+		respuesta_banco: "00",
+		num_autoriza: "AUTH-8890",
+		lote_id: 503,
+		oficial: 503,
+		gerente: 303,
+		intermediario: 403,
+		nombre_oficial: "Luis Martinez",
+		nombre_gerente: "Gerente 303",
+		nombre_intermediario: "Intermediario 403",
+		cliente_poliza: "CP-12003",
+		estatus_poliza: "VIGENTE",
+		frecuencia_pago: "ANUAL",
+		seleccion: "S"
+	}
+];
 
 

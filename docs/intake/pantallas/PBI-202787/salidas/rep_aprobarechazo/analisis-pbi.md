@@ -26,8 +26,11 @@ Permitir consulta de polizas aprobadas/rechazadas por rango de fechas y filtros 
   - Ruta OLE (`GENERA_REPORTE`).
   - Ruta Jasper (`P_JASPER_A_EXCEL`).
 - Estado actual:
-  - Endpoints y cliente existen en modo mock.
-  - Falta confirmar equivalencia final del archivo Excel productivo (estructura y formato final).
+  - OLE disponible en ORDS para esta pantalla.
+  - Jasper en runtime real no disponible (404 en ambas rutas evaluadas):
+    - `/exportaciones/jasper` -> HTTP 404
+    - `/export/jasper` -> HTTP 404
+  - Se activa regla de orquestacion: crear tarea obligatoria para habilitacion Jasper.
 
 ### CA-04 Filtrado y limpieza de informacion
 - Interpretacion funcional:
@@ -44,6 +47,7 @@ Permitir consulta de polizas aprobadas/rechazadas por rango de fechas y filtros 
    - Formatos (fecha, monto, texto).
 2. Confirmar comportamiento esperado de seleccion/marcado para exportar.
 3. Definir si se mantiene doble ruta de exportacion (OLE y Jasper) o se unifica.
+4. Implementar endpoint Jasper real en el modulo canónico para cerrar gap funcional.
 
 ## 4. Decision de trabajo
 
@@ -82,3 +86,16 @@ Estado del checkpoint humano:
 
 Regla aplicada:
 - No se permite crear modulo ORDS nuevo ni avanzar a implementacion de nuevos endpoints hasta aprobacion explicita del checkpoint humano.
+
+## 6. Incidencia activa - Jasper 404 (2026-06-15)
+
+Evidencia reportada en ejecucion UI:
+- `/exportaciones/jasper` -> HTTP 404: Not Found
+- `/export/jasper` -> HTTP 404: Not Found
+
+Decision temporal:
+- Mantener export OLE operativo como contingencia funcional.
+- No cerrar migracion de exportes hasta tener Jasper disponible.
+
+Tarea obligatoria creada:
+- Ver `tarea-obligatoria-jasper.md` en este mismo folder de salida.

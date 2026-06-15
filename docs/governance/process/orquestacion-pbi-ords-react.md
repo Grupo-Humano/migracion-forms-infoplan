@@ -102,8 +102,23 @@ Salida:
    - NUEVO
 4. Publicar tabla resumen y detener.
 
+Control obligatorio anti-mock (nueva leccion):
+1. Confirmar si el modulo candidato usa tablas o paquetes de tipo `mock_%` o `*_mock`.
+2. Si la pantalla es de validacion real, cualquier modulo mock queda descartado para consumo frontend productivo.
+3. Dejar evidencia SQL en el analisis del PBI con al menos:
+   - modulo + templates + methods
+   - source del handler de busqueda
+   - tabla/vista real de datos utilizada por el handler
+
 Tabla obligatoria:
 | Operacion | Tabla | Metodo | ORDS existente | Clasificacion | Observaciones |
+
+Matriz obligatoria de endpoint canónico (nueva):
+| Operacion UI | Endpoint evaluado | Modulo | Estado | Motivo |
+
+Regla:
+- El frontend solo puede usar el endpoint marcado como CANONICO para cada operacion.
+- Si existen 2 endpoints funcionalmente equivalentes (ejemplo: mock y real), se debe documentar cual queda bloqueado y por que.
 
 Checkpoint humano obligatorio:
 - Se requiere aprobacion explicita antes de pasar a Fase 5.
@@ -141,6 +156,13 @@ Consultas minimas sugeridas en SQL Developer MCP:
 3. Comparar resultado esperado vs actual por caso.
 4. Emitir recomendacion GO/NO-GO para la pantalla.
 
+Validaciones adicionales obligatorias (nueva):
+5. Validar paginacion de respuesta ORDS (`items`, `hasMore`, `limit`, `offset`) y documentar si la UI muestra primera pagina o total acumulado.
+6. Si la UI muestra primera pagina, el mensaje de resultado debe explicitarlo para evitar interpretaciones falsas de volumen de datos.
+7. Ejecutar una prueba de rango amplio de fechas y una de rango acotado para confirmar consistencia del conteo.
+8. Validar politica de exportacion: si existe endpoint Jasper operativo para la pantalla, OLE queda deshabilitado para desarrollo nuevo.
+9. Si Jasper NO existe para la pantalla, crear tarea obligatoria en backlog para habilitar Jasper antes de cierre de migracion.
+
 Salida:
 - evidencia_equivalencia
 - decision_go_no_go
@@ -160,6 +182,10 @@ Salida:
 - Toda mejora de proceso debe dejar traza en docs/sprint-N/progress.md.
 - Reuse-first en ORDS: reutilizar modulo existente con sentido funcional y de dominio; crear nuevo solo con justificacion escrita.
 - Sin intake completo no se ejecuta migracion de plantilla.
+- No se permite conectar frontend productivo a modulo ORDS mock salvo en ambientes de demo controlada y documentada.
+- Toda pantalla debe tener definido su endpoint canónico de busqueda antes de QA final.
+- Politica de exportes: Jasper-first. No implementar ni extender OLE cuando Jasper exista en la pantalla.
+- Excepcion controlada: si Jasper aun no existe, registrar tarea explicita con owner y fecha objetivo para crearlo.
 
 ## Fuentes
 - prompts/awsome_prompt.md

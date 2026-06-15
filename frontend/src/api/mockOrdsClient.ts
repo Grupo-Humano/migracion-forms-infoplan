@@ -1,6 +1,7 @@
 import { mockTransactions } from "../mockData";
 import type {
   ExportResponse,
+  LovItem,
   LookupResponse,
   SearchFilters,
   SelectionResponse,
@@ -97,4 +98,22 @@ export async function exportJasper(
     to_date: fec_fin,
     rows_in_range: 5
   };
+}
+
+export async function getGerentes(): Promise<LovItem[]> {
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  return [
+    { codigo: 301, nombre: "Gerente 301" },
+    { codigo: 302, nombre: "Gerente 302" },
+    { codigo: 303, nombre: "Gerente 303" }
+  ];
+}
+
+export async function getIntermediarios(): Promise<LovItem[]> {
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  return [
+    { codigo: 401, nombre: "Intermediario 401" },
+    { codigo: 402, nombre: "Intermediario 402" },
+    { codigo: 403, nombre: "Intermediario 403" }
+  ];
 }

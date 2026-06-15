@@ -106,6 +106,24 @@ BEGIN
          p_module_name => 'facturacion-aprobaciones-rechazos-v1',
          p_pattern     => 'transacciones/search'); END;]'
   );
+  try_stmt(
+    'ords.define_template transacciones/seleccion/{accion}',
+    q'[BEGIN ords.define_template(
+         p_module_name => 'facturacion-aprobaciones-rechazos-v1',
+         p_pattern     => 'transacciones/seleccion/{accion}'); END;]'
+  );
+  try_stmt(
+    'ords.define_template exportaciones/ole',
+    q'[BEGIN ords.define_template(
+         p_module_name => 'facturacion-aprobaciones-rechazos-v1',
+         p_pattern     => 'exportaciones/ole'); END;]'
+  );
+  try_stmt(
+    'ords.define_template exportaciones/jasper',
+    q'[BEGIN ords.define_template(
+         p_module_name => 'facturacion-aprobaciones-rechazos-v1',
+         p_pattern     => 'exportaciones/jasper'); END;]'
+  );
 
   -- handlers (minimum endpoints for Task 7 rerun)
   try_stmt(
@@ -135,7 +153,155 @@ BEGIN
          p_pattern     => 'transacciones/search',
          p_method      => 'POST',
          p_source_type => 'json/collection',
-         p_source      => 'select id_transaccion, fecha, compania, ramo, secuencial, monto, cod_rechazo, respuesta_banco, num_autoriza, lote_id from transacciones_cobro_recurrente fetch first 500 rows only'); END;]'
+         p_source      => q''[
+           SELECT
+             q.id_transaccion,
+             TO_CHAR(q.fecha, ''YYYY-MM-DD'') AS fec_tra,
+             q.cliente,
+             q.compania,
+             q.ramo,
+             q.secuencial,
+             q.monto,
+             q.estado,
+             q.cod_rechazo AS codigo_rechazo,
+             q.respuesta_banco,
+             q.num_autoriza,
+             q.lote_id,
+             q.oficial,
+             q.gerente,
+             q.intermediario,
+             q.seleccionado AS seleccion
+           FROM (
+             SELECT
+               t.id_transaccion,
+               t.fecha,
+               t.cliente,
+               t.compania,
+               t.ramo,
+               t.secuencial,
+               t.monto,
+               t.estado,
+               t.cod_rechazo,
+               t.respuesta_banco,
+               t.num_autoriza,
+               t.lote_id,
+               t.oficial,
+               t.gerente,
+               t.intermediario,
+               NVL(t.seleccionado, 0) AS seleccionado,
+               ROW_NUMBER() OVER (
+                 ORDER BY t.fecha DESC, t.id_transaccion DESC
+               ) AS rn
+             FROM transacciones_cobro_recurrente t
+             WHERE (:fec_ini IS NULL OR t.fecha >= TO_DATE(:fec_ini, ''YYYY-MM-DD''))
+               AND (:fec_fin IS NULL OR t.fecha < TO_DATE(:fec_fin, ''YYYY-MM-DD'') + 1)
+               AND (:cliente IS NULL OR t.cliente = TO_NUMBER(:cliente))
+               AND (:oficial IS NULL OR t.oficial = TO_NUMBER(:oficial))
+               AND (:gerente IS NULL OR t.gerente = TO_NUMBER(:gerente))
+               AND (:intermediario IS NULL OR t.intermediario = TO_NUMBER(:intermediario))
+           ) q
+           WHERE q.rn > NVL(TO_NUMBER(:offset), 0)
+             AND q.rn <= NVL(TO_NUMBER(:offset), 0) + NVL(TO_NUMBER(:limit), 25)
+           ORDER BY q.rn
+         ]'' ); END;]'
+  );
+
+  try_stmt(
+    'ords.define_handler POST transacciones/seleccion/{accion}',
+    q'[BEGIN ords.define_handler(
+         p_module_name => 'facturacion-aprobaciones-rechazos-v1',
+         p_pattern     => 'transacciones/seleccion/{accion}',
+         p_method      => 'POST',
+         p_source_type => 'plsql/block',
+         p_source      => q''[
+           DECLARE
+             v_rows NUMBER;
+           BEGIN
+             pkg_rep_aprobarechazo_mock.do_seleccionar(
+               p_action => :accion,
+               p_rows_affected => v_rows
+             );
+
+             :status_code := 200;
+             :response := JSON_OBJECT(
+               ''status'' VALUE ''OK'',
+               ''rows_affected'' VALUE v_rows,
+               ''action'' VALUE :accion
+             );
+           END;
+         ]'' ); END;]'
+  );
+
+  try_stmt(
+    'ords.define_handler POST exportaciones/ole',
+    q'[BEGIN ords.define_handler(
+         p_module_name => 'facturacion-aprobaciones-rechazos-v1',
+         p_pattern     => 'exportaciones/ole',
+         p_method      => 'POST',
+         p_source_type => 'plsql/block',
+         p_source      => q''[
+           DECLARE
+             v_payload CLOB;
+           BEGIN
+             pkg_rep_aprobarechazo_mock.genera_reporte(v_payload);
+             :status_code := 200;
+             :response := v_payload;
+           END;
+         ]'' ); END;]'
+  );
+
+  try_stmt(
+    'ords.define_handler POST exportaciones/jasper',
+    q'[BEGIN ords.define_handler(
+         p_module_name => 'facturacion-aprobaciones-rechazos-v1',
+         p_pattern     => 'exportaciones/jasper',
+         p_method      => 'POST',
+         p_source_type => 'plsql/block',
+         p_source      => q''[
+           DECLARE
+             v_data CLOB;
+           BEGIN
+             SELECT JSON_OBJECT(
+                      ''status'' VALUE ''OK'',
+                      ''report_type'' VALUE ''JASPER_WEB_CALL'',
+                      ''from_date'' VALUE :fec_ini,
+                      ''to_date'' VALUE :fec_fin,
+                      ''rows'' VALUE COUNT(*),
+                      ''items'' VALUE COALESCE(
+                        JSON_ARRAYAGG(
+                          JSON_OBJECT(
+                            ''id_transaccion'' VALUE t.id_transaccion,
+                            ''fecha'' VALUE TO_CHAR(t.fecha, ''YYYY-MM-DD''),
+                            ''cliente'' VALUE t.cliente,
+                            ''compania'' VALUE t.compania,
+                            ''ramo'' VALUE t.ramo,
+                            ''secuencial'' VALUE t.secuencial,
+                            ''monto'' VALUE t.monto,
+                            ''cod_rechazo'' VALUE t.cod_rechazo,
+                            ''respuesta_banco'' VALUE t.respuesta_banco,
+                            ''num_autoriza'' VALUE t.num_autoriza,
+                            ''lote_id'' VALUE t.lote_id
+                          )
+                        RETURNING CLOB),
+                        TO_CLOB(''[]'')
+                      )
+                    RETURNING CLOB)
+               INTO v_data
+               FROM transacciones_cobro_recurrente t
+              WHERE t.fecha >= TO_DATE(:fec_ini, ''YYYY-MM-DD'')
+                AND t.fecha < TO_DATE(:fec_fin, ''YYYY-MM-DD'') + 1;
+
+             :status_code := 200;
+             :response := v_data;
+           EXCEPTION
+             WHEN OTHERS THEN
+               :status_code := 500;
+               :response := JSON_OBJECT(
+                 ''status'' VALUE ''ERROR'',
+                 ''message'' VALUE SQLERRM
+               );
+           END;
+         ]'' ); END;]'
   );
 
   COMMIT;
@@ -156,3 +322,7 @@ PROMPT ============================================================
 PROMPT GET  https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/gerentes
 PROMPT GET  https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/intermediarios
 PROMPT POST https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/transacciones/search
+PROMPT POST https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/transacciones/seleccion/M
+PROMPT POST https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/transacciones/seleccion/D
+PROMPT POST https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/exportaciones/ole
+PROMPT POST https://infoplan-web-dev.humano.local/ords/infoplan/aprobaciones-rechazos/exportaciones/jasper

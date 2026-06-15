@@ -56,6 +56,14 @@ Luego reemplaza en los archivos placeholders PBI-ID, NOMBRE_PANTALLA e INT-XXX.
 - Publicar tabla: reutilizable vs adaptable vs nuevo.
 - Ejecutar checkpoint humano y detenerse.
 
+Checks operativos obligatorios (anti-confusion mock vs real):
+- Confirmar si el endpoint de busqueda apunta a fuente mock o real.
+- Documentar endpoint canónico por operacion UI (buscar, marcar, desmarcar, exportar).
+- Si hay endpoint mock y endpoint real para la misma operacion, bloquear mock para uso productivo.
+- Registrar evidencia SQL minima del source del handler para evitar ambiguedad.
+- Politica de exportes: si existe Jasper para la pantalla, OLE no se desarrolla ni se extiende.
+- Si no existe Jasper, crear tarea obligatoria de implementacion Jasper con owner y fecha objetivo.
+
 Checkpoint humano obligatorio:
 - Presentar analisis de ORDS reutilizables vs nuevos.
 - Esperar aprobacion explicita antes de crear endpoint/modulo nuevo.
@@ -64,6 +72,8 @@ Checkpoint humano obligatorio:
 8. Ejecucion y control
 - Actualizar progress.md por fase.
 - Escribir salidas tecnicas solo en salidas/<pantalla>/.
+- Verificar paginacion ORDS en cada demo (items/hasMore/limit/offset) y reflejar el alcance real del conteo mostrado en UI.
+- Registrar en progress.md si aplica Jasper-first (SI/NO) y la decision sobre OLE.
 
 9. Cierre
 - Completar done.md con evidencia QA, riesgos residuales y decision de cierre.

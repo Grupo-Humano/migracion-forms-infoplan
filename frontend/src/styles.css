@@ -298,6 +298,39 @@ button.primary:hover {
   gap: 10px;
 }
 
+.pagination-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pagination-left {
+  display: grid;
+  gap: 4px;
+}
+
+.pagination-left span {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.pagination-right {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pagination-right label {
+  min-width: 140px;
+}
+
+.pagination-right select {
+  margin-top: 4px;
+}
+
 .status-panel p {
   margin: 6px 0;
 }
@@ -329,6 +362,11 @@ button.primary:hover {
 
 input[aria-invalid="true"] {
   border-color: var(--danger);
+}
+
+td input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
 }
 
 button:disabled {

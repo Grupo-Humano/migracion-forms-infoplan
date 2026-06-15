@@ -2,9 +2,15 @@ import type { TransactionRow } from "../types";
 
 type Props = {
   rows: TransactionRow[];
+  onToggleSelection: (idTransaccion: number, selected: boolean) => void;
+  rowNumberStart?: number;
 };
 
-export function ResultsTable({ rows }: Readonly<Props>) {
+export function ResultsTable({
+  rows,
+  onToggleSelection,
+  rowNumberStart = 1
+}: Readonly<Props>) {
   return (
     <section className="panel">
       <h2>Resultados ({rows.length})</h2>
@@ -12,6 +18,7 @@ export function ResultsTable({ rows }: Readonly<Props>) {
         <table>
           <thead>
             <tr>
+              <th>#</th>
               <th>ID</th>
               <th>Fecha</th>
               <th>Cliente</th>
@@ -34,8 +41,9 @@ export function ResultsTable({ rows }: Readonly<Props>) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <tr key={row.id_transaccion}>
+                <td>{rowNumberStart + index}</td>
                 <td>{row.id_transaccion}</td>
                 <td>{row.fec_tra}</td>
                 <td>{row.cliente}</td>
@@ -54,7 +62,16 @@ export function ResultsTable({ rows }: Readonly<Props>) {
                 <td>{row.nombre_oficial ?? row.oficial ?? "-"}</td>
                 <td>{row.nombre_gerente ?? row.gerente ?? "-"}</td>
                 <td>{row.nombre_intermediario ?? row.intermediario ?? "-"}</td>
-                <td>{row.seleccion}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={row.seleccion === "S"}
+                    onChange={(event) =>
+                      onToggleSelection(row.id_transaccion, event.target.checked)
+                    }
+                    aria-label={`Seleccionar transaccion ${row.id_transaccion}`}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

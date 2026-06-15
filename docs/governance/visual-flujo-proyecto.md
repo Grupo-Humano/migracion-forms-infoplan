@@ -98,12 +98,16 @@ flowchart TD
 flowchart TD
     G1[Gate 1 - Inicio<br/>Entradas completas] --> G2[Gate 2 - Construccion<br/>Contratos + UI mapeada]
     G2 --> G25[Gate 2.5 - Checkpoint humano ORDS<br/>Reutilizable vs nuevo aprobado]
-    G25 --> G3[Gate 3 - Validacion<br/>Smoke + QA equivalencia]
-    G3 --> G4[Gate 4 - Cierre<br/>Sign-off + done.md]
+    G25 --> G3[Gate 3 - Validacion<br/>Smoke + QA equivalencia + endpoint canonico]
+    G3 --> G35[Gate 3.5 - Datos<br/>Anti-mock + paginacion ORDS validada]
+    G35 --> G36[Gate 3.6 - Exportacion<br/>Jasper-first validado / tarea Jasper creada]
+    G36 --> G4[Gate 4 - Cierre<br/>Sign-off + done.md]
 
     G1 -. falla .-> R1[No avanza]
     G2 -. falla .-> R1
     G25 -. falla .-> R1
+    G35 -. falla .-> R1
+    G36 -. falla .-> R1
     G3 -. falla .-> R1
     R1 --> A1[Correccion en salidas]
     A1 --> G2

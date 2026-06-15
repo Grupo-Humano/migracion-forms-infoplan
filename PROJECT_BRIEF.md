@@ -248,6 +248,15 @@ migracion-forms-infoplan/
 - [ ] Frontend integration smoke evidence attached
 - [ ] `docs/sprint-2/done.md` written with final handoff evidence
 - [ ] Comprehensive evaluation findings closed or explicitly accepted with owner/date
+- [ ] Regla Jasper-first documentada por pantalla (o tarea Jasper creada si no existe)
+
+**Lecciones aprendidas operativas (2026-06-15):**
+- Se confirmo que `rep-aprobarechazo` era un modulo mock para parte del flujo, con conteos acotados.
+- Se confirmo que el endpoint real para volumen productivo es el modulo `facturacion-aprobaciones-rechazos-v1` (`/aprobaciones-rechazos`).
+- Se detecto riesgo de interpretacion en UI por paginacion ORDS (primera pagina visible vs total de dataset).
+- A partir de ahora, cada migracion de pantalla debe declarar endpoint canónico y evidencia de fuente de datos (mock vs real).
+- Politica de exportacion unificada: si Jasper existe para la pantalla, OLE queda fuera de desarrollo nuevo.
+- Si Jasper no existe, se debe crear tarea formal con owner/fecha para habilitar Jasper antes del cierre.
 
 ---
 
@@ -281,6 +290,8 @@ git clone <repo> project-devops # Dash
 cd project-dev/frontend
 npm install
 npm run dev          # Runs on http://localhost:3000
+npm run build
+npm run preview -- --host 0.0.0.0 --port 4173   # Demo estable cuando dev server tenga cache stale
 
 # Backend (ORDS + Node)
 cd ../backend
@@ -470,6 +481,19 @@ Allowed outcomes:
 
 Hard rule:
 - No new ORDS module creation is allowed without explicit checkpoint approval.
+
+### 15.3 Endpoint Canonical and Pagination Control (MANDATORY)
+
+Before finalizing frontend integration and QA sign-off, the team must:
+
+1. Declare one canonical ORDS endpoint per core UI operation.
+2. Explicitly classify each evaluated endpoint as `REAL`, `MOCK`, or `DESCARTADO`.
+3. Store SQL evidence of handler source for the canonical search endpoint.
+4. Validate ORDS pagination contract (`items`, `hasMore`, `limit`, `offset`) and document UI behavior.
+5. Report search results in QA with clear scope: first page vs full dataset.
+
+Hard rule:
+- Production-like validation cannot rely on mock endpoints unless the objective is an explicit mock-only test case.
 
 ---
 

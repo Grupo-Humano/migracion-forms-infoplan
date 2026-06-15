@@ -33,6 +33,13 @@ export type TransactionRow = {
   seleccion: "S" | "N";
 };
 
+export type SearchResult = {
+  items: TransactionRow[];
+  hasMore?: boolean;
+  limit?: number;
+  offset?: number;
+};
+
 export type LovItem = {
   codigo: number;
   nombre: string;
@@ -59,6 +66,8 @@ export type ExportResponse = {
   message: string;
   selected_rows?: number;
   rows_in_range?: number;
+  rows?: number;
   from_date?: string;
   to_date?: string;
+  items?: TransactionRow[];
 };
