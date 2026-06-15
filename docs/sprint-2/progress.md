@@ -11,15 +11,15 @@
 ## Live Task Status
 
 ### Task 1: Create ORDS Module (0.5d)
-- **Status:** 🔄 IN PROGRESS
+- **Status:** ✅ DONE
 - **Owner:** Sage
 - **Description:** Register new module in ORDS for handlers
 - **Progress:**
-  - [ ] Connect to ORDS admin interface
-  - [ ] Create module: `facturacion-aprobaciones-rechazos-v1`
-  - [ ] Verify module in ORDS dashboard
-  - [ ] Test base URL accessibility
-- **Blockers:** Awaiting ORDS credentials from DevOps
+  - [x] Connect to ORDS admin interface
+  - [x] Create module: `facturacion-aprobaciones-rechazos-v1`
+  - [x] Verify module in ORDS dashboard (DB metadata)
+  - [x] Test base URL accessibility (route exists; now auth-gated)
+- **Blockers:** None
 - **ETA:** 2026-06-15
 - **Notes:** Module creation usually fast (~15 min) once credentials confirmed
 
@@ -126,9 +126,9 @@
     - [ ] No 404 or CORS errors in console
   - [ ] Screenshot of working page
   - [ ] Document in `docs/sprint-2/frontend-integration.md`
-- **Blockers:** ORDS returns `404 NotFound` for integration calls after proxy rerun. Indicates handlers/paths not published or mismatch between frontend routes and deployed ORDS module.
+- **Blockers:** ORDS now returns `403 Forbidden` on live calls after route correction/publish. Current blocker is authorization/policy (not routing).
 - **ETA:** 2026-06-17
-- **Notes:** Local CORS workaround applied (Vite proxy + relative base URL) and verified from `http://localhost:3002`; current failure moved to backend availability (`NotFound` payload from ORDS).
+- **Notes:** Local CORS workaround applied (Vite proxy + relative base URL). After Sage publish + base path correction, error transitioned from `404` to `403` proving endpoint exists but requires access policy alignment.
 
 ---
 
@@ -205,10 +205,11 @@
 
 | Blocker | Impact | Owner | Status |
 |---------|--------|-------|--------|
-| ORDS credentials not provided | SPRINT BLOCKING | Sage + DevOps | 🔄 TBD |
+| ORDS credentials not provided | SPRINT BLOCKING | Sage + DevOps | ✅ RESOLVED (connected as DBAPER) |
 | Oracle DB connection timeout | SPRINT BLOCKING | Sage + DevOps | 🔄 TBD |
 | CORS headers not configured on ORDS | HIGH | Sage + DevOps | 🟡 MITIGATED LOCAL (Vite proxy in dev) |
-| ORDS handlers/path mismatch (404 NotFound) | HIGH | Sage | 🔴 ACTIVE (reproduced on Task 7 rerun) |
+| ORDS handlers/path mismatch (404 NotFound) | HIGH | Sage | ✅ RESOLVED (handlers published + corrected base path) |
+| ORDS authorization/policy returns 403 | HIGH | Dash + Sage | 🔴 ACTIVE |
 | Frontend env configuration error | MEDIUM | Nova | ✅ RESOLVED (`.env.local` configured, build OK) |
 
 ---
@@ -264,6 +265,12 @@
   2) Sage republishes endpoints using ORDS APIs compatible with current package version.
   3) Dash validates ORDS mapping/restart and definitive CORS policy.
   4) Nova + Ivy rerun Task 7B immediately after publish.
+- 2026-06-15 12:08: Remy delivered execution artifacts for immediate action:
+  - `backend/ords/scripts/06_sage_ords_validation_publish_checklist.sql`
+  - `docs/sprint-2/DASH_CORS_AND_ROUTING_RUNBOOK.md`
+  Next gate: Sage publishes reachable endpoints, then Nova/Ivy rerun Task 7B.
+- 2026-06-15 12:12: Sage published minimum handlers in DBAPER (`gerentes`, `intermediarios`, `transacciones/search`) under module `facturacion-aprobaciones-rechazos-v1`.
+- 2026-06-15 12:15: Nova switched dev base path to `/ords/infoplan/aprobaciones-rechazos`; browser rerun on `http://localhost:3002` now returns `403 Forbidden` (route exists, auth/policy pending).
 - ...
 
 ---
