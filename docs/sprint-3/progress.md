@@ -11,8 +11,8 @@ Owner: Remy
 
 | # | Tarea | Owner | Esfuerzo | Estado | Bloqueo |
 |---|---|---|---|---|---|
-| T-01 | Baseline Jasper normalizado | Sage | 0.5d | 🔄 EN EJECUCION (50%) | — |
-| T-02 | Identificar filtro Jasper exacto | Sage | 1.0d | ⏳ PENDIENTE | Necesita .jrxml o inferir por XLS |
+| T-01 | Baseline Jasper normalizado | Sage | 0.5d | 🔄 EN EJECUCION (75%) | — |
+| T-02 | Identificar filtro Jasper exacto | Sage | 1.0d | 🔄 EN EJECUCION (analisis inicial) | Necesita .jrxml para cierre exacto |
 | T-03 | Matriz equivalencia campo a campo | Sage + Nova | 1.0d | ⏳ PENDIENTE | T-01, T-02 |
 | T-04 | Correcciones de datos (si aplica) | Sage / Nova | 0.5d max | ⏳ PENDIENTE | T-03 |
 | T-05 | Lazy enrichment frontend | Nova | 0.5d | 🔄 EN EJECUCION (paralelo) | — |
@@ -59,7 +59,7 @@ Conclusion operativa: el daily previo era consistente y se ejecuta segun plan.
 **Owner:** Sage | **ETA:** 2026-06-16 AM | **Estado:** 🔄 EN EJECUCION
 
 - [x] `python scripts/inspect_report_xls.py` sobre `data/jasper-reference/report6.xls`
-- [ ] `data/jasper-reference/baseline_normalizado.csv` generado (3913 filas)
+- [x] `data/jasper-reference/baseline_normalizado.csv` generado (3913 filas)
 - [ ] Mapeo columnas XLS→ORDS en `docs/sprint-3/mapeo-columnas-xls-ords.md`
 - [x] Conteo verificado: `len(df) == 3913`
 
@@ -69,16 +69,24 @@ Evidencia de ejecucion (2026-06-16):
 - `fecha_min`: 2026-01-01
 - `fecha_max`: 2026-02-17
 - `estado_counts`: R=2134, C=1779
+- `baseline_csv`: `data/jasper-reference/baseline_normalizado.csv`
 
 ---
 
 ### T-02 · Identificar filtro Jasper exacto
-**Owner:** Sage | **ETA:** 2026-06-16 PM | **Estado:** ⏳ PENDIENTE
+**Owner:** Sage | **ETA:** 2026-06-16 PM | **Estado:** 🔄 EN EJECUCION (analisis inicial)
 
 - [ ] Inspeccionar columnas XLS para inferir filtros (compania, ramo, tipo)
 - [ ] Ejecutar variaciones SQL en DB hasta convergencia a ~3913
 - [ ] `backend/ords/sql/certif_query_jasper_equiv.sql` creado
 - [ ] Checklist `docs/sprint-2/checklist-equivalencia-ords-jasper.md` actualizado
+
+Evidencia de inferencia inicial (desde baseline CSV):
+- `COMPANIA`: 30 en 3913/3913 filas.
+- `RAMO`: 95 en 3897 filas; 93 en 16 filas.
+- `ESTADO`: R=2134, C=1779.
+- `GRUPO` dominante: SALUD INDIVIDUAL LOCAL (3758).
+- Hipotesis fuerte: Jasper aplica filtro por compania 30 y universo salud (ramo 95 primario, 93 residual).
 
 ---
 
