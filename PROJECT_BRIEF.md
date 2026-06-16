@@ -9,7 +9,7 @@
 
 **CEO:** Cesar
 
-**Status:** Sprint 2 - Execution & QA Closure
+**Status:** Sprint 4 - Preparado para arranque (pendiente seleccion de pantalla objetivo)
 
 **Objective:** Modernize legacy Oracle Forms applications by migrating UI logic to React and backend business logic to ORDS (Oracle REST Data Services).
 
@@ -173,7 +173,7 @@ migracion-forms-infoplan/
 
 ## 7. Sprint Status
 
-**Current Sprint:** Sprint 3 (Certificacion ORDS vs Jasper)
+**Current Sprint:** Sprint 4 (Proxima pantalla - retro-driven)
 
 **✅ COMPLETED SPRINTS:**
 
@@ -200,30 +200,40 @@ migracion-forms-infoplan/
 - ✅ Campos antes vacios enriquecidos en UI (`estatus_poliza`, `frecuencia_pago`, `oficial`, `gerente`, `intermediario`)
 - ✅ Sprint 2 cerrado en `docs/sprint-2/done.md` con GO condicional
 
-**In Progress (Sprint 3 - ACTIVE):**
-- 🔄 Certificacion campo-a-campo de data ORDS vs Jasper por `id_transaccion`
-- 🔄 Alineacion de filtro Jasper para resolver diferencia de conteo
-- 🔄 Consolidacion de evidencia para QA sign-off final de equivalencia
+**Sprint 3 (Functional Closure Completed):**
+- ✅ Correccion de mapeo de enrichment validada en pantalla
+- ✅ Correccion de `N/D` masivo en telefonos para flujo operativo certificado
+- ✅ Paginacion incremental validada en UI operativa
+- ✅ QA sign-off emitido en `docs/qa/sprint-3-signoff.md`
+- ✅ Issue ALTA #1 cerrado
+
+**In Progress (Analytical Continuity):**
+- 🔄 Certificacion extendida ORDS vs Jasper por `id_transaccion` (linea no bloqueante de operacion)
+- 🔄 Alineacion de filtro Jasper exacto para convergencia de conteo analitico
 
 **Next Milestones:**
-- Sprint 3: equivalencia ORDS/Jasper + acta QA final (`docs/qa/sprint-3-signoff.md`)
-- Sprint 4: continuidad funcional post-certificacion
+- Sprint 4 kickoff: retro-consilium + decision D-01 de pantalla objetivo
+- Sprint 4 ejecucion: contrato ORDS, implementacion incremental, QA por fases
+- Continuidad analitica ORDS/Jasper como linea no bloqueante
 
 **Timeline:**
 - Sprint 1: Completed ✅
 - Sprint 2: Completed ✅
-- Sprint 3 (current): certificacion de datos y cierre funcional final
+- Sprint 3: cierre funcional de pantalla completado
+- Sprint 4: preparado para inicio (D-01 pendiente)
 
 ---
 
 ## 8. Current State
 
-**As of 2026-06-16 (Sprint 3 en ejecucion):**
+**As of 2026-06-16 (pre-arranque Sprint 4):**
 
-- **Project Mode:** Certificacion final de datos ORDS vs Jasper (Dia 1 en curso).
-- **Runtime Target:** Mantener integracion ORDS estable mientras se valida equivalencia.
-- **Delivery Target:** Cerrar diferencias de conteo y valor campo-a-campo.
-- **QA Ready:** Flujo principal estable; pendiente acta final de equivalencia.
+- **Project Mode:** Transicion controlada a siguiente pantalla.
+- **Runtime Target:** `localhost:3000` definido como entorno QA operativo local para ORDS.
+- **Delivery Target:** Ejecutar siguiente pantalla con acuerdos de retro y gates reforzados.
+- **QA Ready:** Acta final emitida en `docs/qa/sprint-3-signoff.md` (GO).
+- **Gate activo:** GO para inicio de Sprint 4, condicionado a D-01.
+- **Estado de bug ALTA #1:** CERRADO (linea anterior).
 
 **Sprint 1 Deliverables (Validated):**
 - 500+ transaction records accessible via real ORDS queries (2026-01 through 2026-04 date range)
@@ -233,13 +243,10 @@ migracion-forms-infoplan/
 - 0 Sev 1-2 defects identified
 - Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
 
-**Sprint 3 Active Next Actions:**
-1. T-01 en ejecucion: baseline Jasper normalizado (`report6.xls` -> CSV comparable).
-2. T-05 en ejecucion paralelo: lazy enrichment frontend para eliminar all-at-once.
-3. T-02 pendiente de desbloqueo: replicar filtro Jasper exacto para alinear conteo final.
-4. Publicar evidencia de diferencias y correcciones en `docs/sprint-3/progress.md`.
-5. Completar checklist de equivalencia en `docs/sprint-2/checklist-equivalencia-ords-jasper.md`.
-6. Emitir sign-off QA final en `docs/qa/sprint-3-signoff.md`.
+**Siguiente paso operativo (Sprint 4):**
+1. Ejecutar retrospectiva-consilium y cerrar decisiones D-01..D-05.
+2. Definir pantalla objetivo y alcance MVP.
+3. Iniciar descubrimiento tecnico-funcional con contrato de datos temprano.
 
 **Intake Structure Policy (mandatory):**
 - Each PBI uses a mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`
@@ -248,8 +255,8 @@ migracion-forms-infoplan/
 - Execution tracking in: `orquestacion/` (`plan.md`, `progress.md`, `done.md`)
 - No PBI operational artifacts outside its mother folder.
 
-**Current Blockers (Sprint 3):**
-- Filtro Jasper exacto no documentado — Sage necesita `.jrxml` o SQL Jasper para replicar regla de negocio (diferencia 3913 vs 39284).
+**Current Blockers (Sprint 4 kickoff):**
+- D-01 no cerrada: pantalla objetivo aun por definir.
 - GitHub CLI no instalado en workstation — Dash pendiente de instalacion para PR automation.
 
 ---

@@ -3,7 +3,8 @@ import os
 from datetime import datetime
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PRIMARY_FILE = os.path.join(BASE_DIR, 'data', 'jasper-reference', 'report6.xls')
+PRIMARY_FILE = os.path.join(
+    BASE_DIR, 'data', 'jasper-reference', 'report6.xls')
 LEGACY_FILE = os.path.join(BASE_DIR, 'report6.xls')
 FILE_PATH = PRIMARY_FILE if os.path.exists(PRIMARY_FILE) else LEGACY_FILE
 
@@ -20,19 +21,24 @@ if not os.path.exists(FILE_PATH):
 book = xlrd.open_workbook(FILE_PATH)
 sheet = book.sheet_by_index(0)
 
+
 def normalize_header(text):
     return str(text).strip().upper()
 
+
 header_row_idx = None
 for r in range(sheet.nrows):
-    probe = [normalize_header(sheet.cell_value(r, c)) for c in range(sheet.ncols)]
+    probe = [normalize_header(sheet.cell_value(r, c))
+             for c in range(sheet.ncols)]
     if "FEC_TRA" in probe and "ID_TRANSACCION" in probe:
         header_row_idx = r
-        headers = [str(sheet.cell_value(r, c)).strip() for c in range(sheet.ncols)]
+        headers = [str(sheet.cell_value(r, c)).strip()
+                   for c in range(sheet.ncols)]
         break
 
 if header_row_idx is None:
-    print(json.dumps({"error": "could not locate header row with FEC_TRA and ID_TRANSACCION"}))
+    print(json.dumps(
+        {"error": "could not locate header row with FEC_TRA and ID_TRANSACCION"}))
     raise SystemExit(1)
 
 rows = []
@@ -55,9 +61,9 @@ for r in range(header_row_idx + 1, sheet.nrows):
 
 # basic column detection
 upper = [h.upper() for h in headers]
-idx_fecha = next((i for i,h in enumerate(upper) if h == 'FEC_TRA'), None)
-idx_id = next((i for i,h in enumerate(upper) if h == 'ID_TRANSACCION'), None)
-idx_estado = next((i for i,h in enumerate(upper) if h == 'ESTADO'), None)
+idx_fecha = next((i for i, h in enumerate(upper) if h == 'FEC_TRA'), None)
+idx_id = next((i for i, h in enumerate(upper) if h == 'ID_TRANSACCION'), None)
+idx_estado = next((i for i, h in enumerate(upper) if h == 'ESTADO'), None)
 
 fechas = []
 fechas_dt = []
@@ -90,7 +96,7 @@ for row in rows:
             estados[v] = estados.get(v, 0) + 1
 
 out = {
-        "header_row_idx": header_row_idx,
+    "header_row_idx": header_row_idx,
     "file": FILE_PATH,
     "sheet": sheet.name,
     "row_count": len(rows),

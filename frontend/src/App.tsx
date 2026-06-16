@@ -6,7 +6,7 @@ import type { LovItem, SearchFilters, TransactionRow } from "./types";
 
 const apiClient = ordsClient;
 const DEFAULT_PAGE_SIZE = 100;
-const MAX_ENRICHMENT_BATCH = 5;
+const MAX_ENRICHMENT_BATCH = 100;
 
 type LoadMoreResult = {
   loaded: number;
@@ -254,23 +254,28 @@ export default function App() {
         row.nombre_oficial ??
         (row.oficial !== null && row.oficial !== undefined
           ? updatedOficialLookup[row.oficial] ?? null
-          : polizaData?.nombreSupervisor ?? null);
+          : null) ??
+        null;
 
       const oficialCodigo =
-        row.oficial ??
-        (typeof polizaData?.codSupervisor === "number"
-          ? polizaData.codSupervisor
-          : null);
+        row.oficial ?? null;
 
       const nombreGerente =
         row.nombre_gerente ??
         (row.gerente !== null && row.gerente !== undefined
           ? gerentesLookup[row.gerente] ?? null
-          : polizaData?.nombreGerente ?? null);
+          : null) ??
+        polizaData?.nombreSupervisor ??
+        null;
 
       const gerenteCodigo =
         row.gerente ??
-        (typeof polizaData?.codGerente === "number" ? polizaData.codGerente : null);
+        (typeof polizaData?.codSupervisor === "number" ? polizaData.codSupervisor : null);
+
+      const nombreDirector =
+        row.nombre_director ??
+        polizaData?.nombreGerente ??
+        null;
 
       let intermediarioNombreDesdeLookup: string | null = null;
       if (row.intermediario !== null && row.intermediario !== undefined) {
@@ -300,6 +305,7 @@ export default function App() {
         intermediario: intermediarioCodigo,
         nombre_oficial: nombreOficial,
         nombre_gerente: nombreGerente,
+        nombre_director: nombreDirector,
         nombre_intermediario: nombreIntermediario,
         frecuencia_pago: frecuenciaPago,
         estatus_poliza: estatusPoliza

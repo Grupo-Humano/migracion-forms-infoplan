@@ -254,7 +254,12 @@ async function getAuthHeaders(contentType?: string): Promise<Record<string, stri
     await tokenRefreshPromise;
   }
 
-  headers.Authorization = `Bearer ${tokenCache.accessToken}`;
+  const currentToken = tokenCache?.accessToken;
+  if (!currentToken) {
+    throw new Error("No fue posible obtener token OAuth de ORDS.");
+  }
+
+  headers.Authorization = `Bearer ${currentToken}`;
   return headers;
 }
 

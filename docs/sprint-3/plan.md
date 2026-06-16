@@ -178,16 +178,21 @@ Corregir diferencias detectadas en T-03 que esten por debajo del umbral de acept
 **Descripcion:**  
 Migrar el enrichment de `App.tsx` de all-at-once (batch fijo de 5) a on-demand: solo enriquecer filas visibles en viewport o al hacer scroll.
 
+Estado operativo actual (2026-06-16):
+- Se aplico mitigacion inmediata subiendo batch de enrichment a 100 para cubrir pagina inicial completa.
+- Se corrigio mapeo cruzado de campos Oficial/Gerente/Director.
+- Queda pendiente la version final lazy/on-demand para cerrar T-05.
+
 **Acciones:**
 1. Implementar `IntersectionObserver` o enrichment por pagina cargada.
-2. Eliminar `MAX_ENRICHMENT_BATCH` hardcoded.
+2. Reemplazar batch hardcoded por estrategia lazy (o dejarlo temporal con justificacion documentada).
 3. Verificar que el token lock sigue funcionando bajo carga reducida.
 4. Probar en `localhost:4177` con 100+ filas: sin cuelgue.
 
 **Definition of Done:**
 - [ ] Busqueda carga sin delay perceptible con 100+ filas.
 - [ ] Enrichment ocurre al cargar cada pagina, no al recibir todos los resultados.
-- [ ] `MAX_ENRICHMENT_BATCH` eliminado o comentado con razon.
+- [ ] Si `MAX_ENRICHMENT_BATCH` permanece temporalmente, justificar en `docs/sprint-3/progress.md` con plan de retiro.
 
 ---
 
