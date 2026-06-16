@@ -22,6 +22,7 @@ Owner: Remy
 **Estado de sprint:** EN EJECUCION (inicio formal 2026-06-16).  
 **Riesgo principal:** Filtro Jasper desconocido (diferencia 3913 vs 39284).  
 **Prerequisito inmediato:** Sage ejecuta T-01 primero para desbloquear toda la cadena.
+**Gate de continuidad:** BLOQUEADO por bug ALTA abierto `#1` hasta pasar a correccion validada.
 
 ---
 
@@ -208,19 +209,22 @@ Conclusion QA de esta muestra:
 - [x] Los 10 IDs existen en DB (no son datos fantasma de UI).
 - [x] UI muestra `N/D` en campos donde DB si tiene valor (gerente/director/intermediario y parte de telefono_1).
 - [x] Hay evidencia de mapeo cruzado en al menos 1 fila (50671: UI `Oficial` coincide con DB `nombre_gerente`; UI `Gerente` coincide con DB `nombre_director`).
-- [ ] Abrir bug ALTA `enrichment-ui-mapping-nd` y asignar a Nova+Sage.
+- [x] Abrir bug ALTA `enrichment-ui-mapping-nd` y asignar a Nova+Sage.
 
 Estado de apertura de bug (2026-06-16):
 
-- Se preparo issue prellenado en GitHub con severidad ALTA.
-- Bloqueo operativo: navegador redirige a login de GitHub (sesion no autenticada en entorno actual).
-- URL prellenada lista para publicar tras login:
-	- `https://github.com/Grupo-Humano/migracion-forms-infoplan/issues/new?title=BUG%20ALTA%3A%20N%2FD%20masivo%20y%20mapeo%20cruzado%20en%20Oficial%2FGerente%2FDirector%2FIntermediario`
+- Issue creado y abierto: `https://github.com/Grupo-Humano/migracion-forms-infoplan/issues/1`
+- Titulo: `BUG ALTA: N/D masivo y mapeo cruzado en Oficial/Gerente/Director/Intermediario`
+- Estado: `OPEN` (severidad ALTA)
 
 Politica aplicada desde este punto:
 
 - `NO_GO_BUGS_MAYORES_ABIERTOS`: no iniciar actividades pendientes mientras este bug ALTA no este creado y en correccion.
 - QA (Ivy) es responsable de crear siempre el issue y adjuntar enlace en este tracker.
+
+Accion inmediata de continuidad:
+
+- Nova+Sage deben mover Issue `#1` a estado `en correccion` antes de retomar tareas pendientes fuera de remediacion.
 
 ---
 
