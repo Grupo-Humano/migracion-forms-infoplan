@@ -53,6 +53,33 @@ Conclusion operativa: el daily previo era consistente y se ejecuta segun plan.
 
 ---
 
+## Simulacion en caliente UI (2026-06-16)
+
+Escenario ejecutado en `http://localhost:4177`:
+
+- Filtros usados:
+	- `fecha_desde`: 2026-01-01
+	- `fecha_hasta`: 2026-02-17
+	- `gerente/intermediario`: Todos
+
+Resultado de corrida:
+
+- [x] Consulta principal completa sin quedarse en `Consultando...`.
+- [x] Grilla renderiza `Resultados (100)`.
+- [x] LOVs de Gerente e Intermediario cargadas en UI.
+- [x] `Exportar Jasper` habilitado despues de la busqueda.
+- [ ] Paginado incremental no avanza: al presionar `Siguiente pagina` aparece mensaje:
+	- `No se pudieron cargar mas registros porque el servicio repitio la misma pagina.`
+	- `Registros acumulados` permanece en 100.
+
+Decision operativa:
+
+- Se mantiene T-05 en ejecucion.
+- Se abre linea de investigacion conjunta Nova+Sage para paginacion ORDS (offset/cursor repetido).
+- No bloquear T-02/T-03 por este punto, pero documentarlo en sign-off tecnico.
+
+---
+
 ## Detalle de tareas
 
 ### T-01 · Baseline Jasper normalizado
