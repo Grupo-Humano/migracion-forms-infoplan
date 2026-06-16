@@ -1,0 +1,55 @@
+@baseUrl = http://localhost:8080/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos
+
+### 1) Oficial lookup
+GET {{baseUrl}}/oficiales/101
+Accept: application/json
+
+### 2) Search by date range (all filters null)
+POST {{baseUrl}}/transacciones/search
+Content-Type: application/json
+Accept: application/json
+
+{
+  "fec_ini": "2026-06-01",
+  "fec_fin": "2026-06-30",
+  "cliente": null,
+  "oficial": null,
+  "gerente": null,
+  "intermediario": null
+}
+
+### 3) Search by oficial
+POST {{baseUrl}}/transacciones/search
+Content-Type: application/json
+Accept: application/json
+
+{
+  "fec_ini": "2026-06-01",
+  "fec_fin": "2026-06-30",
+  "cliente": null,
+  "oficial": 101,
+  "gerente": null,
+  "intermediario": null
+}
+
+### 4) Mark all selections
+POST {{baseUrl}}/transacciones/seleccion/M
+Accept: application/json
+
+### 5) Generate OLE mock export payload
+POST {{baseUrl}}/exportaciones/ole
+Accept: application/json
+
+### 6) Unmark all selections
+POST {{baseUrl}}/transacciones/seleccion/D
+Accept: application/json
+
+### 7) Generate Jasper mock export payload
+POST {{baseUrl}}/exportaciones/jasper
+Content-Type: application/json
+Accept: application/json
+
+{
+  "fec_ini": "2026-06-01",
+  "fec_fin": "2026-06-30"
+}

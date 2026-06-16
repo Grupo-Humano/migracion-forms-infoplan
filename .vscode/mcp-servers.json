@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "oracle-sqlcl": {
+      "command": "sqlcl",
+      "args": ["/nolog"],
+      "env": {
+        "SQLCL_HISTORY": "${workspaceFolder}/.sqlcl_history",
+        "SQLCL_TIMEOUT": "30"
+      }
+    }
+  }
+}

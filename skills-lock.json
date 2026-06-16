@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-team-orchestration": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/ai-team-orchestration/SKILL.md",
+      "computedHash": "8e2bc361f72d0616417883dd7fb9846824c93c3ce7c068e17dd5dbb4fb1584ad"
+    }
+  }
+}
