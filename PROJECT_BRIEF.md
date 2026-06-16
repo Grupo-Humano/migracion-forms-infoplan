@@ -515,6 +515,17 @@ Cesar carries back:
 
 **Single source of truth: GitHub Issues**
 
+### Policy Gate (MANDATORY)
+
+1. **QA (Ivy) must create bugs always** for every reproducible defect found in validation.
+2. **No sprint may start with open non-minor bugs** from the previous sprint.
+3. Only `minor/low` bugs can be carried over to the next sprint, and must be explicitly accepted by Remy with owner/date.
+4. If a bug is `alta/critica`, it is a **start blocker** (`NO_GO_INICIO_SPRINT`).
+5. Sprint kickoff requires a pre-checklist:
+  - [ ] No open `alta/critica` bugs.
+  - [ ] All carry-over `minor` bugs listed with owner + ETA.
+  - [ ] QA confirms issue links are attached in `docs/sprint-N/progress.md`.
+
 ### Naming Convention
 ```bash
 # File bugs with labels
@@ -531,6 +542,7 @@ git commit -m "feat: add form X UI component (Closes #48)"
 2. **Dev discusses** → Comment on issue
 3. **Dev fixes** → Commit mentions issue (`Fixes #NN`)
 4. **Ivy verifies** → Closes issue with final test
+5. **Remy gates sprint start** → If non-minor issue remains open, sprint cannot start
 
 ---
 

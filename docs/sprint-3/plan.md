@@ -35,6 +35,15 @@
 - **Cero duplicacion**: si el contrato ya existe en ORDS, reutilizar.
 - **Evidencia reproducible**: toda comparacion debe poder re-ejecutarse con el mismo script.
 
+### Gate de continuidad (MANDATORY)
+
+- QA (Ivy) debe crear bug en GitHub por cada defecto reproducible.
+- No se inician actividades pendientes del sprint con bugs `alta/critica` abiertos.
+- Solo bugs `minor/low` pueden quedar abiertos para continuidad, con aprobacion explicita de Remy (owner + fecha).
+- Estado de bloqueo para arranque/continuidad:
+   - `NO_GO_BUGS_MAYORES_ABIERTOS`
+   - `GO_SOLO_BUGS_MENORES_CONTROLADOS`
+
 ---
 
 ## Tablero de Tareas
@@ -251,6 +260,7 @@ T-05 (Lazy enrichment) [paralelo]                                              T
 - [ ] T-05: Enrichment lazy operativo sin cuelgue en 100+ filas.
 - [ ] T-06: QA sign-off emitido con decision GO/NO-GO.
 - [ ] T-07: PR abierto, brief actualizado, done.md CERRADO.
+- [ ] Cero bugs `alta/critica` abiertos al momento de cierre/inicio de continuidad.
 
 ---
 

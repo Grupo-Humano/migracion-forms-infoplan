@@ -210,6 +210,18 @@ Conclusion QA de esta muestra:
 - [x] Hay evidencia de mapeo cruzado en al menos 1 fila (50671: UI `Oficial` coincide con DB `nombre_gerente`; UI `Gerente` coincide con DB `nombre_director`).
 - [ ] Abrir bug ALTA `enrichment-ui-mapping-nd` y asignar a Nova+Sage.
 
+Estado de apertura de bug (2026-06-16):
+
+- Se preparo issue prellenado en GitHub con severidad ALTA.
+- Bloqueo operativo: navegador redirige a login de GitHub (sesion no autenticada en entorno actual).
+- URL prellenada lista para publicar tras login:
+	- `https://github.com/Grupo-Humano/migracion-forms-infoplan/issues/new?title=BUG%20ALTA%3A%20N%2FD%20masivo%20y%20mapeo%20cruzado%20en%20Oficial%2FGerente%2FDirector%2FIntermediario`
+
+Politica aplicada desde este punto:
+
+- `NO_GO_BUGS_MAYORES_ABIERTOS`: no iniciar actividades pendientes mientras este bug ALTA no este creado y en correccion.
+- QA (Ivy) es responsable de crear siempre el issue y adjuntar enlace en este tracker.
+
 ---
 
 ## Detalle de tareas
