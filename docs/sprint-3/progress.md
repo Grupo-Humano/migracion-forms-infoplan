@@ -182,6 +182,34 @@ Gate QA para cerrar esta investigacion:
 - [ ] Si DB realmente no tiene valor: documentar `N/D` como esperado por campo.
 - [ ] Publicar tabla de hallazgos en este tracker antes de sign-off final.
 
+### Validacion puntual 10 IDs aleatorios (UI vs DB)
+
+IDs muestreados desde pantalla:
+
+- 50671, 50683, 50694, 50705, 50708, 50732, 50743, 50749, 50783, 50810
+
+Resultado de contraste contra DB (consulta directa en HUMANO_DESA):
+
+| id_transaccion | UI Oficial | DB nombre_oficial | UI Gerente | DB nombre_gerente | UI Director | DB nombre_director | UI Intermediario | DB cod_intermediario | UI Tel 1 | DB telefono_1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 50671 | SUSANA MARLEYNI SOTO REYES | (vacio) | LUIS H. CARRENO W. | SUSANA MARLEYNI SOTO REYES | N/D | LUIS H. CARRENO W. | 74293 | 74293 | N/D | (vacio) |
+| 50683 | N/D | (vacio) | N/D | IRIS ARACELIS SOTO TURVI | N/D | LAURA MABEL ARIAS CAPELLAN | N/D | 77223 | N/D | 8299898946 |
+| 50694 | N/D | (vacio) | N/D | CAROLINA GITTE MEJIA | N/D | LAURA MABEL ARIAS CAPELLAN | N/D | 71547 | N/D | 8092564610 |
+| 50705 | N/D | (vacio) | N/D | JOSE MANUEL FEBRIER GARCIA | N/D | MIQUEAS SALVADOR SOLIS CUEVAS | N/D | 71019 | N/D | (vacio) |
+| 50708 | N/D | (vacio) | N/D | JOSE MANUEL FEBRIER GARCIA | N/D | MIQUEAS SALVADOR SOLIS CUEVAS | N/D | 72886 | N/D | 8497654561 |
+| 50732 | N/D | (vacio) | N/D | ESTHER TAVERAS PREA | N/D | LUIS H. CARRENO W. | N/D | 72895 | N/D | (vacio) |
+| 50743 | N/D | (vacio) | N/D | SANDRA YVELISSE JIMINIAN SOSA | N/D | LUIS H. CARRENO W. | N/D | 73541 | N/D | (vacio) |
+| 50749 | N/D | (vacio) | N/D | ANYAURY STEPHANY VALDEZ ROCHET | N/D | ANDRES ALBERTO LOSADA GUERRERO | N/D | 74323 | N/D | 8294996460 |
+| 50783 | N/D | (vacio) | N/D | MARTIN ALFONSO HIERRO BALBUENA | N/D | LUIS H. CARRENO W. | N/D | 73361 | N/D | 8294700721 |
+| 50810 | N/D | (vacio) | N/D | DENIS ALEXANDRA PEREZ JIMENEZ | N/D | LAURA MABEL ARIAS CAPELLAN | N/D | 73054 | N/D | (vacio) |
+
+Conclusion QA de esta muestra:
+
+- [x] Los 10 IDs existen en DB (no son datos fantasma de UI).
+- [x] UI muestra `N/D` en campos donde DB si tiene valor (gerente/director/intermediario y parte de telefono_1).
+- [x] Hay evidencia de mapeo cruzado en al menos 1 fila (50671: UI `Oficial` coincide con DB `nombre_gerente`; UI `Gerente` coincide con DB `nombre_director`).
+- [ ] Abrir bug ALTA `enrichment-ui-mapping-nd` y asignar a Nova+Sage.
+
 ---
 
 ## Detalle de tareas
