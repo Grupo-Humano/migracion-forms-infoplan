@@ -16,7 +16,7 @@ Owner: Remy
 | T-03 | Matriz equivalencia campo a campo | Sage + Nova | 1.0d | ⏳ PENDIENTE | T-01, T-02 |
 | T-04 | Correcciones de datos (si aplica) | Sage / Nova | 0.5d max | ⏳ PENDIENTE | T-03 |
 | T-05 | Lazy enrichment frontend | Nova | 0.5d | 🔄 EN EJECUCION (paralelo) | — |
-| T-06 | QA sign-off final | Ivy | 0.5d | ⏳ PENDIENTE | T-03, T-04 |
+| T-06 | QA sign-off final | Ivy | 0.5d | 🔄 EN EJECUCION (subinvestigacion N/D) | Validacion DB requerida |
 | T-07 | Cierre y PR Sprint 3 | Remy | 0.25d | ⏳ PENDIENTE | T-06 |
 
 **Estado de sprint:** EN EJECUCION (inicio formal 2026-06-16).  
@@ -77,6 +77,110 @@ Decision operativa:
 - Se mantiene T-05 en ejecucion.
 - Se abre linea de investigacion conjunta Nova+Sage para paginacion ORDS (offset/cursor repetido).
 - No bloquear T-02/T-03 por este punto, pero documentarlo en sign-off tecnico.
+
+---
+
+## Investigacion QA: `N/D` en telefonos y datos de oficial (2026-06-16)
+
+Solicitud CEO: validar contra DB si los `N/D` en UI reflejan realidad de datos.
+
+### Evidencia en caliente (UI, primera pagina renderizada)
+
+Muestra: 100 filas (consulta 2026-01-01..2026-02-17)
+
+- `Oficial`: 95/100 en `N/D`
+- `Gerente`: 95/100 en `N/D`
+- `Director`: 100/100 en `N/D`
+- `Intermediario`: 95/100 en `N/D`
+- `Telefono 1`: 100/100 en `N/D`
+- `Telefono 2`: 100/100 en `N/D`
+- `Telefono 3`: 100/100 en `N/D`
+
+### Evidencia baseline Jasper (3913 filas)
+
+- `NOMBRE_OFICIAL`: 0% en blanco
+- `NOMBRE_GERENTE`: 0% en blanco
+- `NOMBRE_DIRECTOR`: 0% en blanco
+- `NOMBRE_INTERMEDIARIO`: 0% en blanco
+- `TELEFONO_1`: 0% en blanco
+- `TELEFONO_2`: 90.21% en blanco
+- `TELEFONO_3`: 99.72% en blanco
+
+### Evidencia DB historica documentada (sprint-2 checklist)
+
+- `con_telefono_1`: 32424
+- `con_telefono_2`: 12302
+- `con_telefono_3`: 0
+
+### Diagnostico preliminar
+
+Hay brecha significativa entre UI y baseline Jasper en campos de oficial/gerencia/director/intermediario y `telefono_1`.
+Esto apunta a problema de enriquecimiento/paginado o mapeo de endpoint, no a ausencia real de datos en DB para todos los casos.
+
+### Accion QA requerida (Ivy + Sage)
+
+1. Ejecutar validacion DB con muestra de `id_transaccion` mostrados en UI (top 100).
+2. Comparar por `id_transaccion` los campos:
+	 - `nombre_oficial`, `nombre_gerente`, `nombre_director`, `nombre_intermediario`
+	 - `telefono_1`, `telefono_2`, `telefono_3`
+3. Clasificar diferencia por tipo:
+	 - `faltante_db`, `faltante_ords`, `faltante_enrichment_ui`, `mapeo_incorrecto`
+
+SQL objetivo minimo (a ejecutar en DB de desarrollo):
+
+```sql
+-- Reemplazar por lista real de IDs observados en UI
+WITH ids AS (
+	SELECT 1759616 AS id_transaccion FROM dual
+)
+SELECT
+	t.id_transaccion,
+	t.cliente,
+	t.intermediario,
+	igd.nombre_intermediario,
+	igd.nombre_gerente,
+	igd.nombre_director,
+	c.oficial AS cod_oficial,
+	mo.nombre_oficial,
+	tel.telefono_1,
+	tel.telefono_2,
+	tel.telefono_3
+FROM transacciones_cobro_recurrente t
+LEFT JOIN cliente c
+	ON c.codigo = t.cliente
+LEFT JOIN moficial mo
+	ON mo.codigo = c.oficial
+LEFT JOIN int_ger_dir01_v igd
+	ON igd.intermediario = t.intermediario
+LEFT JOIN (
+	SELECT
+		x.codigo_cliente,
+		MAX(CASE WHEN x.rn = 1 THEN x.telefono END) AS telefono_1,
+		MAX(CASE WHEN x.rn = 2 THEN x.telefono END) AS telefono_2,
+		MAX(CASE WHEN x.rn = 3 THEN x.telefono END) AS telefono_3
+	FROM (
+		SELECT
+			p.codigo AS codigo_cliente,
+			t2.numero AS telefono,
+			ROW_NUMBER() OVER (
+				PARTITION BY p.codigo
+				ORDER BY t2.codigo
+			) AS rn
+		FROM cliente p
+		LEFT JOIN telefono t2
+			ON t2.codigo = p.codigo
+	) x
+	GROUP BY x.codigo_cliente
+) tel
+	ON tel.codigo_cliente = t.cliente
+WHERE t.id_transaccion IN (SELECT id_transaccion FROM ids);
+```
+
+Gate QA para cerrar esta investigacion:
+
+- [ ] Si DB/Jasper tienen valor y UI muestra `N/D`: abrir bug `enrichment-ui` con severidad ALTA.
+- [ ] Si DB realmente no tiene valor: documentar `N/D` como esperado por campo.
+- [ ] Publicar tabla de hallazgos en este tracker antes de sign-off final.
 
 ---
 
