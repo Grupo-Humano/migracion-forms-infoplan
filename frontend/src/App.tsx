@@ -5,7 +5,7 @@ import { ResultsTable } from "./components/ResultsTable";
 import type { LovItem, SearchFilters, TransactionRow } from "./types";
 
 const apiClient = ordsClient;
-const DEFAULT_PAGE_SIZE = 100;
+const DEFAULT_PAGE_SIZE = 10;
 const MAX_ENRICHMENT_BATCH = 100;
 
 type LoadMoreResult = {

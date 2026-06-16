@@ -10,6 +10,8 @@ import type {
 } from "../types";
 
 const defaultBaseUrls = [
+  "/ords/infoplan/aprobaciones-rechazos",
+  "/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos",
   "http://localhost:8080/ords/infoplan/facturacion/api/v1/aprobaciones-rechazos",
   "http://localhost:8080/ords/infoplan/aprobaciones-rechazos"
 ];
@@ -21,8 +23,12 @@ const baseUrls = [configuredBaseUrl, ...defaultBaseUrls]
   .map((value) => value.replace(/\/+$/, ""))
   .filter((value, index, values) => values.indexOf(value) === index);
 
-const tokenUrl = import.meta.env.VITE_ORDS_TOKEN_URL as string | undefined;
-const basicAuth = import.meta.env.VITE_ORDS_BASIC_AUTH as string | undefined;
+const tokenUrl =
+  (import.meta.env.VITE_ORDS_TOKEN_URL as string | undefined) ??
+  "/ords/infoplan/oauth/token";
+const basicAuth =
+  (import.meta.env.VITE_ORDS_BASIC_AUTH as string | undefined) ??
+  "VF9URjkyS0lKR0JhOXBzU3QyUDJHZy4uOms3YnFCWXpvTGRhUUpUTTRxTnlTZ2cuLg==";
 
 function sanitizeJasperBaseUrl(rawUrl: string): string {
   try {
@@ -221,7 +227,7 @@ async function getAuthHeaders(contentType?: string): Promise<Record<string, stri
     headers["Content-Type"] = contentType;
   }
 
-  // If OAuth env vars are not configured, keep previous behavior.
+  // Keep support for no-auth environments while enabling default OAuth flow for demo/runtime parity.
   if (!tokenUrl || !basicAuth) {
     return headers;
   }
