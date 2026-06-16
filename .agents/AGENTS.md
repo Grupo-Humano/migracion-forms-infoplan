@@ -51,34 +51,34 @@ Este archivo define los agentes AI disponibles para el proyecto migracion-forms-
 
 ## Chat Organization
 
-### Dev Team Chat: @ai-team-dev
+### Dev Team Chat: /ai-team-dev
 Agents: Nova, Sage, Milo
 - Frontend implementation
 - Backend API design
 - UI/UX implementation
 - Sprint execution
 
-### QA Team Chat: @ai-team-qa
+### QA Team Chat: /ai-team-qa
 Agents: Ivy
 - Test strategy
 - E2E testing (Playwright)
 - Bug filing
 - Sign-offs
 
-### DevOps Chat: @ai-team-devops
+### DevOps Chat: /ai-team-devops
 Agents: Dash
 - CI/CD pipeline setup
 - Deployment strategy
 - Environment configuration
 
-### Producer Chat: @ai-team-producer
+### Producer Chat: /ai-team-producer
 Agents: Remy, Sage (consulting)
 - Sprint planning
 - PR reviews
 - Architecture decisions
 - Consolidation
 
-### Designer Chat: @ai-team-designer
+### Designer Chat: /ai-team-designer
 Agents: Kira, Milo
 - UI/UX design
 - Component library
@@ -89,9 +89,15 @@ Agents: Kira, Milo
 ## How to Use
 
 1. **Open a new chat** in VS Code
-2. **Type:** `@ai-team-producer` (or any chat name above)
+2. **Type:** `/ai-team-producer` (or any slash command name above)
 3. **Paste your prompt** with context
 4. **Wait for response**
+
+## Invocation Note
+
+- In this workspace, custom agents/skills are exposed as **slash commands** (`/`), not as **chat participants** (`@`).
+- `@` only works for participants/providers registered by VS Code or installed extensions.
+- Therefore, use `/ai-team-producer` or `/ai-team-orchestration` instead of `@ai-team-producer`.
 
 ---
 

@@ -218,9 +218,9 @@ migracion-forms-infoplan/
 
 ## 8. Current State
 
-**As of 2026-06-15 (Sprint 3 kickoff):**
+**As of 2026-06-16 (Sprint 3 en ejecucion):**
 
-- **Project Mode:** Certificacion final de datos ORDS vs Jasper.
+- **Project Mode:** Certificacion final de datos ORDS vs Jasper (Dia 1 en curso).
 - **Runtime Target:** Mantener integracion ORDS estable mientras se valida equivalencia.
 - **Delivery Target:** Cerrar diferencias de conteo y valor campo-a-campo.
 - **QA Ready:** Flujo principal estable; pendiente acta final de equivalencia.
@@ -234,12 +234,12 @@ migracion-forms-infoplan/
 - Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
 
 **Sprint 3 Active Next Actions:**
-1. Ejecutar matriz de equivalencia ORDS vs Jasper por `id_transaccion`.
-2. Replicar filtro Jasper exacto para alinear conteo final.
-3. Publicar evidencia de diferencias y correcciones en `docs/sprint-3/progress.md`.
-4. Completar checklist de equivalencia en `docs/sprint-2/checklist-equivalencia-ords-jasper.md`.
-5. Emitir sign-off QA final en `docs/qa/sprint-3-signoff.md`.
-6. Mantener regla de cierre: explorar OpenAPI/metadata-catalog y reutilizar endpoints existentes antes de proponer servicios nuevos.
+1. T-01 en ejecucion: baseline Jasper normalizado (`report6.xls` -> CSV comparable).
+2. T-05 en ejecucion paralelo: lazy enrichment frontend para eliminar all-at-once.
+3. T-02 pendiente de desbloqueo: replicar filtro Jasper exacto para alinear conteo final.
+4. Publicar evidencia de diferencias y correcciones en `docs/sprint-3/progress.md`.
+5. Completar checklist de equivalencia en `docs/sprint-2/checklist-equivalencia-ords-jasper.md`.
+6. Emitir sign-off QA final en `docs/qa/sprint-3-signoff.md`.
 
 **Intake Structure Policy (mandatory):**
 - Each PBI uses a mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`

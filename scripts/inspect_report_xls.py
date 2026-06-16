@@ -2,8 +2,10 @@ import json
 import os
 from datetime import datetime
 
-FILE_PATH = os.path.join(os.path.dirname(__file__), '..', 'report6.xls')
-FILE_PATH = os.path.abspath(FILE_PATH)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PRIMARY_FILE = os.path.join(BASE_DIR, 'data', 'jasper-reference', 'report6.xls')
+LEGACY_FILE = os.path.join(BASE_DIR, 'report6.xls')
+FILE_PATH = PRIMARY_FILE if os.path.exists(PRIMARY_FILE) else LEGACY_FILE
 
 try:
     import xlrd

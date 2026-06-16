@@ -11,14 +11,15 @@ Owner: Remy
 
 | # | Tarea | Owner | Esfuerzo | Estado | Bloqueo |
 |---|---|---|---|---|---|
-| T-01 | Baseline Jasper normalizado | Sage | 0.5d | ⏳ PENDIENTE | — |
+| T-01 | Baseline Jasper normalizado | Sage | 0.5d | 🔄 EN EJECUCION (50%) | — |
 | T-02 | Identificar filtro Jasper exacto | Sage | 1.0d | ⏳ PENDIENTE | Necesita .jrxml o inferir por XLS |
 | T-03 | Matriz equivalencia campo a campo | Sage + Nova | 1.0d | ⏳ PENDIENTE | T-01, T-02 |
 | T-04 | Correcciones de datos (si aplica) | Sage / Nova | 0.5d max | ⏳ PENDIENTE | T-03 |
-| T-05 | Lazy enrichment frontend | Nova | 0.5d | ⏳ PENDIENTE | — (paralelo) |
+| T-05 | Lazy enrichment frontend | Nova | 0.5d | 🔄 EN EJECUCION (paralelo) | — |
 | T-06 | QA sign-off final | Ivy | 0.5d | ⏳ PENDIENTE | T-03, T-04 |
 | T-07 | Cierre y PR Sprint 3 | Remy | 0.25d | ⏳ PENDIENTE | T-06 |
 
+**Estado de sprint:** EN EJECUCION (inicio formal 2026-06-16).  
 **Riesgo principal:** Filtro Jasper desconocido (diferencia 3913 vs 39284).  
 **Prerequisito inmediato:** Sage ejecuta T-01 primero para desbloquear toda la cadena.
 
@@ -38,15 +39,36 @@ Owner: Remy
 
 ---
 
+## Validacion del daily anterior (2026-06-16)
+
+Resultado: **VALIDADO**
+
+- [x] Compromiso Remy cumplido: kickoff y asignacion por workstream documentados.
+- [x] Compromiso Sage activado: T-01 en ejecucion como prerequisito oficial.
+- [x] Compromiso Nova activado: T-05 en paralelo para remover enrichment all-at-once.
+- [x] Compromiso Ivy confirmado: casos para equivalencia listos, pendientes de insumos de T-03.
+- [x] Bloqueadores registrados en tracker (filtro Jasper/.jrxml, GitHub CLI).
+
+Conclusion operativa: el daily previo era consistente y se ejecuta segun plan.
+
+---
+
 ## Detalle de tareas
 
 ### T-01 · Baseline Jasper normalizado
-**Owner:** Sage | **ETA:** 2026-06-16 AM | **Estado:** ⏳ PENDIENTE
+**Owner:** Sage | **ETA:** 2026-06-16 AM | **Estado:** 🔄 EN EJECUCION
 
-- [ ] `python scripts/inspect_report_xls.py` sobre `data/jasper-reference/report6.xls`
+- [x] `python scripts/inspect_report_xls.py` sobre `data/jasper-reference/report6.xls`
 - [ ] `data/jasper-reference/baseline_normalizado.csv` generado (3913 filas)
 - [ ] Mapeo columnas XLS→ORDS en `docs/sprint-3/mapeo-columnas-xls-ords.md`
-- [ ] Conteo verificado: `len(df) == 3913`
+- [x] Conteo verificado: `len(df) == 3913`
+
+Evidencia de ejecucion (2026-06-16):
+- `row_count`: 3913
+- `col_count`: 28
+- `fecha_min`: 2026-01-01
+- `fecha_max`: 2026-02-17
+- `estado_counts`: R=2134, C=1779
 
 ---
 
@@ -81,11 +103,16 @@ Owner: Remy
 ---
 
 ### T-05 · Lazy enrichment frontend
-**Owner:** Nova | **ETA:** 2026-06-17 | **Estado:** ⏳ PENDIENTE (paralelo)
+**Owner:** Nova | **ETA:** 2026-06-17 | **Estado:** 🔄 EN EJECUCION (paralelo)
 
 - [ ] IntersectionObserver o enrichment por pagina cargada
 - [ ] Eliminar `MAX_ENRICHMENT_BATCH` hardcoded
 - [ ] Prueba en `localhost:4177` con 100+ filas sin cuelgue
+
+Evidencia de kickoff tecnico (2026-06-16):
+- `frontend/src/App.tsx`: `MAX_ENRICHMENT_BATCH = 5` (linea 9).
+- `frontend/src/App.tsx`: recortes por batch en enrich (`slice(0, MAX_ENRICHMENT_BATCH)`).
+- `frontend/src/App.tsx`: llamadas a `enrichRows` confirmadas en flujo de busqueda y load-more.
 
 ---
 
@@ -105,46 +132,6 @@ Owner: Remy
 - [ ] `docs/sprint-3/done.md` → CERRADO
 - [ ] `PROJECT_BRIEF.md` secciones 7+8 actualizadas para Sprint 4
 - [ ] PR `feature/sprint-3-certificacion-jasper` → `develop` abierto
-
----
-
-## Tareas activas
-
-### T1. Baseline Jasper reproducible
-Owner: Ivy + Sage  
-Estado: PENDIENTE
-
-Checklist:
-- [ ] Congelar archivo Jasper de referencia y ventana.
-- [ ] Normalizar dataset (tipos y nullables).
-- [ ] Publicar metadatos de baseline.
-
-### T2. Filtro Jasper equivalente en ORDS
-Owner: Sage  
-Estado: PENDIENTE
-
-Checklist:
-- [ ] Identificar regla exacta que reduce universo ORDS.
-- [ ] Ejecutar conteo comparativo hasta convergencia.
-- [ ] Documentar query/endpoint canónico de certificacion.
-
-### T3. Matriz de equivalencia por campo
-Owner: Nova + Sage  
-Estado: PENDIENTE
-
-Checklist:
-- [ ] Generar join por `id_transaccion` ORDS vs Jasper.
-- [ ] Calcular diferencias por campo y tipo.
-- [ ] Proponer/fijar ajustes donde aplique.
-
-### T4. QA sign-off final de data
-Owner: Ivy  
-Estado: PENDIENTE
-
-Checklist:
-- [ ] Validar evidencia numerica y visual.
-- [ ] Confirmar umbrales de match por prioridad.
-- [ ] Emitir GO/NO-GO en `docs/qa/sprint-3-signoff.md`.
 
 ---
 
