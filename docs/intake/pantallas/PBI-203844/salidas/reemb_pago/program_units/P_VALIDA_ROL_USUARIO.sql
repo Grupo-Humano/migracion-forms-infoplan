@@ -1,0 +1,13 @@
+-- PROGRAM UNIT: P_VALIDA_ROL_USUARIO
+-- Tipo: Procedure
+-- ====================================================================
+
+PROCEDURE P_VALIDA_ROL_USUARIO IS
+	V_ROLE number;
+BEGIN
+  IF F_VALIDAR_PERMISO(:GLOBAL.COD_COMPANIA,USER,'RECP_SOL_RAD',9) THEN 
+  	:RADICACION.TIPO_PAGO := 'ORDINARIO' ;
+  ELSE 
+  	:RADICACION.TIPO_PAGO := 'EXPRESO' ;
+  END IF;
+END;

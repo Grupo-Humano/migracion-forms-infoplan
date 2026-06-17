@@ -1,9 +1,9 @@
-# Sprint 4 Plan: Proxima Pantalla + Retro-Driven Delivery
+# Sprint 4 Plan: PBI-203844 reemb_pago + Retro-Driven Delivery
 
-Estado: PREPARADO
+Estado: LISTO PARA INICIAR
 Owner: Remy
 Fecha de preparacion: 2026-06-16
-Branch objetivo: feature/sprint-4-next-screen
+Branch objetivo: feature/sprint-4-pbi-203844
 
 ## Objetivo del sprint
 
@@ -14,12 +14,11 @@ Ejecutar la siguiente pantalla aplicando todas las lecciones de Sprint 3 desde e
 - QA por fases con gates,
 - cierre sin deuda operativa.
 
-## Precondicion obligatoria
+## Decision de arranque cerrada
 
-Definir la pantalla objetivo del siguiente PBI en la sesion de retrospectiva-consilium.
-
-- Decision D-01: seleccionar pantalla objetivo (nombre funcional + codigo PBI).
-- Sin D-01 no se inicia implementacion tecnica.
+- Decision D-01: cerrada.
+- Pantalla objetivo confirmada: `reemb_pago` (PBI-203844).
+- Se autoriza inicio tecnico bajo gates y regla ORDS de aprobacion explicita para endpoints nuevos.
 
 ## Equipo y enfoque
 
@@ -46,12 +45,12 @@ Definir la pantalla objetivo del siguiente PBI en la sesion de retrospectiva-con
 ### T-01 Seleccion de pantalla objetivo (D-01)
 Owner: Remy + Kira
 
-- [ ] Seleccionar pantalla siguiente (nombre + objetivo de negocio)
-- [ ] Definir alcance de primera entrega (MVP funcional)
-- [ ] Registrar decisiones en retro
+- [x] Seleccionar pantalla siguiente (nombre + objetivo de negocio)
+- [x] Definir alcance de primera entrega (MVP funcional)
+- [x] Registrar decisiones en retro
 
 DoD:
-- [ ] D-01 cerrada y publicada en docs/sprint-4/progress.md
+- [x] D-01 cerrada y publicada en docs/sprint-4/progress.md
 
 ### T-02 Descubrimiento tecnico funcional
 Owner: Sage + Nova + Kira
