@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import * as ordsClient from "./api/ordsClient";
+import * as mockOrdsClient from "./api/mockOrdsClient";
 import { FiltersPanel } from "./components/FiltersPanel";
 import { ResultsTable } from "./components/ResultsTable";
 import type { LovItem, SearchFilters, TransactionRow } from "./types";
 
-const apiClient = ordsClient;
+const isDemoMode = import.meta.env.VITE_DEMO_MODE === "true";
+const apiClient = isDemoMode ? mockOrdsClient : ordsClient;
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_ENRICHMENT_BATCH = 100;
 
@@ -627,6 +629,20 @@ export default function App() {
       <div className="content-shell">
         <header className="topbar">
           <p className="topbar-title">Inicio</p>
+          {isDemoMode && (
+            <span style={{
+              background: "#f59e0b",
+              color: "#1c1917",
+              fontWeight: 700,
+              fontSize: "0.7rem",
+              padding: "2px 10px",
+              borderRadius: "999px",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase"
+            }}>
+              DEMO — datos simulados
+            </span>
+          )}
           <div className="topbar-user">
             <div>
               <p className="topbar-name">Cesar Ricardo</p>
