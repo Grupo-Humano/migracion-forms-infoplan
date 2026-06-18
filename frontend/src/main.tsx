@@ -7,13 +7,28 @@ import "./styles.css";
 
 const queryClient = new QueryClient();
 
-// DEMO Sprint 6: muestra reemb_pago. Cambiar a <App /> para volver a rep_aprobarechazo.
-const DEMO_SCREEN: "reemb_pago" | "rep_aprobarechazo" = "reemb_pago";
+type ScreenName = "rep_aprobarechazo" | "reemb_pago";
+
+function resolveScreen(): ScreenName {
+  const urlScreen = new URLSearchParams(globalThis.location.search).get("screen");
+  if (urlScreen === "rep_aprobarechazo" || urlScreen === "reemb_pago") {
+    return urlScreen;
+  }
+
+  const envScreen = import.meta.env.VITE_SCREEN as string | undefined;
+  if (envScreen === "rep_aprobarechazo" || envScreen === "reemb_pago") {
+    return envScreen;
+  }
+
+  return "reemb_pago";
+}
+
+const screen = resolveScreen();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      {DEMO_SCREEN === "reemb_pago" ? <ReembPagoApp /> : <App />}
+      {screen === "rep_aprobarechazo" ? <App /> : <ReembPagoApp />}
     </QueryClientProvider>
   </React.StrictMode>
 );
