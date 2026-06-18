@@ -1,0 +1,94 @@
+-- PROGRAM UNIT: P_VALIDA_ASEGURADO_PLAN_VIG
+-- Tipo: Procedure
+-- ====================================================================
+
+PROCEDURE P_VALIDA_ASEGURADO_PLAN_VIG IS
+	V_EXISTE	NUMBER;
+	vAse			NUMBER;
+	vDep			NUMBER;
+	
+	CURSOR C_AFI_VIG IS
+		SELECT 1
+		  FROM ASEGURADO A, ASE_POL AP
+		 WHERE     AP.ASEGURADO = vAse
+		       AND AP.COMPANIA = :SOLICITUD_SERVICIO.COMPANIA
+		       AND AP.RAMO = :SOLICITUD_SERVICIO.RAMO
+		       AND AP.SECUENCIAL = :SOLICITUD_SERVICIO.SECUENCIAL
+		       AND AP.PLAN = :SOLICITUD_SERVICIO.CODIGO_PLAN
+		       AND AP.FEC_VER =
+		              (SELECT MAX (A1.FEC_VER)
+		                 FROM ASE_POL A1
+		                WHERE     A1.COMPANIA = AP.COMPANIA
+		                      AND A1.RAMO = AP.RAMO
+		                      AND A1.SECUENCIAL = AP.SECUENCIAL
+		                      AND A1.ASEGURADO = AP.ASEGURADO
+		                      AND A1.FEC_VER <= :SOLICITUD_SERVICIO.FECHA_SERVICIO)
+           AND AP.FEC_TRA =
+                  (SELECT MAX (A1.FEC_TRA)
+                     FROM ASE_POL A1
+                    WHERE     A1.COMPANIA = AP.COMPANIA
+                          AND A1.RAMO = AP.RAMO
+                          AND A1.SECUENCIAL = AP.SECUENCIAL
+                          AND A1.ASEGURADO = AP.ASEGURADO
+                          AND A1.FEC_VER = AP.FEC_VER)
+		       AND AP.ESTATUS IN (SELECT CODIGO
+		                            FROM ESTATUS
+		                           WHERE TIPO = 'ASE_POL' AND VAL_LOG = 'T')
+		       AND A.CODIGO = AP.ASEGURADO
+		       AND AP.ASEGURADO = vAse
+		       AND vDep = 0
+		UNION ALL
+		SELECT 1
+		  FROM DEPENDIENTE D, DEP_POL AP
+		 WHERE     AP.ASEGURADO = vAse
+		       AND AP.COMPANIA = :SOLICITUD_SERVICIO.COMPANIA
+		       AND AP.RAMO = :SOLICITUD_SERVICIO.RAMO
+		       AND AP.SECUENCIAL = :SOLICITUD_SERVICIO.SECUENCIAL
+		       AND AP.PLAN = :SOLICITUD_SERVICIO.CODIGO_PLAN
+		       AND AP.FEC_VER =
+		              (SELECT MAX (A1.FEC_VER)
+		                 FROM DEP_POL A1
+		                WHERE     A1.COMPANIA = AP.COMPANIA
+		                      AND A1.RAMO = AP.RAMO
+		                      AND A1.SECUENCIAL = AP.SECUENCIAL
+		                      AND A1.ASEGURADO = AP.ASEGURADO
+		                      AND A1.DEPENDIENTE = AP.DEPENDIENTE
+		                      AND A1.FEC_VER <= :SOLICITUD_SERVICIO.FECHA_SERVICIO)
+           AND AP.FEC_TRA =
+                  (SELECT MAX (A1.FEC_TRA)
+                     FROM DEP_POL A1
+                    WHERE     A1.COMPANIA = AP.COMPANIA
+                          AND A1.RAMO = AP.RAMO
+                          AND A1.SECUENCIAL = AP.SECUENCIAL
+                          AND A1.ASEGURADO = AP.ASEGURADO
+                          AND A1.DEPENDIENTE = AP.DEPENDIENTE
+                          AND A1.FEC_VER = AP.FEC_VER)
+		       AND AP.ESTATUS IN (SELECT CODIGO
+		                            FROM ESTATUS
+		                           WHERE TIPO = 'DEP_POL' AND VAL_LOG = 'T')
+		       AND D.ASEGURADO = AP.ASEGURADO
+		       AND D.SECUENCIA = AP.DEPENDIENTE
+		       AND D.ASEGURADO = vAse
+		       AND D.SECUENCIA = vDep
+		       ;
+BEGIN
+	 
+	IF NVL(:SOLICITUD_SERVICIO.CODIGO_AFILIADO,:CG$CTRL.NO_AFI) IS NOT NULL
+		AND :SOLICITUD_SERVICIO.FECHA_SERVICIO IS NOT NULL
+		AND :SOLICITUD_SERVICIO.CODIGO_PLAN IS NOT NULL
+		AND :SOLICITUD_SERVICIO.CODIGO_AFILIADO IS NOT NULL
+		AND :SOLICITUD_SERVICIO.COMPANIA IS NOT NULL
+		AND :SOLICITUD_SERVICIO.RAMO IS NOT NULL
+		AND :SOLICITUD_SERVICIO.SECUENCIAL IS NOT NULL
+	THEN
+		vAse:= to_number(SUBSTR(NVL(:SOLICITUD_SERVICIO.CODIGO_AFILIADO,:CG$CTRL.NO_AFI),1,7));
+		vDep:= to_number(SUBSTR(NVL(:SOLICITUD_SERVICIO.CODIGO_AFILIADO,:CG$CTRL.NO_AFI),8,3));
+	
+	  OPEN C_AFI_VIG;
+	  FETCH C_AFI_VIG INTO V_EXISTE;
+	  IF C_AFI_VIG%NOTFOUND THEN
+			p_imprime_mensaje(27, NULL);
+	  END IF;
+	  CLOSE C_AFI_VIG;
+	END IF;
+END;

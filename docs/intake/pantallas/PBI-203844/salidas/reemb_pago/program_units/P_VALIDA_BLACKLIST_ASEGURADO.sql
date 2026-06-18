@@ -1,0 +1,24 @@
+-- PROGRAM UNIT: P_VALIDA_BLACKLIST_ASEGURADO
+-- Tipo: Procedure
+-- ====================================================================
+
+PROCEDURE P_VALIDA_BLACKLIST_ASEGURADO IS
+	/*CREADO POR: OMARLIS GOMEZ Y ANGEL CASTILLO, FOREBRA (03/02/2024)*/
+		
+	V_BANEADO NUMBER;
+	
+	CURSOR CUR_BLACKLIST IS
+		SELECT BANEADO
+			FROM BLACKLIST_ASEGURADOS
+		WHERE CODIGO_ASEGURADO = :SOLICITUD_SERVICIO.CODIGO_AFILIADO;
+		
+BEGIN
+  
+	OPEN  CUR_BLACKLIST;
+  FETCH CUR_BLACKLIST INTO V_BANEADO;
+  CLOSE CUR_BLACKLIST;
+  
+  IF NVL(V_BANEADO,0) = 1 THEN
+		MSG_ALERT('Las reclamaciones de reembolsos de este afiliado no pueden ser editadas su Monto a Pagar.','E',TRUE);			  						
+  END IF;
+END;

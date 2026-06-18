@@ -1,0 +1,16 @@
+{
+  "source_xml": "docs\\intake\\pantallas\\PBI-203844\\entradas\\reemb_pago\\reemb_pago_fmb.xml",
+  "program_units": 86,
+  "lovs": 22,
+  "record_groups": 22,
+  "triggers_total": 303,
+  "call_edges": 951,
+  "generated_files": [
+    "05-program-units-inventory.csv",
+    "06-lovs-recordgroups-inventory.csv",
+    "07-trigger-inventory.csv",
+    "08-call-edges.csv",
+    "09-cascadas-llamadas.md",
+    "10-sql-detectado-exhaustivo.md"
+  ]
+}

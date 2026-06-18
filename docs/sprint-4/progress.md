@@ -1,45 +1,28 @@
 # Sprint 4 Progress Tracker
 
-Sprint: Sprint 4 - Proxima Pantalla (retro-driven)
+Sprint: Sprint 4 - Cierre de planning y handoff
 Owner: Remy
-Estado: PREPARADO (pendiente D-01)
-Fecha inicio planificada: 2026-06-17
+Estado: CERRADO
+Fecha de cierre: 2026-06-16
 
 ## Estado general
 
-| Tarea | Owner | Estado | Bloqueo |
+| Tarea | Owner | Estado | Comentario |
 |---|---|---|---|
-| T-01 Seleccion pantalla (D-01) | Remy + Kira | PENDIENTE | Falta decision CEO/equipo |
-| T-02 Descubrimiento tecnico funcional | Sage + Nova + Kira | PENDIENTE | Depende D-01 |
-| T-03 Contrato ORDS y baseline | Sage | PENDIENTE | Depende T-02 |
-| T-04 Implementacion frontend incremental | Nova + Milo | PENDIENTE | Depende T-03 |
-| T-05 QA por fases | Ivy | PENDIENTE | Depende T-04 |
-| T-06 Sign-off y cierre | Remy + Ivy | PENDIENTE | Depende T-05 |
-
-## Gate de continuidad
-
-- Estado actual: GO para iniciar Sprint 4 (PBI anterior cerrado funcionalmente).
-- Condicion de arranque tecnico: D-01 seleccion de pantalla objetivo.
-- Politica de bloqueo: bug alta/critica abierta => NO_GO.
-
-## Acuerdos operativos heredados
-
-1. Entorno canonico QA local: localhost:3000.
-2. No certificar flujo critico en preview sin proxy operativo.
-3. Datos reales primero, mock solo para pruebas acotadas.
-4. Evidencia en cada fase, no al final.
+| T-01 Seleccion pantalla (D-01) | Remy + Kira | COMPLETADO | Pantalla objetivo confirmada: PBI-203844 `reemb_pago` |
+| T-02 Planificacion macro por fases | Remy + equipo | COMPLETADO | Fases A/B/C/D y gates definidos |
+| T-03 Estimacion consensuada | Remy + equipo | COMPLETADO | Rango acordado 12 a 17 dias efectivos |
+| T-04 Regla ORDS para endpoints nuevos | Sage + Remy | COMPLETADO | Aprobacion explicita del CEO obligatoria |
+| T-05 Preparacion de continuidad | Remy | COMPLETADO | Arranque movido a Sprint 5 por secuencia continua |
 
 ## Registro de avances
 
-### 2026-06-16 - Preparacion inicial de Sprint 4
+### 2026-06-16 - Cierre de Sprint 4 (handoff de planning)
 
-- [x] Plan de sprint creado.
-- [x] Tracker de progreso creado.
-- [x] Documento de retrospectiva-consilium creado para acuerdo de equipo.
-- [ ] D-01 definida (siguiente pantalla).
+- [x] D-01 cerrada.
+- [x] Planning final de PBI-203844 documentado en intake.
+- [x] Decidida continuidad por secuencia de sprints: siguiente sprint operativo = Sprint 5.
 
-## Pendientes inmediatos (orden sugerido)
+## Resultado
 
-1. Ejecutar retrospectiva-consilium y cerrar D-01.
-2. Publicar decision de pantalla objetivo con alcance MVP.
-3. Iniciar T-02 en la misma jornada.
+Sprint 4 queda cerrado como sprint de preparacion y handoff. La ejecucion operativa del PBI-203844 inicia en Sprint 5.
