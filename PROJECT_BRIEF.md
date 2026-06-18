@@ -175,6 +175,9 @@ migracion-forms-infoplan/
 
 **Current Sprint:** Sprint 6 (PBI-203844 reemb_pago - construccion MVP)
 
+**Aclaracion de numeracion:**
+- Ciclo actual del PBI-203844: Sprint 1 = Sprint 5 global, Sprint 2 = Sprint 6 global, Sprint 3 = Sprint 7 global.
+
 **✅ COMPLETED SPRINTS:**
 
 **Sprint 0 (Reinicio Estrategico):**
@@ -221,20 +224,20 @@ migracion-forms-infoplan/
 - Sprint 2: Completed ✅
 - Sprint 3: cierre funcional de pantalla completado
 - Sprint 4: cerrado como handoff de planning
-- Sprint 5: cerrado con GO
-- Sprint 6: listo para iniciar
+- Sprint 5: cerrado con GO (equivale a Sprint 1 del ciclo PBI-203844)
+- Sprint 6: activo
 
 ---
 
 ## 8. Current State
 
-**As of 2026-06-16 (cierre Sprint 5):**
+**As of 2026-06-17 (inicio Sprint 6):**
 
-- **Project Mode:** Preparado para construccion MVP con contrato v1 y matriz ORDS definida.
+- **Project Mode:** Construccion MVP activa con ejecucion incremental por fases.
 - **Runtime Target:** `localhost:3000` definido como entorno QA operativo local para ORDS.
-- **Delivery Target:** Ejecutar Sprint 6 con foco en flujo principal operativo y evidencia incremental.
+- **Delivery Target:** Entregar flujo MVP operativo y evidencia QA incremental para habilitar Sprint 7.
 - **QA Ready:** Acta final emitida en `docs/qa/sprint-3-signoff.md` (GO).
-- **Gate activo:** GO a Sprint 6, manteniendo restriccion ORDS de aprobacion explicita para endpoints nuevos.
+- **Gate activo:** Sprint 6 activo, manteniendo restriccion ORDS de aprobacion explicita para endpoints nuevos.
 - **Estado de bug ALTA #1:** CERRADO (linea anterior).
 
 **Sprint 1 Deliverables (Validated):**
@@ -246,9 +249,9 @@ migracion-forms-infoplan/
 - Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
 
 **Siguiente paso operativo (Sprint 6):**
-1. Implementar UI MVP por pasos con contrato de datos v1.
-2. Integrar endpoints reutilizables/adaptables priorizados por matriz ORDS.
-3. Ejecutar QA incremental con evidencia por caso critico.
+1. Ejecutar incremento 1 (busqueda afiliado + datos de reembolso).
+2. Integrar solicitud servicio/coberturas con contrato v1.
+3. Publicar evidencia QA incremental y decision de gate diaria.
 
 **Intake Structure Policy (mandatory):**
 - Each PBI uses a mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`
