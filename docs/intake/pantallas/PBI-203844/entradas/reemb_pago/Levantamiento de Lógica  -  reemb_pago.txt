@@ -1,0 +1,423 @@
+Enfoque del proceso de bajada de lógica:
+
+ 
+
+Durante la revisión de la forma “reemb_pago” se ha podido verificar que presenta un alto nivel de interdependencia entre sus componentes, lo que ha dificultado la extracción y aislamiento claro de la lógica de negocio.
+El trabajo de bajada de lógica ha tenido como objetivo separar y aislar componentes individuales, con la finalidad de permitir su integración posterior en una nueva arquitectura. Intentar trasladar la lógica manteniendo la estructura actual de la pantalla resulta altamente complejo y podría derivar en problemas de mantenimiento y adaptación en fases posteriores.
+Pese a la complejidad, se ha realizado una bajada de lógica parcial, enfocada principalmente en los componentes analizados y explicados en el material de referencia (video), priorizando aquellos que era viable desacoplar en esta fase.
+Considerando la pantalla destino dentro del proceso de migración, será necesario ampliar, refactorizar o redefinir objetos y componentes que no pudieron ser abordados en esta etapa inicial de bajada de lógica.
+Es importante mencionar que durante el desarrollo de un a nueva pantalla, deberá evaluarse cuidadosamente si es conveniente mantener la actual estructura (de la pantalla) compleja, o si es más adecuado replantearla y hacer una reingeniería desde el punto de vista funcional y técnico.
+El enfoque de este  levantamiento se basa en la premisa de que esta pantalla debe ser reformulada mediante un proceso de reingeniería, orientado a la simplificación funcional, separando claramente:
+Componentes informativos y descriptivos, y
+Componentes transaccionales o de registro, idealmente organizados en un flujo secuencial de pasos.
+
+
+
+
+DESCRIPCIÓN DE LOS PROCEDIMIENTO Y TABLAS UTILIZADAS
+
+ 
+
+1.       P_GET_ENDOSOS_INT 
+
+Este procedimiento obtiene endosados internacionales para un asegurado específico, incluyendo detalles de pólizas y planes. Realiza validaciones de parámetros, calcula totales para paginación, construye un JSON con datos paginados y maneja excepciones. Incluye limpieza de tablas temporales y llamadas a otros paquetes para poblar datos.
+
+ 
+
+Tablas utilizadas: 
+
+REEMBOLSO.TEM_PLAN_ASEGURADO: Lectura y actualización (DELETE y llamada a procedimiento que inserta). 
+POLIZA_ENDOSO: Lectura. 
+ASE_POL: Lectura. 
+PLAN: Lectura. 
+TPARAGEN: Lectura. 
+DBAPER.ESTATUS: Lectura. 
+DBAPER.ASEGURADO_ENDOSO: Lectura. 
+DBAPER.ASEGURADO_POLIZA: Lectura.
+ 
+
+2.       P_GET_DEPENDIENTES 
+
+Este procedimiento recupera dependientes asociados a un asegurado, con paginación y salida en formato JSON. Valida parámetros obligatorios, calcula totales de registros y páginas, y construye el JSON basado en consultas a tablas de dependientes y parentescos.
+
+ 
+
+Tablas utilizadas: 
+
+DEPENDIENTE: Lectura. 
+DEP_POL01_V: Lectura. 
+PARENTEZCO: Lectura. 
+DBAPER.ESTATUS: Lectura.
+ 
+
+3.       P_GET_ENDOSOS_LOCAL 
+
+Este procedimiento obtiene endosados locales para un asegurado y dependiente, combinando datos de pólizas, asegurados y dependientes en un JSON paginado. Incluye validaciones, limpieza de tablas temporales, llamadas a paquetes para poblar datos y manejo de excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+REEMBOLSO.TEM_PLAN_ASEGURADO: Lectura y actualización (DELETE y llamada a procedimiento que inserta). 
+POLIZA_ENDOSO: Lectura. 
+ASE_POL: Lectura. 
+PLAN: Lectura. 
+TPARAGEN: Lectura. 
+DBAPER.ESTATUS: Lectura. 
+DBAPER.ASEGURADO_ENDOSO: Lectura. 
+DBAPER.ASEGURADO_POLIZA: Lectura. 
+DBAPER.DEPENDIENTE_POLIZA: Lectura.
+ 
+
+4.       P_GET_CORREOS_ASEGURADO 
+
+Este procedimiento consulta correos electrónicos de un asegurado, identificando si son preferidos, y devuelve resultados paginados en JSON. Valida parámetros, calcula paginación y maneja excepciones, incluyendo logs de errores.
+
+ 
+
+Tablas utilizadas: 
+
+CORREO_ELECTRONICO: Lectura. 
+
+AFILIADO_CONTACTO_PREFERENCIA: Lectura.
+
+ 
+
+5.       P_GET_LIMITES_ASEGURADO 
+
+Este procedimiento calcula límites y deducibles (locales e internacionales) para un asegurado, generando un JSON con datos procesados. Incluye validaciones, llamadas a funciones y paquetes para obtener parámetros y deducibles, y maneja excepciones con logs.
+
+ 
+
+Tablas utilizadas: 
+
+REEMBOLSO.TEM_PLAN_ASEGURADO: Lectura y actualización (DELETE y llamada a procedimiento que inserta). 
+TPARAGEN: Lectura.
+ 
+
+6.       P_GET_DATOS_ASEGURADO 
+
+Este procedimiento busca datos de un asegurado basado en un número de documento (cédula o plástico), validando estatus y plásticos, y devuelve información detallada en JSON. Incluye cálculos como edad y descripciones, con manejo de excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+AFILIADO_PLASTICOS: Lectura. 
+AFILIADO_PLASTICOS_INT: Lectura. 
+ASE_DEP01_V: Lectura. 
+ASEGURADO: Lectura. 
+ASE_POL: Lectura. 
+ESTATUS: Lectura. 
+DEPENDIENTE: Lectura. 
+PARENTEZCO: Lectura. 
+DEP_POL: Lectura.
+ 
+
+7.       P_GET_TELEFONOS_ASEGURADO 
+
+Este procedimiento obtiene teléfonos de un asegurado, identificando preferidos, con paginación y salida en JSON. Valida parámetros, calcula totales y maneja excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+TELEFONO: Lectura. 
+AFILIADO_CONTACTO_PREFERENCIA: Lectura.
+ 
+
+8.       P_GET_PLANES_ASEGURADO 
+
+Este procedimiento recupera planes de un asegurado o dependiente, calculando detalles como vigencias y reembolsos, con paginación manual en JSON. Incluye validaciones y manejo de excepciones con logs.
+
+ 
+
+Tablas utilizadas: 
+
+ASE_POL: Lectura. 
+POLIZA: Lectura. 
+ASEGURADO: Lectura. 
+CLIENTE: Lectura. 
+MAESTRO_GRUPO_PLANES: Lectura. 
+PLAN: Lectura. 
+SUB_RAMO: Lectura. 
+DBAPER.ESTATUS: Lectura. 
+DEP_POL: Lectura. 
+DEPENDIENTE: Lectura. 
+COMPANIA: Lectura. 
+PORCENTAJE_REEMBOLSO: Lectura.
+ 
+
+9.       P_GET_PLANES_DENTALES 
+
+Este procedimiento consulta planes dentales para un asegurado y dependiente, diferenciando redes vieja y nueva, con cálculos de fechas y reembolsos, paginación en JSON y manejo de excepciones. Incluye limpieza de tablas temporales y llamadas a paquetes.
+
+ 
+
+Tablas utilizadas: 
+
+REEMBOLSO.TEM_PLAN_ASEGURADO: Lectura y actualización (DELETE y llamada a procedimiento que inserta). 
+POL_PRO: Lectura. 
+CATEGORIA_PROVEDOR: Lectura. 
+NO_MEDICO: Lectura. 
+PLAN: Lectura. 
+TPARAGEN: Lectura. 
+POLIZA_PROVEDOR: Lectura. 
+PORCENTAJE_REEMBOLSO: Lectura. 
+PORCENTAJE_REEMBOLSO_POLIZA: Lectura.
+ 
+
+----------------------------   NUEVAS
+
+ 
+
+10.   P_CREA_NEGOCIACION_PRESTADOR 
+
+Este procedimiento crea una negociación con un prestador, validando parámetros obligatorios y llamando a un procedimiento de inserción para registrar la cobertura, con manejo de excepciones y salida en JSON.
+
+ 
+
+Tablas utilizadas: 
+
+No accede directamente a tablas; llama a REEMBOLSO.P_INSERTA_COB_SOL_EX que implica actualización (inserción).
+ 
+
+11.   P_CREA_CORREO 
+
+Este procedimiento crea un registro de correo electrónico para un afiliado o asegurado, validando parámetros y realizando una inserción directa en la tabla de correos.
+
+ 
+
+Tablas utilizadas: 
+
+DBAPER.CORREO_ELECTRONICO: Actualización (inserción). 
+CORREO_SEQ: Lectura (para obtener NEXTVAL).
+ 
+
+12.   P_CREA_COBRO_INDEBIDO 
+
+Este procedimiento crea un cobro indebido, validando parámetros obligatorios y llamando a un procedimiento de inserción para registrar la cobertura, con salida en JSON.
+
+ 
+
+Tablas utilizadas: 
+
+No accede directamente a tablas; llama a REEMBOLSO.P_INSERTA_COB_SOL_EX que implica actualización (inserción).
+ 
+
+13.   P_CREA_PSS 
+
+Este procedimiento crea un prestador de servicios de salud (PSS) parseando un JSON de entrada, validando campos, obteniendo parámetros de configuración y realizando inserciones en tablas de personas, instituciones, proveedores y especialidades.
+
+ 
+
+Tablas utilizadas: 
+
+PERSONA: Actualización (inserción). 
+INSTITUCION: Actualización (inserción). 
+REEMBOLSO.PROVEEDOR: Actualización (inserción). 
+REEMBOLSO.PROVEEDOR_ESPECIALIDAD: Actualización (inserción). 
+SEQ_PERSONA: Lectura (NEXTVAL). 
+SEQ_INSTITUCION: Lectura (NEXTVAL). 
+SEQ_PROVEEDOR: Lectura (NEXTVAL). 
+SEQ_PROVEEDOR_ESPECIALIDAD: Lectura (NEXTVAL).
+ 
+
+14.   P_CREA_MEDICO 
+
+Este procedimiento crea un registro de médico parseando un JSON, validando campos obligatorios, obteniendo parámetros y realizando inserciones en tablas de personas, proveedores y especialidades, con commit y rollback.
+
+ 
+
+Tablas utilizadas: 
+
+PERSONA: Actualización (inserción). 
+REEMBOLSO.PROVEEDOR: Actualización (inserción). 
+REEMBOLSO.PROVEEDOR_ESPECIALIDAD: Actualización (inserción). 
+SEQ_PERSONA: Lectura (NEXTVAL). 
+SEQ_PROVEEDOR: Lectura (NEXTVAL). 
+SEQ_PROVEEDOR_ESPECIALIDAD: Lectura (NEXTVAL).
+ 
+
+15.   P_CREA_CUENTA_BANCARIA 
+
+Este procedimiento crea una cuenta bancaria parseando un JSON de entrada, validando y mapeando campos, y llamando a un procedimiento externo para la inserción, con manejo de resultados y excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+No accede directamente a tablas; llama a REEMBOLSO.PKG_BUSCA_INFO_ASE.P_GRABA_CUENTA que implica actualización (inserción).
+ 
+
+16.   P_CREA_EXCEPCION_NEGOCIO 
+
+Este procedimiento crea una excepción de negocio, validando parámetros y llamando a un procedimiento de inserción para registrar la cobertura, con salida en JSON y manejo de excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+No accede directamente a tablas; llama a REEMBOLSO.P_INSERTA_COB_SOL_EX que implica actualización (inserción).
+ 
+
+ 
+
+17.   P_GET_DETALLE_COBERTURA 
+
+Este procedimiento obtiene detalles de una cobertura solicitada basada en un ID y código de cobertura, construyendo un JSON con montos y descripciones, con validaciones y manejo de excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+COBERTURA_SOLICITADA: Lectura. 
+COBERTURA_SALUD: Lectura.
+ 
+
+18.   P_GET_CUENTAS_BANCARIAS 
+
+Este procedimiento recupera cuentas bancarias de un asegurado con paginación, calculando totales y construyendo un JSON directamente en SQL con datos de cuentas y bancos.
+
+ 
+
+Tablas utilizadas: 
+
+NUM_CTA: Lectura. 
+NUMERO_CUENTA_INFO: Lectura. 
+BANCO_NUM_CTA: Lectura. 
+ESTATUS: Lectura. 
+NACIONALIDAD: Lectura. 
+ASEGURADO: Lectura.
+ 
+
+19.   P_GET_LIMITE_MEDICAMENTO 
+
+Este procedimiento calcula límites de medicamentos para un carnet, procesando datos de afiliados y planes, con paginación manual en un array JSON y llamadas a paquetes externos.
+
+ 
+
+Tablas utilizadas: 
+
+PLAN: Lectura.
+ 
+
+20.   P_GET_CUENTA_BANCARIA 
+
+Este procedimiento obtiene detalles de una cuenta bancaria específica por número, construyendo un JSON con información de la cuenta y propietario, con validaciones y manejo de excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+NUMERO_CUENTA: Lectura. 
+NUMERO_CUENTA_INFO: Lectura.
+ 
+
+21.   P_GET_SOLICITUD_PAGO 
+
+Este procedimiento recupera detalles de una solicitud de pago por ID, incluyendo campos calculados como nombres y correos, construyendo un array JSON con un solo registro y manejo de excepciones.
+
+ 
+
+Tablas utilizadas: 
+
+SOLICITUD_PAGO: Lectura. 
+SUCURSAL: Lectura. 
+BANCO_NUM_CTA: Lectura. 
+AFILIADO_PLASTICOS: Lectura. 
+ASE_DEP01_V: Lectura. 
+ASE_POL: Lectura. 
+DEP_POL: Lectura. 
+NUM_CTA: Lectura. 
+PAGOS: Lectura.
+ 
+
+22.   P_GET_RESUMEN_RECLAMOS 
+
+Este procedimiento obtiene un resumen de reclamos para una solicitud, procesando datos de afiliados, contratos y montos con paginación, construyendo un JSON y manejando lógicas post-query.
+
+ 
+
+Tablas utilizadas: 
+
+SOLICITUD_SERVICIO: Lectura. 
+ASE_DEP01_V: Lectura. 
+PARENTEZCO: Lectura. 
+COBERTURA_SOLICITADA: Lectura. 
+ASE_POL: Lectura. 
+PLAN: Lectura. 
+AFILIADO_PLASTICOS: Lectura. 
+AFILIADO: Lectura. 
+REEMBOLSO.ESTATUS_SOLICITUD: Lectura. 
+TIPO_SERVICIO: Lectura. 
+REEMBOLSO.COMENTARIO_SOLICITUD: Lectura.
+ 
+
+23.   P_CRUD_SOLICITUD_PAGO 
+
+Este procedimiento maneja operaciones CRUD (Crear, Modificar, Eliminar) para solicitudes de pago, parseando un JSON de entrada, validando acciones y campos obligatorios, generando IDs, verificando dependencias y construyendo JSON de salida con manejo de excepciones y logs.
+
+ 
+
+Tablas utilizadas: 
+
+SOLICITUD_PAGO: Lectura (para validaciones) y actualización (inserción, actualización, eliminación). 
+SEQ_SOLICITUD_PAGO: Lectura (para obtener NEXTVAL). 
+DETALLE_SOLICITUD_PAGO: Lectura (para validar eliminación). 
+PAGOS: Lectura (para validar eliminación).
+
+24.       P_CRUD_SOLICITUD_SERVICIO:
+
+Este procedimiento maneja operaciones CRUD (agregar, modificar, eliminar) para solicitudes de servicio en reembolsos. Recibe un JSON de entrada, extrae valores, valida parametros obligatorios y ejecuta la accion correspondiente con logica de auditoria y validaciones de integridad referencial.
+
+ 
+
+Tablas utilizadas:
+
+REEMBOLSO.SOLICITUD_SERVICIO: lectura (para validaciones y conteos), actualizacion (update), insercion (insert), eliminacion (delete).
+COBERTURA_SOLICITADA: lectura (en cursor para validar referencias en delete).
+REEMBOLSO.RECLAMO: eliminacion (delete condicional en accion DEL).
+ 
+
+25.       P_CRUD_COBERTURA_SOLICITADA:
+
+Procedimiento para operaciones CRUD en coberturas solicitadas. Procesa un JSON, aplica logica de triggers como auditoria, cursores para tipos de cobertura y maneja inserts en tablas relacionadas para rechazos.
+
+ 
+
+Tablas utilizadas:
+
+REEMBOLSO.COBERTURA_SOLICITADA: insercion (insert), actualizacion (update), eliminacion (delete).
+SER_T_COB: lectura (en cursor para obtener tipos de cobertura).
+ESTATUS: lectura (en subconsulta de cursor).
+REEMBOLSO.COBERTURA_SOL_MOTIVO_RECHAZO: insercion (insert en post-insert).
+ 
+
+
+
+
+Nro_Proc	Nombre Procedimiento	Breve descripción	Tipo de acción	Tablas utilizadas
+1	P_GET_ENDOSOS_INT	Obtiene endosados internacionales para un asegurado con paginación y salida JSON.	Consulta con paginación y JSON	REEMBOLSO.TEM_PLAN_ASEGURADO (lectura/actualización), POLIZA_ENDOSO (lectura), ASE_POL (lectura), PLAN (lectura), TPARAGEN (lectura), DBAPER.ESTATUS (lectura), DBAPER.ASEGURADO_ENDOSO (lectura), DBAPER.ASEGURADO_POLIZA (lectura)
+2	P_GET_DEPENDIENTES	Recupera dependientes de un asegurado con paginación y salida JSON.	Consulta con paginación y JSON	DEPENDIENTE (lectura), DEP_POL01_V (lectura), PARENTEZCO (lectura), DBAPER.ESTATUS (lectura)
+3	P_GET_ENDOSOS_LOCAL	Obtiene endosados locales para asegurado y dependiente con paginación y JSON.	Consulta con paginación y JSON	REEMBOLSO.TEM_PLAN_ASEGURADO (lectura/actualización), POLIZA_ENDOSO (lectura), ASE_POL (lectura), PLAN (lectura), TPARAGEN (lectura), DBAPER.ESTATUS (lectura), DBAPER.ASEGURADO_ENDOSO (lectura), DBAPER.ASEGURADO_POLIZA (lectura), DBAPER.DEPENDIENTE_POLIZA (lectura)
+4	P_GET_CORREOS_ASEGURADO	Consulta correos electrónicos de asegurado con preferencias, paginación y JSON.	Consulta con paginación y JSON	CORREO_ELECTRONICO (lectura), AFILIADO_CONTACTO_PREFERENCIA (lectura)
+5	P_GET_LIMITES_ASEGURADO	Calcula límites y deducibles locales/internacionales con salida JSON.	Consulta y cálculo con JSON	REEMBOLSO.TEM_PLAN_ASEGURADO (lectura/actualización), TPARAGEN (lectura)
+6	P_GET_DATOS_ASEGURADO	Busca datos de asegurado por documento con validaciones y salida JSON.	Consulta con validaciones y JSON	AFILIADO_PLASTICOS (lectura), AFILIADO_PLASTICOS_INT (lectura), ASE_DEP01_V (lectura), ASEGURADO (lectura), ASE_POL (lectura), ESTATUS (lectura), DEPENDIENTE (lectura), PARENTEZCO (lectura), DEP_POL (lectura)
+7	P_GET_TELEFONOS_ASEGURADO	Obtiene teléfonos de asegurado con preferidos, paginación y JSON.	Consulta con paginación y JSON	TELEFONO (lectura), AFILIADO_CONTACTO_PREFERENCIA (lectura)
+8	P_GET_PLANES_ASEGURADO	Recupera planes de asegurado/dependiente con detalles y paginación JSON.	Consulta con paginación y JSON	ASE_POL (lectura), POLIZA (lectura), ASEGURADO (lectura), CLIENTE (lectura), MAESTRO_GRUPO_PLANES (lectura), PLAN (lectura), SUB_RAMO (lectura), DBAPER.ESTATUS (lectura), DEP_POL (lectura), DEPENDIENTE (lectura), COMPANIA (lectura), PORCENTAJE_REEMBOLSO (lectura)
+9	P_GET_PLANES_DENTALES	Consulta planes dentales con redes, cálculos y paginación JSON.	Consulta con paginación y JSON	REEMBOLSO.TEM_PLAN_ASEGURADO (lectura/actualización), POL_PRO (lectura), CATEGORIA_PROVEDOR (lectura), NO_MEDICO (lectura), PLAN (lectura), TPARAGEN (lectura), POLIZA_PROVEDOR (lectura), PORCENTAJE_REEMBOLSO (lectura), PORCENTAJE_REEMBOLSO_POLIZA (lectura)
+10	P_CREA_NEGOCIACION_PRESTADOR	Crea negociación con prestador validando y llamando a inserción.	Inserción con validaciones	REEMBOLSO.P_INSERTA_COB_SOL_EX (actualización vía llamada)
+11	P_CREA_CORREO	Crea correo para afiliado con inserción directa.	Inserción con validaciones	DBAPER.CORREO_ELECTRONICO (actualización), CORREO_SEQ (lectura)
+12	P_CREA_COBRO_INDEBIDO	Crea cobro indebido validando y llamando a inserción.	Inserción con validaciones	REEMBOLSO.P_INSERTA_COB_SOL_EX (actualización vía llamada)
+13	P_CREA_PSS	Crea prestador de servicios parseando JSON e insertando en múltiples tablas.	Inserción con validaciones	PERSONA (actualización), INSTITUCION (actualización), REEMBOLSO.PROVEEDOR (actualización), REEMBOLSO.PROVEEDOR_ESPECIALIDAD (actualización), SEQ_PERSONA (lectura), SEQ_INSTITUCION (lectura), SEQ_PROVEEDOR (lectura), SEQ_PROVEEDOR_ESPECIALIDAD (lectura)
+14	P_CREA_MEDICO	Crea médico parseando JSON e insertando en tablas relacionadas.	Inserción con validaciones	PERSONA (actualización), REEMBOLSO.PROVEEDOR (actualización), REEMBOLSO.PROVEEDOR_ESPECIALIDAD (actualización), SEQ_PERSONA (lectura), SEQ_PROVEEDOR (lectura), SEQ_PROVEEDOR_ESPECIALIDAD (lectura)
+15	P_CREA_CUENTA_BANCARIA	Crea cuenta bancaria parseando JSON y llamando a inserción externa.	Inserción con validaciones	REEMBOLSO.PKG_BUSCA_INFO_ASE.P_GRABA_CUENTA (actualización vía llamada)
+16	P_CREA_EXCEPCION_NEGOCIO	Crea excepción de negocio validando y llamando a inserción.	Inserción con validaciones	REEMBOLSO.P_INSERTA_COB_SOL_EX (actualización vía llamada)
+17	P_GET_DETALLE_COBERTURA	Obtiene detalles de cobertura con JSON y validaciones.	Consulta con JSON	COBERTURA_SOLICITADA (lectura), COBERTURA_SALUD (lectura)
+18	P_GET_CUENTAS_BANCARIAS	Recupera cuentas bancarias con paginación y JSON directo.	Consulta con paginación y JSON	NUM_CTA (lectura), NUMERO_CUENTA_INFO (lectura), BANCO_NUM_CTA (lectura), ESTATUS (lectura), NACIONALIDAD (lectura), ASEGURADO (lectura)
+19	P_GET_LIMITE_MEDICAMENTO	Calcula límites de medicamentos con paginación JSON.	Consulta con paginación y JSON	PLAN (lectura)
+20	P_GET_CUENTA_BANCARIA	Obtiene detalles de cuenta bancaria específica con JSON.	Consulta con JSON	NUMERO_CUENTA (lectura), NUMERO_CUENTA_INFO (lectura)
+21	P_GET_SOLICITUD_PAGO	Recupera solicitud de pago con campos calculados y JSON.	Consulta con JSON	SOLICITUD_PAGO (lectura), SUCURSAL (lectura), BANCO_NUM_CTA (lectura), AFILIADO_PLASTICOS (lectura), ASE_DEP01_V (lectura), ASE_POL (lectura), DEP_POL (lectura), NUM_CTA (lectura), PAGOS (lectura)
+22	P_GET_RESUMEN_RECLAMOS	Obtiene resumen de reclamos con paginación y JSON.	Consulta con paginación y JSON	SOLICITUD_SERVICIO (lectura), ASE_DEP01_V (lectura), PARENTEZCO (lectura), COBERTURA_SOLICITADA (lectura), ASE_POL (lectura), PLAN (lectura), AFILIADO_PLASTICOS (lectura), AFILIADO (lectura), REEMBOLSO.ESTATUS_SOLICITUD (lectura), TIPO_SERVICIO (lectura), REEMBOLSO.COMENTARIO_SOLICITUD (lectura)
+23	P_CRUD_SOLICITUD_PAGO	Maneja CRUD para solicitudes de pago con JSON y validaciones.	CRUD (inserción, actualización, eliminación) con validaciones y JSON	SOLICITUD_PAGO (lectura/actualización), SEQ_SOLICITUD_PAGO (lectura), DETALLE_SOLICITUD_PAGO (lectura), PAGOS (lectura)

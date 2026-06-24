@@ -1,0 +1,23 @@
+lovName,title,recordGroup,automaticRefresh,automaticSkip,automaticSelect,columnCount,usedByCount,hasQuery
+LOV_AFILIADOS,Afiliados,,false,false,false,0,0,No
+LOV_AFILIADO_REEMB,LOV_AFILIADO,,false,false,false,0,0,No
+LOV_BANCO,Bancos,,false,false,false,0,0,No
+LOV_CENTRO_LAB_PSS,Centro Labora,,false,false,false,0,0,No
+LOV_CIUDAD_PSS,Estado,,false,false,false,0,0,No
+LOV_COBERTURAS,Diagnóstico,,false,false,false,0,0,No
+LOV_DIAGNOSTICO,Diagnóstico,,false,false,false,0,0,No
+LOV_DUMMY,,,false,false,false,0,0,No
+LOV_ENDOSOS,Endosos,,false,false,false,0,0,No
+LOV_ESPECIALIDAD,Especialidad,,false,false,false,0,0,No
+LOV_ESPEC_MED_ADD,Especialidad,,false,false,false,0,0,No
+LOV_ESTADO_PSS,Estado,,false,false,false,0,0,No
+LOV_GRUPO_COBERTURA,Especialidad,,false,false,false,0,0,No
+LOV_HIST_FALLECIDO,Histórico cambios fallecido.,,false,false,false,0,0,No
+LOV_MEDICOS,Medicos,,false,false,false,0,0,No
+LOV_NUMERO_CUENTA,Cuentas Bancarias,,false,false,false,0,0,No
+LOV_PAIS_PSS,País,,false,false,false,0,0,No
+LOV_PLAN_ASEGURADO,Planes Asegurado,,false,false,false,0,0,No
+LOV_PRESTADORES_ADD,Prestadores,,false,false,false,0,0,No
+LOV_SUB_GRUPO_SER,Sub Grupo Servicio,,false,false,false,0,0,No
+LOV_SUCURSAL,Sucursales,,false,false,false,0,0,No
+LOV_USUARIO_APROB,Lista de Usuarios Aprobacion,,false,false,false,0,0,No

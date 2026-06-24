@@ -9,7 +9,7 @@
 
 **CEO:** Cesar
 
-**Status:** Sprint 4 - Preparado para arranque (pendiente seleccion de pantalla objetivo)
+**Status:** Sprint 5 cerrado con GO. Sprint 6 listo para iniciar (PBI-203844 reemb_pago)
 
 **Objective:** Modernize legacy Oracle Forms applications by migrating UI logic to React and backend business logic to ORDS (Oracle REST Data Services).
 
@@ -173,7 +173,10 @@ migracion-forms-infoplan/
 
 ## 7. Sprint Status
 
-**Current Sprint:** Sprint 4 (Proxima pantalla - retro-driven)
+**Current Sprint:** Sprint 6 (PBI-203844 reemb_pago - construccion MVP)
+
+**Aclaracion de numeracion:**
+- Ciclo actual del PBI-203844: Sprint 1 = Sprint 5 global, Sprint 2 = Sprint 6 global, Sprint 3 = Sprint 7 global.
 
 **✅ COMPLETED SPRINTS:**
 
@@ -212,27 +215,29 @@ migracion-forms-infoplan/
 - 🔄 Alineacion de filtro Jasper exacto para convergencia de conteo analitico
 
 **Next Milestones:**
-- Sprint 4 kickoff: retro-consilium + decision D-01 de pantalla objetivo
-- Sprint 4 ejecucion: contrato ORDS, implementacion incremental, QA por fases
-- Continuidad analitica ORDS/Jasper como linea no bloqueante
+- Sprint 6: construccion incremental del flujo principal MVP
+- Sprint 7: QA integral, estabilizacion y cierre
+- Sprint 8: contingencia solo si se activan gatillos definidos (Sev 1/2 o dependencia critica)
 
 **Timeline:**
 - Sprint 1: Completed ✅
 - Sprint 2: Completed ✅
 - Sprint 3: cierre funcional de pantalla completado
-- Sprint 4: preparado para inicio (D-01 pendiente)
+- Sprint 4: cerrado como handoff de planning
+- Sprint 5: cerrado con GO (equivale a Sprint 1 del ciclo PBI-203844)
+- Sprint 6: activo
 
 ---
 
 ## 8. Current State
 
-**As of 2026-06-16 (pre-arranque Sprint 4):**
+**As of 2026-06-17 (inicio Sprint 6):**
 
-- **Project Mode:** Transicion controlada a siguiente pantalla.
+- **Project Mode:** Construccion MVP activa con ejecucion incremental por fases.
 - **Runtime Target:** `localhost:3000` definido como entorno QA operativo local para ORDS.
-- **Delivery Target:** Ejecutar siguiente pantalla con acuerdos de retro y gates reforzados.
+- **Delivery Target:** Entregar flujo MVP operativo y evidencia QA incremental para habilitar Sprint 7.
 - **QA Ready:** Acta final emitida en `docs/qa/sprint-3-signoff.md` (GO).
-- **Gate activo:** GO para inicio de Sprint 4, condicionado a D-01.
+- **Gate activo:** Sprint 6 activo, manteniendo restriccion ORDS de aprobacion explicita para endpoints nuevos.
 - **Estado de bug ALTA #1:** CERRADO (linea anterior).
 
 **Sprint 1 Deliverables (Validated):**
@@ -243,10 +248,10 @@ migracion-forms-infoplan/
 - 0 Sev 1-2 defects identified
 - Git branch feature/sprint-1-rep-aprobarechazo pushed and ready for PR
 
-**Siguiente paso operativo (Sprint 4):**
-1. Ejecutar retrospectiva-consilium y cerrar decisiones D-01..D-05.
-2. Definir pantalla objetivo y alcance MVP.
-3. Iniciar descubrimiento tecnico-funcional con contrato de datos temprano.
+**Siguiente paso operativo (Sprint 6):**
+1. Ejecutar incremento 1 (busqueda afiliado + datos de reembolso).
+2. Integrar solicitud servicio/coberturas con contrato v1.
+3. Publicar evidencia QA incremental y decision de gate diaria.
 
 **Intake Structure Policy (mandatory):**
 - Each PBI uses a mother folder: `docs/intake/pantallas/PBI-<id_pbi>/`
@@ -255,8 +260,8 @@ migracion-forms-infoplan/
 - Execution tracking in: `orquestacion/` (`plan.md`, `progress.md`, `done.md`)
 - No PBI operational artifacts outside its mother folder.
 
-**Current Blockers (Sprint 4 kickoff):**
-- D-01 no cerrada: pantalla objetivo aun por definir.
+**Current Blockers (Sprint 6 pre-start):**
+- Validacion tecnica en ambiente de ejecucion de contratos adaptados de CRUD.
 - GitHub CLI no instalado en workstation — Dash pendiente de instalacion para PR automation.
 
 ---
